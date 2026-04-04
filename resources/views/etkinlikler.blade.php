@@ -2,6 +2,7 @@
 
 @section('title', 'Etkinlikler - Fırat Üniversitesi')
 @section('data-page', 'events')
+@section('page-title', 'Etkinlikler')
 
 @section('content')
     <!-- Hero Section -->
