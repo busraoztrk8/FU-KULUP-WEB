@@ -129,11 +129,71 @@
         }, 5000);
     }
 
+    // ── STATS COUNTER ─────────────────────────────────────────
+    function initStatsCounter() {
+        var counters = document.querySelectorAll('.stat-counter');
+        var obs = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (e.isIntersecting) {
+                    var el = e.target;
+                    var target = parseInt(el.dataset.target);
+                    var count = 0;
+                    var duration = 2000; // 2 seconds
+                    var increment = target / (duration / 16); // 60fps approx
+                    
+                    var updateCount = function() {
+                        count += increment;
+                        if (count < target) {
+                            el.innerText = Math.ceil(count);
+                            requestAnimationFrame(updateCount);
+                        } else {
+                            el.innerText = target;
+                        }
+                    };
+                    
+                    updateCount();
+                    obs.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(function (c) {
+            obs.observe(c);
+        });
+    }
+
+    // ── GALLERY SWIPER ──────────────────────────────────────
+    function initGallerySwiper() {
+        if (!document.querySelector('.gallery-swiper')) return;
+        
+        new Swiper('.gallery-swiper', {
+            slidesPerView: 'auto',
+            spaceBetween: 24,
+            centeredSlides: false,
+            grabCursor: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+                dynamicBullets: true,
+            },
+            breakpoints: {
+                320: {
+                    spaceBetween: 16
+                },
+                1024: {
+                    spaceBetween: 32
+                }
+            }
+        });
+    }
+    
     // ── INIT ────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function () {
         initNavbarBehavior();
         initHeroSlider();
         initAnimations();
+        initStatsCounter();
+        initGallerySwiper();
 
         var page = getPage();
         if (page === 'events') initEventsTabs();

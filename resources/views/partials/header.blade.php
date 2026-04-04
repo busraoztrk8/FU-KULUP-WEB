@@ -1,14 +1,14 @@
 <!-- Header -->
 <header id="main-nav"
     class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5 transition-all duration-300">
-    <nav class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+    <nav class="flex justify-between items-center px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto">
 
         <!-- Logo / Branding -->
-        <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0">
+        <a href="{{ route('home') }}" class="flex items-center gap-2 md:gap-3 group shrink-0">
             <img src="{{ asset('images/logo_orj.png') }}" alt="FIRAT ÜNİVERSİTESİ Logo"
-                class="h-10 w-auto object-contain">
+                class="h-8 md:h-10 w-auto object-contain">
             <div
-                class="text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight">
+                class="text-sm sm:text-base md:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight">
                 FIRAT ÜNİVERSİTESİ
             </div>
         </a>
@@ -30,12 +30,12 @@
         </div>
 
         <!-- Right Actions -->
-        <div class="flex items-center space-x-6">
-            <div class="flex items-center space-x-4 text-on-surface">
+        <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6">
+            <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
                 <span
-                    class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">notifications</span>
+                    class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors hidden sm:inline">notifications</span>
                 <span
-                    class="text-xs font-bold cursor-pointer hover:text-primary transition-colors border-r border-black/10 pr-4 mr-2">TR/EN</span>
+                    class="text-xs font-bold cursor-pointer hover:text-primary transition-colors border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2 hidden sm:inline">TR/EN</span>
 
                 @auth
                     <!-- User Dropdown Component -->
@@ -89,13 +89,13 @@
                     </div>
                 @else
                     <span
-                        class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">account_circle</span>
+                        class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors hidden sm:inline">account_circle</span>
                 @endauth
             </div>
 
             @guest
                 <a href="{{ route('register') }}"
-                    class="bg-gradient-primary text-white px-6 py-2 rounded-full font-bold text-sm scale-95 active:scale-90 transition-transform shadow-lg shadow-primary/20 block text-center">
+                    class="bg-gradient-primary text-white px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm scale-95 active:scale-90 transition-transform shadow-lg shadow-primary/20 block text-center whitespace-nowrap">
                     Kayıt Ol
                 </a>
             @endguest

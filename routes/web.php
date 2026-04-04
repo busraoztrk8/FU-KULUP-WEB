@@ -10,22 +10,11 @@ use App\Http\Controllers\Admin\HaberController;
 use App\Http\Controllers\Admin\DuyuruController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Public routes
 Route::get('/etkinlikler', function () {
@@ -99,6 +88,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
     // Menü Yönetimi
     Route::get('/menu', [MenuController::class, 'index'])->name('menu');
+
+    // Galeri Yönetimi
+    Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery');
+    Route::post('/galeri', [GalleryController::class, 'store'])->name('gallery.store');
+    Route::put('/galeri/{gallery}', [GalleryController::class, 'update'])->name('gallery.update');
+    Route::delete('/galeri/{gallery}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
 });
 
 require __DIR__.'/auth.php';
