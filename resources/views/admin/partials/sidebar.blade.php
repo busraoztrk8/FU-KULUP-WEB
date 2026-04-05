@@ -1,7 +1,15 @@
 @php
-    $currentPage = $page ?? 'dashboard';
+    $currentPage = 'dashboard';
+    if (request()->routeIs('admin.haberler*')) $currentPage = 'news';
+    elseif (request()->routeIs('admin.etkinlikler*')) $currentPage = 'events';
+    elseif (request()->routeIs('admin.duyurular*')) $currentPage = 'announcements';
+    elseif (request()->routeIs('admin.kulupler*')) $currentPage = 'clubs';
+    elseif (request()->routeIs('admin.slider*')) $currentPage = 'slider';
+    elseif (request()->routeIs('admin.gallery*')) $currentPage = 'gallery';
+    elseif (request()->routeIs('admin.kullanicilar*')) $currentPage = 'users';
+    elseif (request()->routeIs('admin.menu*')) $currentPage = 'menu';
+    elseif (request()->routeIs('admin.ayarlar*')) $currentPage = 'settings';
 @endphp
-
 <div class="flex flex-col h-full">
     <div class="px-6 h-[72px] flex items-center border-b border-slate-100 shrink-0">
         <a href="{{ route('home') }}" class="flex items-center gap-3">

@@ -41,22 +41,25 @@
     <section class="py-10 md:py-16 border-b border-black/5 bg-white">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-12 text-center">
-                <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors" data-animate>
-                    <div class="text-3xl md:text-4xl font-headline font-extrabold text-gradient mb-2">
-                        <span class="stat-counter" data-target="100">0</span>+ Kulüp
+                <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors flex flex-col items-center justify-center h-full" data-animate>
+                    <div class="text-4xl md:text-5xl font-headline font-extrabold text-gradient mb-1 flex items-center justify-center tabular-nums">
+                        <span class="stat-counter" data-target="100">0</span><span>+</span>
                     </div>
+                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">Kulüp</div>
                     <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">Aktif Topluluk</div>
                 </div>
-                <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors" data-animate>
-                    <div class="text-3xl md:text-4xl font-headline font-extrabold text-gradient mb-2">
-                        <span class="stat-counter" data-target="10">0</span>K+ Öğrenci
+                <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors flex flex-col items-center justify-center h-full" data-animate>
+                    <div class="text-4xl md:text-5xl font-headline font-extrabold text-gradient mb-1 flex items-center justify-center tabular-nums">
+                        <span class="stat-counter" data-target="10">0</span><span>K+</span>
                     </div>
+                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">Öğrenci</div>
                     <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">Kayıtlı Üye</div>
                 </div>
-                <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors" data-animate>
-                    <div class="text-3xl md:text-4xl font-headline font-extrabold text-gradient mb-2">
-                        <span class="stat-counter" data-target="50">0</span>+ Günlük Etkinlik
+                <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors flex flex-col items-center justify-center h-full" data-animate>
+                    <div class="text-4xl md:text-5xl font-headline font-extrabold text-gradient mb-1 flex items-center justify-center tabular-nums">
+                        <span class="stat-counter" data-target="50">0</span><span>+</span>
                     </div>
+                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">Günlük Etkinlik</div>
                     <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">Sürekli Hareketlilik</div>
                 </div>
             </div>
@@ -72,7 +75,7 @@
                     <div class="h-1.5 w-20 bg-primary rounded-full"></div>
                 </div>
                 <a class="text-primary font-bold flex items-center hover:underline transition-all text-sm md:text-base"
-                    href="{{ route('etkinlikler') }}">
+                    href="{{ route('tum-etkinlikler') }}">
                     Tümünü Görüntüle <span class="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
                 </a>
             </div>
@@ -263,12 +266,15 @@
                                             ? ($imgIndex % 2 == 0 ? 'h-60 md:h-80' : 'h-48 md:h-64') 
                                             : ($imgIndex % 2 == 0 ? 'h-48 md:h-64' : 'h-60 md:h-80');
                                     @endphp
-                                    <div class="relative group {{ $heightClass }} overflow-hidden rounded-2xl md:rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500">
+                                    <div class="relative group cursor-pointer {{ $heightClass }} overflow-hidden rounded-2xl md:rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500">
                                         <img alt="{{ $image->title ?? 'Kampüs Yaşamı' }}"
-                                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                             src="{{ asset('storage/' . $image->image_path) }}" />
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4 md:p-6">
+                                        <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4 md:p-6">
                                             <p class="text-white text-sm font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{{ $image->title }}</p>
+                                        </div>
+                                        <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                            <span class="material-symbols-outlined text-white text-base">zoom_in</span>
                                         </div>
                                     </div>
                                 @endforeach

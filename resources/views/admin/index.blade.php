@@ -15,7 +15,7 @@
             </div>
             <span class="badge badge-success">+12%</span>
         </div>
-        <p class="text-[32px] font-bold font-headline text-slate-800 leading-none" data-count="24">0</p>
+        <p class="text-[32px] font-bold font-headline text-slate-800 leading-none" data-count="{{ $stats['total_news'] }}">0</p>
         <p class="text-sm text-slate-500 mt-2 font-medium">Toplam Haber</p>
     </div>
     <div class="admin-card">
@@ -35,7 +35,7 @@
             </div>
             <span class="badge badge-warning">Aktif</span>
         </div>
-        <p class="text-[32px] font-bold font-headline text-slate-800 leading-none" data-count="8">0</p>
+        <p class="text-[32px] font-bold font-headline text-slate-800 leading-none" data-count="{{ $stats['total_announcements'] }}">0</p>
         <p class="text-sm text-slate-500 mt-2 font-medium">Toplam Duyuru</p>
     </div>
     <div class="admin-card">
@@ -63,20 +63,21 @@
             <button onclick="showToast('Yeni Haber ekleme formu açılacak', 'success')" class="bg-primary hover:bg-primary-dim text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm">+ Ekle</button>
         </div>
         <div class="p-6 space-y-4 overflow-y-auto flex-1">
-            <div class="flex items-start justify-between border-b border-slate-50 pb-4 last:border-0 last:pb-0 hover:bg-slate-50 cursor-pointer p-2 -mx-2 rounded transition-colors" onclick="showToast('Haber detaylarına yönlendiriliyor...', 'info')">
+            @forelse($recentNews as $news)
+            <div class="flex items-start justify-between border-b border-slate-50 pb-4 last:border-0 last:pb-0 hover:bg-slate-50 cursor-pointer p-2 -mx-2 rounded transition-colors" onclick="window.location.href='{{ route('admin.haberler') }}'">
                 <div>
-                    <h4 class="text-[14px] font-bold text-slate-800 mb-1">Hazar Gölü'nün Ramsar Alanı Sürecine...</h4>
-                    <span class="text-[12px] font-medium text-slate-500">21.02.2026</span>
+                    <h4 class="text-[14px] font-bold text-slate-800 mb-1">{{ Str::limit($news->title, 40) }}</h4>
+                    <span class="text-[12px] font-medium text-slate-500">{{ $news->created_at->format('d.m.Y') }}</span>
                 </div>
+                @if($news->is_published)
                 <span class="badge badge-success shrink-0 ml-3">Yayında</span>
+                @else
+                <span class="badge badge-warning shrink-0 ml-3">Taslak</span>
+                @endif
             </div>
-            <div class="flex items-start justify-between border-b border-slate-50 pb-4 last:border-0 last:pb-0 hover:bg-slate-50 cursor-pointer p-2 -mx-2 rounded transition-colors" onclick="showToast('Haber detaylarına yönlendiriliyor...', 'info')">
-                <div>
-                    <h4 class="text-[14px] font-bold text-slate-800 mb-1">Sosyal Bilimlerde Yöntem Konulu Konf...</h4>
-                    <span class="text-[12px] font-medium text-slate-500">21.02.2026</span>
-                </div>
-                <span class="badge badge-success shrink-0 ml-3">Yayında</span>
-            </div>
+            @empty
+            <p class="text-sm text-slate-400 text-center py-4">Henüz haber yok.</p>
+            @endforelse
         </div>
     </div>
 
@@ -116,12 +117,21 @@
             <button onclick="showToast('Yeni Duyuru ekleme formu açılacak', 'success')" class="bg-secondary hover:bg-[#b06cf0] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm">+ Ekle</button>
         </div>
         <div class="p-6 space-y-4 overflow-y-auto flex-1">
-            <div class="flex items-start justify-between border-b border-slate-50 pb-4 last:border-0 last:pb-0 hover:bg-slate-50 cursor-pointer p-2 -mx-2 rounded transition-colors" onclick="showToast('Duyuru detaylarına yönlendiriliyor...', 'info')">
+            @forelse($recentAnnouncements as $announcement)
+            <div class="flex items-start justify-between border-b border-slate-50 pb-4 last:border-0 last:pb-0 hover:bg-slate-50 cursor-pointer p-2 -mx-2 rounded transition-colors" onclick="window.location.href='{{ route('admin.duyurular') }}'">
                 <div>
-                    <h4 class="text-[14px] font-bold text-slate-800 mb-1">Öğrenci Seçim Sonuçları Açıklandı...</h4>
-                    <span class="text-[12px] font-medium text-slate-500">21.02.2026</span>
+                    <h4 class="text-[14px] font-bold text-slate-800 mb-1">{{ Str::limit($announcement->title, 40) }}</h4>
+                    <span class="text-[12px] font-medium text-slate-500">{{ $announcement->created_at->format('d.m.Y') }}</span>
                 </div>
+                @if($announcement->is_published)
+                <span class="badge badge-success shrink-0 ml-3">Yayında</span>
+                @else
+                <span class="badge badge-warning shrink-0 ml-3">Taslak</span>
+                @endif
             </div>
+            @empty
+            <p class="text-sm text-slate-400 text-center py-4">Henüz duyuru yok.</p>
+            @endforelse
         </div>
     </div>
 

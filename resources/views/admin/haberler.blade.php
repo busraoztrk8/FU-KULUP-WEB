@@ -5,6 +5,19 @@
 
 @section('content')
 
+@push('styles')
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<style>
+.dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0.25em 0.5em; border-radius: 6px; border:1px solid transparent; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #f8fafc; border-color: #e2e8f0; }
+.dataTables_length, .dataTables_info { font-size: 0.875rem; color: #64748b; padding: 10px 24px; }
+.dataTables_filter { display: none; /* Kendi arama kutumuzu kullanacağız */ }
+.dataTables_paginate { padding: 10px 24px; font-size: 0.875rem; }
+table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e2e8f0; }
+table.dataTable.no-footer { border-bottom: 1px solid #e2e8f0; }
+</style>
+@endpush
+
 @if(session('success'))
 <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium flex items-center gap-2">
     <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ session('success') }}
@@ -15,7 +28,7 @@
     <div class="flex items-center gap-3">
         <div class="relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
-            <input type="text" placeholder="Haber ara..." class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-64 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+            <input type="text" id="haber-ara" placeholder="Haber ara (DataTable)..." class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-64 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
         </div>
         <select class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm">
             <option>Tüm Durumlar</option>
@@ -30,60 +43,18 @@
 
 <div class="admin-card p-0 overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
-        <table class="admin-table">
+        <table class="admin-table w-full" id="haberler-table">
             <thead>
                 <tr>
-                    <th><input type="checkbox" class="rounded border-slate-300 text-primary focus:ring-primary/30"/></th>
+                    <th class="w-12 text-center">#</th>
                     <th>Başlık</th>
-                    <th>Kategori</th>
                     <th>Tarih</th>
                     <th>Durum</th>
                     <th class="text-right">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><input type="checkbox" class="row-checkbox rounded border-slate-300 text-primary focus:ring-primary/30"/></td>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-primary text-[18px]">article</span>
-                            </div>
-                            <span class="font-semibold text-slate-800">Hazar Gölü'nün Ramsar Alanı Süreci</span>
-                        </div>
-                    </td>
-                    <td><span class="badge badge-primary">Akademik</span></td>
-                    <td class="text-slate-500">21.02.2026</td>
-                    <td><span class="badge badge-success shadow-sm">Yayında</span></td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-1">
-                            <button onclick="showHaberDetay('Hazar Gölü Haberi')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Görüntüle"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
-                            <button onclick="showHaberDuzenle('Hazar Gölü\'nün Ramsar Alanı Süreci')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                            <button onclick="showDeleteModal('Hazar Gölü Haberi')" class="action-btn action-btn-danger text-slate-400" title="Sil"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="row-checkbox rounded border-slate-300 text-primary focus:ring-primary/30"/></td>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-primary text-[18px]">article</span>
-                            </div>
-                            <span class="font-semibold text-slate-800">Sosyal Bilimlerde Yöntem Konferansı</span>
-                        </div>
-                    </td>
-                    <td><span class="badge badge-info">Etkinlik</span></td>
-                    <td class="text-slate-500">21.02.2026</td>
-                    <td><span class="badge badge-success shadow-sm">Yayında</span></td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-1">
-                            <button onclick="showHaberDetay('Sosyal Bilimler Haberi')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Görüntüle"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
-                            <button onclick="showHaberDuzenle('Sosyal Bilimlerde Yöntem Konferansı')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                            <button onclick="showDeleteModal('Sosyal Bilimler Haberi')" class="action-btn action-btn-danger text-slate-400" title="Sil"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                        </div>
-                    </td>
-                </tr>
+                <!-- DataTables will fill this -->
             </tbody>
         </table>
     </div>
@@ -188,26 +159,56 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
+$(document).ready(function() {
+    $('#haberler-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('admin.haberler') }}",
+        columns: [
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center'},
+            {data: 'title', name: 'title'},
+            {data: 'published_at', name: 'published_at'},
+            {data: 'is_published', name: 'is_published'},
+            {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right'},
+        ],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+        }
+    });
+
+    // Arama kutusunu bağla
+    $('#haber-ara').keyup(function(){
+        $('#haberler-table').DataTable().search($(this).val()).draw();
+    });
+});
+
 function showHaberModal() {
     document.getElementById('haber-modal-title').textContent = 'Yeni Haber Ekle';
     document.getElementById('haber-baslik').value = '';
     document.getElementById('haber-modal').classList.remove('hidden');
 }
-function showHaberDuzenle(baslik) {
+function showHaberDuzenle(id) {
     document.getElementById('haber-modal-title').textContent = 'Haberi Düzenle';
-    document.getElementById('haber-baslik').value = baslik;
     document.getElementById('haber-modal').classList.remove('hidden');
 }
 function hideHaberModal() {
     document.getElementById('haber-modal').classList.add('hidden');
 }
-function showHaberDetay(baslik) {
-    document.getElementById('detay-baslik').textContent = baslik;
+function showHaberDetay(id) {
     document.getElementById('haber-detay-modal').classList.remove('hidden');
 }
 function hideHaberDetay() {
     document.getElementById('haber-detay-modal').classList.add('hidden');
+}
+function showDeleteModal(id, baslik) {
+    document.getElementById('delete-item-name').textContent = baslik;
+    document.getElementById('delete-modal').classList.remove('hidden');
+}
+function hideDeleteModal() {
+    document.getElementById('delete-modal').classList.add('hidden');
 }
 </script>
 @endpush

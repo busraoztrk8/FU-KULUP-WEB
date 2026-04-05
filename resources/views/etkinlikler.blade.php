@@ -58,15 +58,33 @@
         <!-- Tab Content 1: Calendar View (Default) -->
         <div id="calendar-view" class="tab-content active grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10"
             data-tab-content="calendar">
+@php
+    \Carbon\Carbon::setLocale('tr');
+    $currentDateStr = request('date', now()->format('Y-m-d'));
+    $currentDate = \Carbon\Carbon::parse($currentDateStr);
+    $year = $currentDate->year;
+    $month = $currentDate->month;
+    $startOfMonth = \Carbon\Carbon::createFromDate($year, $month, 1);
+    $endOfMonth = $startOfMonth->copy()->endOfMonth();
+    
+    $startDayOfWeek = $startOfMonth->dayOfWeekIso;
+    
+    // Group events by date part
+    $eventsByDate = isset($events) ? $events->groupBy(function($e) {
+        return \Carbon\Carbon::parse($e->start_time)->format('Y-m-d');
+    }) : collect();
+    
+    $selectedEvents = $eventsByDate->get($currentDateStr, collect());
+@endphp
             <!-- Calendar Side -->
             <div class="lg:col-span-1 bg-slate-50 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 border border-slate-100 h-fit">
                 <div class="flex justify-between items-center mb-6 md:mb-8">
-                    <h3 class="font-headline font-bold text-lg md:text-xl text-on-background">Mayıs 2024</h3>
+                    <h3 class="font-headline font-bold text-lg md:text-xl text-on-background capitalize">{{ $startOfMonth->translatedFormat('F Y') }}</h3>
                     <div class="flex gap-2">
-                        <button class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
-                                class="material-symbols-outlined">chevron_left</span></button>
-                        <button class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
-                                class="material-symbols-outlined">chevron_right</span></button>
+                        <a href="?date={{ $startOfMonth->copy()->subMonth()->format('Y-m-d') }}#calendar-view" class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
+                                class="material-symbols-outlined">chevron_left</span></a>
+                        <a href="?date={{ $startOfMonth->copy()->addMonth()->format('Y-m-d') }}#calendar-view" class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
+                                class="material-symbols-outlined">chevron_right</span></a>
                     </div>
                 </div>
                 <div class="grid grid-cols-7 gap-y-3 md:gap-y-4 text-center mb-4">
@@ -77,50 +95,61 @@
                     <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60">CU</div>
                     <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60 text-primary">CT</div>
                     <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60 text-primary">PA</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-300">29</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-300">30</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">1</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">2</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm bg-primary/10 text-primary rounded-lg md:rounded-xl font-bold relative">
-                        3
-                        <span
-                            class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
-                    </div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">4</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">5</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">6</div>
-                    <div
-                        class="p-1.5 md:p-2 text-xs md:text-sm font-bold bg-primary text-white rounded-lg md:rounded-xl shadow-lg ring-2 md:ring-4 ring-primary/10">
-                        7</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">8</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">9</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600 relative">
-                        10
-                        <span
-                            class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-tertiary rounded-full"></span>
-                    </div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">11</div>
-                    <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-600">12</div>
+                    
+                    @for($i = 1; $i < $startDayOfWeek; $i++)
+                        <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-300">
+                            {{ $startOfMonth->copy()->subDays($startDayOfWeek - $i)->day }}
+                        </div>
+                    @endfor
+                    
+                    @for($day = 1; $day <= $endOfMonth->day; $day++)
+                        @php
+                            $dateStr = sprintf('%04d-%02d-%02d', $year, $month, $day);
+                            $hasEvents = $eventsByDate->has($dateStr);
+                            $isSelected = $dateStr === $currentDateStr;
+                            $isToday = $dateStr === now()->format('Y-m-d');
+                            $eventDotClass = 'bg-primary';
+                        @endphp
+                        
+                        @if($isSelected)
+                            <a href="?date={{ $dateStr }}#calendar-view" class="p-1.5 md:p-2 text-xs md:text-sm font-bold bg-primary text-white rounded-lg md:rounded-xl shadow-lg ring-2 md:ring-4 ring-primary/10 relative block hover:scale-105 transition-transform">
+                                {{ $day }}
+                                @if($hasEvents)
+                                    <span class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full"></span>
+                                @endif
+                            </a>
+                        @else
+                            <a href="?date={{ $dateStr }}#calendar-view" class="p-1.5 md:p-2 text-xs md:text-sm {{ $hasEvents ? 'font-bold text-primary bg-primary/10 rounded-lg md:rounded-xl' : ($isToday ? 'text-primary font-bold' : 'text-slate-600') }} relative block hover:bg-slate-100 rounded-lg transition-colors">
+                                {{ $day }}
+                                @if($hasEvents)
+                                    <span class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 {{ $eventDotClass }} rounded-full"></span>
+                                @endif
+                            </a>
+                        @endif
+                    @endfor
+                    
+                    @php $endDayOfWeek = $endOfMonth->dayOfWeekIso; @endphp
+                    @if($endDayOfWeek < 7)
+                        @for($i = 1; $i <= (7 - $endDayOfWeek); $i++)
+                            <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-300">
+                                {{ $endOfMonth->copy()->addDays($i)->day }}
+                            </div>
+                        @endfor
+                    @endif
                 </div>
                 <div class="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-200">
                     <h4 class="text-sm font-bold mb-3 md:mb-4 flex items-center gap-2 text-on-background">
                         <span class="material-symbols-outlined text-primary text-sm"
-                            style="font-variation-settings: 'FILL' 1;">circle</span>
+                            style="font-variation-settings: 'FILL' 1;">category</span>
                         Kategoriler
                     </h4>
-                    <ul class="space-y-2 md:space-y-3">
-                        <li class="flex items-center justify-between text-sm">
-                            <span class="text-on-surface-variant">Akademik Konferans</span>
-                            <span class="w-2 h-2 rounded-full bg-primary"></span>
+                    <ul class="space-y-2 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-2">
+                        @foreach(\App\Models\Category::take(6)->get() as $cat)
+                        <li class="flex items-center text-sm gap-2">
+                            <span class="w-2 h-2 rounded-full bg-primary/80"></span>
+                            <span class="text-on-surface-variant truncate" title="{{ $cat->name }}">{{ $cat->name }}</span>
                         </li>
-                        <li class="flex items-center justify-between text-sm">
-                            <span class="text-on-surface-variant">Kariyer Günleri</span>
-                            <span class="w-2 h-2 rounded-full bg-tertiary"></span>
-                        </li>
-                        <li class="flex items-center justify-between text-sm">
-                            <span class="text-on-surface-variant">Sosyal Etkinlik</span>
-                            <span class="w-2 h-2 rounded-full bg-secondary"></span>
-                        </li>
+                        @endforeach
                     </ul>
                 </div>
             </div>
@@ -128,77 +157,60 @@
             <!-- Event List Side -->
             <div class="lg:col-span-1 space-y-4 md:space-y-6">
                 <div class="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 class="font-headline font-bold text-lg md:text-xl text-on-background">7 Mayıs, Salı</h3>
-                    <span class="text-on-surface-variant text-xs md:text-sm">3 Etkinlik Bulundu</span>
+                    <h3 class="font-headline font-bold text-lg md:text-xl text-on-background capitalize">{{ $currentDate->translatedFormat('j F, l') }}</h3>
+                    <span class="text-on-surface-variant text-xs md:text-sm">{{ $selectedEvents->count() }} Etkinlik Bulundu</span>
                 </div>
-                <!-- Event Item 1 -->
-                <a href="{{ route('etkinlik.detay', ['slug' => 'robotik-sistemler-ve-yapay-sinir-aglari']) }}"
+                
+                @forelse($selectedEvents as $event)
+                <a href="{{ route('etkinlik.detay', ['slug' => $event->slug]) }}"
                     class="group bg-white border border-slate-100 hover:border-primary/30 hover:shadow-xl rounded-2xl md:rounded-[2rem] p-4 sm:p-5 md:p-6 transition-all duration-300 flex flex-col sm:flex-row gap-4 md:gap-6 items-start">
-                    <div class="w-full sm:w-40 md:w-48 h-32 rounded-xl md:rounded-2xl overflow-hidden shrink-0">
-                        <img alt="Robotics Lab"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7Pr3Bd9lO7zz1OtX8bLbtRlbvZeexoAnlTkGU7KNtHDaIsXbf49Oik9tTHE8BTZLhgEexI9p5im9I8FrDRaVV2K-VpXYkNIcWZzrtUneEpZek65YoLPgCBr5B6gN5wSFVaWkOroy8VQb7o7l6DBv0cr3KNApCdfprnirugWlW8dRDlE_8hfOqg3NL1xCa0Ec6laLEfUGAJ2GPLBFAlymhG0t6SVi5C6upGq9BKU8vBSWwsdjjU2F2QE5Kz_4kQPgbSfxftkprNq8" />
+                    <div class="w-full sm:w-40 md:w-48 h-32 rounded-xl md:rounded-2xl overflow-hidden shrink-0 bg-slate-100">
+                        @if($event->image)
+                            <img alt="{{ $event->title }}"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                src="{{ asset('storage/' . $event->image) }}" />
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-slate-300">
+                                <span class="material-symbols-outlined text-4xl">event</span>
+                            </div>
+                        @endif
                     </div>
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 flex flex-col h-full">
                         <div class="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
-                            <span
-                                class="bg-primary/10 text-primary text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">Atölye</span>
+                            @if($event->category)
+                            <span class="bg-primary/10 text-primary text-[10px] font-extrabold uppercase px-2 py-0.5 rounded truncate max-w-[120px]">{{ $event->category->name }}</span>
+                            @endif
                             <span class="text-on-surface-variant text-xs flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">schedule</span> 14:00 - 16:30
+                                <span class="material-symbols-outlined text-xs">schedule</span> 
+                                {{ \Carbon\Carbon::parse($event->start_time)->format('H:i') }}
+                                @if($event->end_time)
+                                 - {{ \Carbon\Carbon::parse($event->end_time)->format('H:i') }}
+                                @endif
                             </span>
                         </div>
-                        <h4
-                            class="text-lg md:text-xl font-bold font-headline mb-2 text-on-background group-hover:text-primary transition-colors">
-                            Robotik Sistemler ve Yapay Sinir Ağları</h4>
-                        <p class="text-on-surface-variant text-sm mb-3 md:mb-4 line-clamp-2 leading-relaxed">Mühendislik
-                            fakültesi laboratuvarlarında gerçekleştirilecek olan uygulamalı eğitim serisinin ilk
-                            oturumu.</p>
-                        <div class="flex items-center justify-between flex-wrap gap-2">
+                        <h4 class="text-lg md:text-xl font-bold font-headline mb-2 text-on-background group-hover:text-primary transition-colors">
+                            {{ $event->title }}</h4>
+                        <p class="text-on-surface-variant text-sm mb-3 md:mb-4 line-clamp-2 leading-relaxed flex-1">
+                            {{ $event->short_description ?? strip_tags($event->description) }}
+                        </p>
+                        <div class="flex items-center justify-between mt-auto flex-wrap gap-2">
                             <div class="flex items-center gap-1 md:gap-2">
                                 <span class="material-symbols-outlined text-primary text-base md:text-lg">location_on</span>
-                                <span class="text-xs text-on-surface-variant">Lab 402, Mühendislik</span>
+                                <span class="text-xs text-on-surface-variant truncate max-w-[150px]">{{ $event->location ?? 'Belirtilmedi' }}</span>
                             </div>
-                            <div
-                                class="text-primary font-bold text-sm flex items-center gap-1 opacity-100 transition-opacity">
-                                Kaydol <span class="material-symbols-outlined text-sm">open_in_new</span>
+                            <div class="text-primary font-bold text-sm flex items-center gap-1 opacity-100 transition-opacity">
+                                İncele <span class="material-symbols-outlined text-sm">open_in_new</span>
                             </div>
                         </div>
                     </div>
                 </a>
-                <!-- Event Item 2 -->
-                <a href="{{ route('etkinlik.detay', ['slug' => 'girisimcilik-ve-inovasyon-paneli']) }}"
-                    class="group bg-white border border-slate-100 hover:border-primary/30 hover:shadow-xl rounded-2xl md:rounded-[2rem] p-4 sm:p-5 md:p-6 transition-all duration-300 flex flex-col sm:flex-row gap-4 md:gap-6 items-start">
-                    <div class="w-full sm:w-40 md:w-48 h-32 rounded-xl md:rounded-2xl overflow-hidden shrink-0">
-                        <img alt="Business Seminar"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpOtHgvlADgB0kXGp0HzLw8lamM5V-rgVXmtlAbvgqn92KzyU6L0nebIShZVccEV56D0V5af4BdjIeauGFspE2NzGYu-ARxthc8-l7qiSevfG-rUSI8q8MVhMVGsdObXNrGBxjFI_prZfIJxENOMiQeIjgkvAHjapiccs_ZwQoYuSbazhq542HdJUbHH_3Bnx7LfDqpsPyuyjRTodhzfXP2hieRrFC9mz96AFdl4gRAK_WWYW2zv7bfDwoWbI3xQhgEtpEnw-h2pw" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
-                            <span
-                                class="bg-tertiary/10 text-tertiary text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">Kariyer</span>
-                            <span class="text-on-surface-variant text-xs flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">schedule</span> 10:00 - 12:00
-                            </span>
-                        </div>
-                        <h4
-                            class="text-lg md:text-xl font-bold font-headline mb-2 text-on-background group-hover:text-primary transition-colors">
-                            Girişimcilik ve İnovasyon Paneli</h4>
-                        <p class="text-on-surface-variant text-sm mb-3 md:mb-4 line-clamp-2 leading-relaxed">Sektör
-                            liderlerinden başarı hikayeleri ve yeni mezunlar için kariyer fırsatları üzerine
-                            interaktif söyleşi.</p>
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div class="flex items-center gap-1 md:gap-2">
-                                <span class="material-symbols-outlined text-primary text-base md:text-lg">location_on</span>
-                                <span class="text-xs text-on-surface-variant">Büyük Konferans Salonu</span>
-                            </div>
-                            <div
-                                class="text-primary font-bold text-sm flex items-center gap-1 opacity-100 transition-opacity">
-                                Kaydol <span class="material-symbols-outlined text-sm">open_in_new</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
+                @empty
+                <div class="bg-slate-50 border border-dashed border-slate-200 rounded-2xl md:rounded-[2rem] p-8 md:p-12 text-center flex flex-col items-center justify-center h-full min-h-[200px]">
+                    <span class="material-symbols-outlined text-4xl md:text-5xl text-slate-300 mb-3">event_busy</span>
+                    <h4 class="text-slate-600 font-bold mb-1 text-lg">Etkinlik Bulunamadı</h4>
+                    <p class="text-slate-400 text-sm">Bu güne ait planlanmış bir etkinlik gözükmüyor.</p>
+                </div>
+                @endforelse
             </div>
         </div>
 

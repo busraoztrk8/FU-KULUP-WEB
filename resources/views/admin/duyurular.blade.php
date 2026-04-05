@@ -5,11 +5,24 @@
 
 @section('content')
 
+@push('styles')
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<style>
+.dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0.25em 0.5em; border-radius: 6px; border:1px solid transparent; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #f8fafc; border-color: #e2e8f0; }
+.dataTables_length, .dataTables_info { font-size: 0.875rem; color: #64748b; padding: 10px 24px; }
+.dataTables_filter { display: none; /* Kendi arama kutumuzu kullanacağız */ }
+.dataTables_paginate { padding: 10px 24px; font-size: 0.875rem; }
+table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #e2e8f0; }
+table.dataTable.no-footer { border-bottom: 1px solid #e2e8f0; }
+</style>
+@endpush
+
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
         <div class="relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
-            <input type="text" placeholder="Duyuru ara..." class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-64 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+            <input type="text" id="duyuru-ara" placeholder="Duyuru ara (DataTable)..." class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-64 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
         </div>
     </div>
     <button onclick="showDuyuruModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95">
@@ -19,60 +32,18 @@
 
 <div class="admin-card p-0 overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
-        <table class="admin-table">
+        <table class="admin-table w-full" id="duyurular-table">
             <thead>
                 <tr>
-                    <th><input type="checkbox" class="rounded border-slate-300 text-primary focus:ring-primary/30"/></th>
+                    <th class="w-12 text-center">#</th>
                     <th>Başlık</th>
-                    <th>Hedef Kitle</th>
                     <th>Tarih</th>
                     <th>Durum</th>
                     <th class="text-right">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><input type="checkbox" class="row-checkbox rounded border-slate-300 text-primary focus:ring-primary/30"/></td>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-amber-500 text-[18px]">campaign</span>
-                            </div>
-                            <span class="font-semibold text-slate-800">Öğrenci Seçim Sonuçları Açıklandı</span>
-                        </div>
-                    </td>
-                    <td class="text-slate-500">Tüm Öğrenciler</td>
-                    <td class="text-slate-500">21.02.2026</td>
-                    <td><span class="badge badge-success shadow-sm">Aktif</span></td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-1">
-                            <button onclick="showDuyuruDetay('Öğrenci Seçim Sonuçları')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Görüntüle"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
-                            <button onclick="showDuyuruDuzenle('Öğrenci Seçim Sonuçları Açıklandı')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                            <button onclick="showDeleteModal('Öğrenci Seçim Sonuçları')" class="action-btn action-btn-danger text-slate-400" title="Sil"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox" class="row-checkbox rounded border-slate-300 text-primary focus:ring-primary/30"/></td>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-amber-500 text-[18px]">campaign</span>
-                            </div>
-                            <span class="font-semibold text-slate-800">Bahar Dönemi Kayıt Tarihleri</span>
-                        </div>
-                    </td>
-                    <td class="text-slate-500">Tüm Öğrenciler</td>
-                    <td class="text-slate-500">15.01.2026</td>
-                    <td><span class="badge badge-warning shadow-sm">Taslak</span></td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-1">
-                            <button onclick="showDuyuruDetay('Bahar Dönemi Kayıt')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Görüntüle"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
-                            <button onclick="showDuyuruDuzenle('Bahar Dönemi Kayıt Tarihleri')" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                            <button onclick="showDeleteModal('Bahar Dönemi Kayıt')" class="action-btn action-btn-danger text-slate-400" title="Sil"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                        </div>
-                    </td>
-                </tr>
+                <!-- DataTables will fill this -->
             </tbody>
         </table>
     </div>
@@ -146,22 +117,52 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
+$(document).ready(function() {
+    $('#duyurular-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('admin.duyurular') }}",
+        columns: [
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center'},
+            {data: 'title', name: 'title'},
+            {data: 'published_at', name: 'published_at'},
+            {data: 'is_published', name: 'is_published'},
+            {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right'},
+        ],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+        }
+    });
+
+    $('#duyuru-ara').keyup(function(){
+        $('#duyurular-table').DataTable().search($(this).val()).draw();
+    });
+});
+
 function showDuyuruModal() {
     document.getElementById('duyuru-modal-title').textContent = 'Yeni Duyuru';
     document.getElementById('duyuru-baslik').value = '';
     document.getElementById('duyuru-modal').classList.remove('hidden');
 }
-function showDuyuruDuzenle(baslik) {
+function showDuyuruDuzenle(id) {
     document.getElementById('duyuru-modal-title').textContent = 'Duyuruyu Düzenle';
-    document.getElementById('duyuru-baslik').value = baslik;
     document.getElementById('duyuru-modal').classList.remove('hidden');
 }
 function hideDuyuruModal() {
     document.getElementById('duyuru-modal').classList.add('hidden');
 }
-function showDuyuruDetay(baslik) {
-    showToast(baslik + ' detayları görüntüleniyor', 'info');
+function showDuyuruDetay(id) {
+    showToast('Duyuru detayları', 'info');
+}
+function showDeleteModal(id, baslik) {
+    document.getElementById('delete-item-name').textContent = baslik;
+    document.getElementById('delete-modal').classList.remove('hidden');
+}
+function hideDeleteModal() {
+    document.getElementById('delete-modal').classList.add('hidden');
 }
 </script>
 @endpush

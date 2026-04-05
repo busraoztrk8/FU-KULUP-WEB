@@ -18,8 +18,22 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Public routes
 Route::get('/etkinlikler', function () {
-    return view('etkinlikler');
+    $events = \App\Models\Event::with(['category', 'club'])
+        ->where('status', 'published')
+        ->orderBy('start_time', 'asc')
+        ->get();
+        
+    return view('etkinlikler', compact('events'));
 })->name('etkinlikler');
+
+Route::get('/tum-etkinlikler', function () {
+    $events = \App\Models\Event::with(['category', 'club'])
+        ->where('status', 'published')
+        ->orderBy('start_time', 'desc')
+        ->paginate(12);
+        
+    return view('tum-etkinlikler', compact('events'));
+})->name('tum-etkinlikler');
 
 Route::get('/kulupler', function () {
     return view('kulupler');

@@ -30,18 +30,14 @@
         if (cl) cl.onclick = close;
         if (ov) ov.onclick = close;
 
-        // Sticky Navbar Scroll Effect
+        // Sticky Navbar Scroll Effect — only shadow, NO height change
         window.addEventListener('scroll', function () {
             var nav = document.getElementById('main-nav');
             if (nav) {
                 if (window.scrollY > 20) {
                     nav.classList.add('scrolled');
-                    nav.style.paddingTop = '8px';
-                    nav.style.paddingBottom = '8px';
                 } else {
                     nav.classList.remove('scrolled');
-                    nav.style.paddingTop = '';
-                    nav.style.paddingBottom = '';
                 }
             }
         });
@@ -171,6 +167,8 @@
             spaceBetween: 24,
             centeredSlides: false,
             grabCursor: true,
+            slidesOffsetBefore: 16,
+            slidesOffsetAfter: 16,
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true,
@@ -178,12 +176,115 @@
             },
             breakpoints: {
                 320: {
-                    spaceBetween: 16
+                    spaceBetween: 16,
+                    slidesOffsetBefore: 16,
+                    slidesOffsetAfter: 16,
                 },
                 1024: {
-                    spaceBetween: 32
+                    spaceBetween: 32,
+                    slidesOffsetBefore: 32,
+                    slidesOffsetAfter: 32,
                 }
             }
+        });
+    }
+
+    // ── GALLERY LIGHTBOX ────────────────────────────────────
+    function initGalleryLightbox() {
+        // Collect all gallery images
+        var galleryImages = document.querySelectorAll('.gallery-swiper img');
+        if (!galleryImages.length) return;
+
+        var allSrcs = [];
+        var allAlts = [];
+        galleryImages.forEach(function(img) {
+            allSrcs.push(img.src);
+            allAlts.push(img.alt || '');
+        });
+
+        var currentIndex = 0;
+
+        // Create lightbox overlay
+        var overlay = document.createElement('div');
+        overlay.id = 'gallery-lightbox';
+        overlay.className = 'gallery-lightbox';
+        overlay.innerHTML = 
+            '<div class="lightbox-backdrop"></div>' +
+            '<button class="lightbox-close" aria-label="Kapat">' +
+                '<span class="material-symbols-outlined">close</span>' +
+            '</button>' +
+            '<button class="lightbox-arrow lightbox-prev" aria-label="Önceki">' +
+                '<span class="material-symbols-outlined">chevron_left</span>' +
+            '</button>' +
+            '<button class="lightbox-arrow lightbox-next" aria-label="Sonraki">' +
+                '<span class="material-symbols-outlined">chevron_right</span>' +
+            '</button>' +
+            '<div class="lightbox-content">' +
+                '<img class="lightbox-img" src="" alt="" />' +
+                '<p class="lightbox-caption"></p>' +
+                '<p class="lightbox-counter"></p>' +
+            '</div>';
+        document.body.appendChild(overlay);
+
+        var lightboxImg = overlay.querySelector('.lightbox-img');
+        var lightboxCaption = overlay.querySelector('.lightbox-caption');
+        var lightboxCounter = overlay.querySelector('.lightbox-counter');
+        var prevBtn = overlay.querySelector('.lightbox-prev');
+        var nextBtn = overlay.querySelector('.lightbox-next');
+        var closeBtn = overlay.querySelector('.lightbox-close');
+        var backdrop = overlay.querySelector('.lightbox-backdrop');
+
+        function showImage(index) {
+            currentIndex = index;
+            lightboxImg.src = allSrcs[index];
+            lightboxImg.alt = allAlts[index];
+            lightboxCaption.textContent = allAlts[index];
+            lightboxCounter.textContent = (index + 1) + ' / ' + allSrcs.length;
+            // Hide arrows if only one image
+            prevBtn.style.display = allSrcs.length > 1 ? '' : 'none';
+            nextBtn.style.display = allSrcs.length > 1 ? '' : 'none';
+        }
+
+        function openLightbox(index) {
+            showImage(index);
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function goNext() {
+            showImage((currentIndex + 1) % allSrcs.length);
+        }
+
+        function goPrev() {
+            showImage((currentIndex - 1 + allSrcs.length) % allSrcs.length);
+        }
+
+        // Attach click to each gallery image
+        galleryImages.forEach(function(img, i) {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openLightbox(i);
+            });
+        });
+
+        closeBtn.addEventListener('click', closeLightbox);
+        backdrop.addEventListener('click', closeLightbox);
+        nextBtn.addEventListener('click', function(e) { e.stopPropagation(); goNext(); });
+        prevBtn.addEventListener('click', function(e) { e.stopPropagation(); goPrev(); });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (!overlay.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') goNext();
+            if (e.key === 'ArrowLeft') goPrev();
         });
     }
     
@@ -194,6 +295,7 @@
         initAnimations();
         initStatsCounter();
         initGallerySwiper();
+        initGalleryLightbox();
 
         var page = getPage();
         if (page === 'events') initEventsTabs();
