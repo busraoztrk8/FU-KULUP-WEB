@@ -155,5 +155,37 @@
         initSidebarToggle();
         animateCounters();
         initTableActions();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
     });
+
+    window.toggleStatus = function (type, id) {
+        $.ajax({
+            url: '/admin/toggle-status',
+            type: 'POST',
+            data: {
+                type: type,
+                id: id
+            },
+            success: function (response) {
+                if (response.success) {
+                    showToast('Durum başarıyla güncellendi.', 'success');
+                    // Reload DataTables if exist
+                    if (typeof $.fn.DataTable !== 'undefined') {
+                        var tables = $.fn.dataTable.tables(true);
+                        $(tables).DataTable().ajax.reload(null, false);
+                    }
+                } else {
+                    showToast('Bir hata oluştu.', 'error');
+                }
+            },
+            error: function () {
+                showToast('Sunucu hatası.', 'error');
+            }
+        });
+    }
 })();

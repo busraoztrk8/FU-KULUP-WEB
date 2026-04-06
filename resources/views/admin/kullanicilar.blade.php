@@ -4,6 +4,10 @@
 @section('page_title', 'Kullanıcı Yönetimi')
 @section('data-page', 'users')
 
+@push('styles')
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
+@endpush
+
 @section('content')
 
 <!-- Stats -->
@@ -49,11 +53,7 @@
 <!-- Actions -->
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
-        <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
-            <input type="text" placeholder="İsim veya e-posta ara..." class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-72 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
-        </div>
-        <select class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm">
+        <select id="role-filter" class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm transition-all">
             <option value="">Tüm Roller</option>
             @foreach($roles as $role)
                 <option value="{{ $role->id }}" {{ request('role_id') == $role->id ? 'selected' : '' }}>{{ $role->label }}</option>
@@ -72,77 +72,23 @@
 
 <!-- Table -->
 <div class="admin-card p-0 overflow-hidden shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="admin-table">
+    <div class="overflow-x-auto w-full pt-4">
+        <table class="w-full" id="kullanicilar-table">
             <thead>
                 <tr>
-                    <th><input id="select-all" type="checkbox" class="rounded border-slate-300 text-primary focus:ring-primary/30"/></th>
-                    <th>Kullanıcı</th>
-                    <th>E-Posta</th>
-                    <th>Rol</th>
-                    <th>Kulüp</th>
-                    <th>Kayıt Tarihi</th>
-                    <th>Durum</th>
-                    <th class="text-right">İşlemler</th>
+                    <th class="w-12 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
+                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KULLANICI</th>
+                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">ROL</th>
+                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KULÜP</th>
+                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KAYIT TARİHİ</th>
+                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">DURUM</th>
+                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">İŞLEMLER</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($users as $user)
-                <tr>
-                    <td><input type="checkbox" class="row-checkbox rounded border-slate-300 text-primary focus:ring-primary/30"/></td>
-                    <td>
-                        <div class="flex items-center gap-3">
-                            @if($user->profile_photo)
-                                <img src="{{ asset('storage/' . $user->profile_photo) }}" class="w-9 h-9 rounded-full object-cover shrink-0 shadow-sm" alt=""/>
-                            @else
-                                <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold shadow-sm">
-                                    {{ strtoupper(substr($user->name, 0, 2)) }}
-                                </div>
-                            @endif
-                            <span class="font-semibold text-slate-800">{{ $user->name }}</span>
-                        </div>
-                    </td>
-                    <td class="text-slate-500">{{ $user->email }}</td>
-                    <td>
-                        @if($user->role)
-                            <span class="badge badge-primary">{{ $user->role->label }}</span>
-                        @else
-                            <span class="text-slate-400 text-sm">—</span>
-                        @endif
-                    </td>
-                    <td class="text-slate-600">{{ $user->club?->name ?? '—' }}</td>
-                    <td class="text-slate-500">{{ $user->created_at->format('d M Y') }}</td>
-                    <td>
-                        @if($user->email_verified_at)
-                            <span class="badge badge-success shadow-sm">Aktif</span>
-                        @else
-                            <span class="badge badge-warning shadow-sm">Doğrulanmadı</span>
-                        @endif
-                    </td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-1">
-                            <button onclick="showKullaniciDuzenle({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->email }}', {{ $user->role_id ?? 'null' }}, {{ $user->club_id ?? 'null' }})" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                            <form action="{{ route('admin.kullanicilar.destroy', $user) }}" method="POST" onsubmit="return confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="action-btn action-btn-danger text-slate-400" title="Sil"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="8" class="text-center py-12 text-slate-400">
-                        <span class="material-symbols-outlined text-[48px] block mb-2">person_off</span>
-                        Henüz kullanıcı bulunmuyor.
-                    </td>
-                </tr>
-                @endforelse
+                <!-- DataTables will fill this -->
             </tbody>
         </table>
-    </div>
-    <div class="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/50 gap-4">
-        <p class="text-sm text-slate-500">Toplam <span class="font-semibold text-slate-700">{{ $users->total() }}</span> kullanıcı</p>
-        <div>{{ $users->links() }}</div>
     </div>
 </div>
 
@@ -155,10 +101,14 @@
         </div>
         <h3 class="text-lg font-bold font-headline text-center text-slate-800 mb-2">Kullanıcıyı engellemek istediğinize emin misiniz?</h3>
         <p class="text-sm text-slate-500 text-center mb-6">"<span id="delete-item-name"></span>" hesabı devre dışı bırakılacaktır.</p>
-        <div class="flex gap-3">
-            <button onclick="hideDeleteModal()" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-all active:scale-95">İptal</button>
-            <button onclick="showToast('Kullanıcı engellendi.', 'error'); hideDeleteModal()" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-all active:scale-95">Engelle</button>
-        </div>
+        <form id="delete-form" method="POST">
+            @csrf
+            @method('DELETE')
+            <div class="flex gap-3">
+                <button type="button" onclick="hideDeleteModal()" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-all active:scale-95">İptal</button>
+                <button type="submit" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-all active:scale-95">Sil</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -222,7 +172,40 @@
 @endsection
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
+$(document).ready(function() {
+    let table = $('#kullanicilar-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('admin.kullanicilar') }}",
+            data: function (d) {
+                d.role_id = $('#role-filter').val();
+            }
+        },
+        columns: [
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium w-12'},
+            {data: 'user_info', name: 'name'},
+            {data: 'role_name', name: 'role.name'},
+            {data: 'club_name', name: 'club.name', orderable: false},
+            {data: 'date', name: 'created_at'},
+            {data: 'status', name: 'status', orderable: false, searchable: false},
+            {data: 'action', name: 'action', orderable: false, searchable: false},
+        ],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
+            paginate: { previous: "Önceki", next: "Sonraki" }
+        },
+        dom: '<"flex flex-col md:flex-row justify-between items-center gap-4 mb-4"l f>rt<"flex flex-col md:flex-row justify-between items-center gap-4 mt-4"i p>',
+    });
+
+    $('#role-filter').change(function(){
+        table.draw();
+    });
+});
+
 function showKullaniciDuzenle(id, adi, email, rolId, kulupId) {
     document.getElementById('edit-kullanici-adi').value = adi;
     document.getElementById('edit-kullanici-email').value = email;
@@ -233,6 +216,16 @@ function showKullaniciDuzenle(id, adi, email, rolId, kulupId) {
 }
 function hideKullaniciDuzenle() {
     document.getElementById('kullanici-duzenle-modal').classList.add('hidden');
+}
+
+function showDeleteModal(id, baslik) {
+    document.getElementById('delete-item-name').textContent = baslik;
+    document.getElementById('delete-form').action = "/admin/kullanicilar/" + id;
+    document.getElementById('delete-modal').classList.remove('hidden');
+}
+
+function hideDeleteModal() {
+    document.getElementById('delete-modal').classList.add('hidden');
 }
 </script>
 @endpush

@@ -30,4 +30,38 @@ class AdminController extends Controller
 
         return view('admin.index', compact('stats', 'recentEvents', 'recentNews', 'recentAnnouncements'));
     }
+
+    public function toggleStatus(\Illuminate\Http\Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        try {
+            if ($type === 'news') {
+                $item = News::findOrFail($id);
+                $item->is_published = !$item->is_published;
+                $item->save();
+                return response()->json(['success' => true, 'status' => $item->is_published]);
+            } elseif ($type === 'announcement') {
+                $item = Announcement::findOrFail($id);
+                $item->is_published = !$item->is_published;
+                $item->save();
+                return response()->json(['success' => true, 'status' => $item->is_published]);
+            } elseif ($type === 'club') {
+                $item = Club::findOrFail($id);
+                $item->is_active = !$item->is_active;
+                $item->save();
+                return response()->json(['success' => true, 'status' => $item->is_active]);
+            } elseif ($type === 'event') {
+                $item = Event::findOrFail($id);
+                // Toggle between published and draft
+                $item->status = ($item->status === 'published') ? 'draft' : 'published';
+                $item->save();
+                return response()->json(['success' => true, 'status' => $item->status]);
+            }
+            return response()->json(['success' => false, 'message' => 'Invalid type']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }

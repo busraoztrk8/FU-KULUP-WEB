@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
 // Admin routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
+    Route::post('/toggle-status', [AdminController::class, 'toggleStatus'])->name('toggle-status');
 
     // Events
     Route::get('/etkinlikler', [EventController::class, 'index'])->name('etkinlikler');
@@ -91,9 +92,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
     // Haberler
     Route::get('/haberler', [HaberController::class, 'index'])->name('haberler');
+    Route::post('/haberler', [HaberController::class, 'store'])->name('haberler.store');
+    Route::put('/haberler/{news}', [HaberController::class, 'update'])->name('haberler.update');
+    Route::delete('/haberler/{news}', [HaberController::class, 'destroy'])->name('haberler.destroy');
 
     // Duyurular
     Route::get('/duyurular', [DuyuruController::class, 'index'])->name('duyurular');
+    Route::post('/duyurular', [DuyuruController::class, 'store'])->name('duyurular.store');
+    Route::put('/duyurular/{announcement}', [DuyuruController::class, 'update'])->name('duyurular.update');
+    Route::delete('/duyurular/{announcement}', [DuyuruController::class, 'destroy'])->name('duyurular.destroy');
 
     // Slider
     Route::get('/slider', [SliderController::class, 'index'])->name('slider');
