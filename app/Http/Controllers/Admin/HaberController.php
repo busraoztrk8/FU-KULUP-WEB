@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\News;
+use App\Models\Club;
 
 class HaberController extends Controller
 {
@@ -11,7 +13,13 @@ class HaberController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $data = \App\Models\News::latest()->get();
+                $query = News::query();
+
+                if (auth()->user()->isEditor()) {
+                    $query->where('club_id', auth()->user()->club_id);
+                }
+
+                $data = $query->latest()->get();
                 return \Yajra\DataTables\Facades\DataTables::of($data)
                     ->addIndexColumn()
                     ->addColumn('image', function($row) {
@@ -86,13 +94,32 @@ class HaberController extends Controller
             $validated['published_at'] = now();
         }
 
-        \App\Models\News::create($validated);
+        if (auth()->user()->isEditor()) {
+            $validated['club_id'] = auth()->user()->club_id;
+        }
+
+        News::create($validated);
 
         return redirect()->route('admin.haberler')->with('success', 'Haber başarıyla oluşturuldu.');
     }
 
-    public function update(Request $request, \App\Models\News $news)
+    public function show($id)
     {
+        $haber = News::findOrFail($id);
+
+        if (auth()->user()->isEditor() && $haber->club_id !== auth()->user()->club_id) {
+            return response()->json(['error' => 'Bu haberi görme yetkiniz yok.'], 403);
+        }
+
+        return response()->json($haber);
+    }
+
+    public function update(Request $request, News $haber)
+    {
+        if (auth()->user()->isEditor() && $haber->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu haberi düzenleme yetkiniz yok.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -104,20 +131,25 @@ class HaberController extends Controller
             $validated['image_path'] = $request->file('image')->store('news', 'public');
         }
 
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
         $validated['is_published'] = ($validated['is_published'] === '1' || $validated['is_published'] === 'published');
         
-        if ($validated['is_published'] && !$news->is_published) {
+        if ($validated['is_published'] && !$haber->is_published) {
             $validated['published_at'] = now();
         }
 
-        $news->update($validated);
+        $haber->update($validated);
 
         return redirect()->route('admin.haberler')->with('success', 'Haber başarıyla güncellendi.');
     }
 
-    public function destroy(\App\Models\News $news)
+    public function destroy(News $haber)
     {
-        $news->delete();
+        if (auth()->user()->isEditor() && $haber->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu haberi silme yetkiniz yok.');
+        }
+
+        $haber->delete();
         return redirect()->route('admin.haberler')->with('success', 'Haber başarıyla silindi.');
     }
 }

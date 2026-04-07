@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\KayitController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\ClubController;
@@ -36,15 +37,40 @@ Route::get('/tum-etkinlikler', function () {
 })->name('tum-etkinlikler');
 
 Route::get('/kulupler', function () {
-    return view('kulupler');
+    $clubs = \App\Models\Club::with('category')
+        ->where('is_active', true)
+        ->latest()
+        ->get();
+    $categories = \App\Models\Category::all();
+    return view('kulupler', compact('clubs', 'categories'));
 })->name('kulupler');
 
 Route::get('/etkinlikler/{slug}', function ($slug) {
-    return view('etkinlik-detay');
+    $event = \App\Models\Event::with(['club', 'category'])
+        ->where('slug', $slug)
+        ->where('status', 'published')
+        ->firstOrFail();
+
+    $similar = \App\Models\Event::with(['club', 'category'])
+        ->where('status', 'published')
+        ->where('id', '!=', $event->id)
+        ->where('category_id', $event->category_id)
+        ->latest()
+        ->take(3)
+        ->get();
+
+    return view('etkinlik-detay', compact('event', 'similar'));
 })->name('etkinlik.detay');
 
 Route::get('/kulupler/{slug}', function ($slug) {
-    return view('kulup-detay');
+    $club = \App\Models\Club::with(['category', 'president', 'events' => function($q) {
+        $q->where('status', 'published')->latest()->take(4);
+    }])
+        ->where('slug', $slug)
+        ->where('is_active', true)
+        ->firstOrFail();
+
+    return view('kulup-detay', compact('club'));
 })->name('kulup.detay');
 
 Route::get('/dashboard', function () {
@@ -55,10 +81,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Kulüp kayıt
+    Route::post('/kulupler/{club}/kayit', [KayitController::class, 'kulupKayit'])->name('kulup.kayit');
+    Route::delete('/kulupler/{club}/ayril', [KayitController::class, 'kulupAyril'])->name('kulup.ayril');
+
+    // Etkinlik kayıt
+    Route::post('/etkinlikler/{event}/kayit', [KayitController::class, 'etkinlikKayit'])->name('etkinlik.kayit');
+    Route::delete('/etkinlikler/{event}/iptal', [KayitController::class, 'etkinlikIptal'])->name('etkinlik.iptal');
 });
 
 // Admin routes
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor'])->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
     Route::post('/toggle-status', [AdminController::class, 'toggleStatus'])->name('toggle-status');
 
@@ -73,6 +107,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/kulupler', [ClubController::class, 'store'])->name('kulupler.store');
     Route::put('/kulupler/{club}', [ClubController::class, 'update'])->name('kulupler.update');
     Route::delete('/kulupler/{club}', [ClubController::class, 'destroy'])->name('kulupler.destroy');
+
+    // Kulüp Üyelik Yönetimi
+    Route::get('/kulupler/{club}/uyeler', [ClubController::class, 'members'])->name('kulupler.uyeler');
+    Route::post('/kulup-uyelik/{member}/onayla', [ClubController::class, 'approveMember'])->name('kulupler.uyeler.onayla');
+    Route::post('/kulup-uyelik/{member}/reddet', [ClubController::class, 'rejectMember'])->name('kulupler.uyeler.reddet');
+    Route::delete('/kulup-uyelik/{member}', [ClubController::class, 'removeMember'])->name('kulupler.uyeler.sil');
 
     // Categories
     Route::get('/kategoriler', [CategoryController::class, 'index'])->name('kategoriler');
@@ -105,10 +145,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Slider
     Route::get('/slider', [SliderController::class, 'index'])->name('slider');
     Route::post('/slider', [SliderController::class, 'store'])->name('slider.store');
-    Route::delete('/slider/{id}', [SliderController::class, 'destroy'])->name('slider.destroy');
+    Route::put('/slider/{slider}', [SliderController::class, 'update'])->name('slider.update');
+    Route::delete('/slider/{slider}', [SliderController::class, 'destroy'])->name('slider.destroy');
+    Route::post('/slider/reorder', [SliderController::class, 'reorder'])->name('slider.reorder');
 
     // Menü Yönetimi
     Route::get('/menu', [MenuController::class, 'index'])->name('menu');
+    Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
+    Route::put('/menu/{menu}', [MenuController::class, 'update'])->name('menu.update');
+    Route::delete('/menu/{menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
+    Route::patch('/menu/{menu}/toggle', [MenuController::class, 'toggle'])->name('menu.toggle');
 
     // Galeri Yönetimi
     Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery');

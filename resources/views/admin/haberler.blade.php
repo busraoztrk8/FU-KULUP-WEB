@@ -155,13 +155,24 @@ function showHaberModal() {
 }
 
 function showHaberDuzenle(id) {
-    // In a real app we'd fetch data via AJAX, but for now we reset and wait for user.
-    // Alternatively, data can be injected directly from row HTML.
-    document.getElementById('haber-modal-title').textContent = 'Haberi Düzenle';
-    document.getElementById('haber-form').action = "/admin/haberler/" + id;
-    document.getElementById('haber-method').value = 'PUT';
-    document.getElementById('haber-baslik').value = 'Düzenlenen Haber (Lütfen tekrar yazın)';
-    document.getElementById('haber-modal').classList.remove('hidden');
+    // Show loading state or just clear the modal
+    document.getElementById('haber-baslik').value = 'Yükleniyor...';
+    document.getElementById('haber-icerik').value = '';
+    
+    // Fetch real data via AJAX
+    $.get('/admin/haberler/' + id, function(data) {
+        document.getElementById('haber-modal-title').textContent = 'Haberi Düzenle';
+        document.getElementById('haber-form').action = "/admin/haberler/" + id;
+        document.getElementById('haber-method').value = 'PUT';
+        
+        document.getElementById('haber-baslik').value = data.title;
+        document.getElementById('haber-icerik').value = data.content;
+        document.getElementById('haber-durum').value = data.is_published ? '1' : '0';
+        
+        document.getElementById('haber-modal').classList.remove('hidden');
+    }).fail(function() {
+        alert('Haber verileri yüklenirken bir hata oluştu.');
+    });
 }
 
 function hideHaberModal() {

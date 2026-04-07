@@ -17,6 +17,10 @@ class ClubController extends Controller
             try {
                 $query = Club::with(['category', 'president']);
 
+                if (auth()->user()->isEditor()) {
+                    $query->where('id', auth()->user()->club_id);
+                }
+
                 if ($request->filled('category_id') && $request->category_id !== 'all') {
                     $query->where('category_id', $request->category_id);
                 }
@@ -56,6 +60,7 @@ class ClubController extends Controller
                     })
                     ->addColumn('action', function($row) {
                         $btn = '<div class="flex items-center justify-start gap-2">';
+                        $btn .= '<a href="/admin/kulupler/'.$row->id.'/uyeler" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Üyeler"><span class="material-symbols-outlined text-[16px]">group</span></a>';
                         $btn .= '<button onclick="showKulupDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.addslashes($row->name).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
@@ -81,6 +86,10 @@ class ClubController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Kulüp oluşturma yetkiniz yok.');
+        }
+
         $validated = $request->validate([
             'name'              => 'required|string|max:255|unique:clubs',
             'description'       => 'nullable|string',
@@ -108,6 +117,10 @@ class ClubController extends Controller
 
     public function update(Request $request, Club $club)
     {
+        if (auth()->user()->isEditor() && $club->id !== auth()->user()->club_id) {
+            abort(403, 'Bu kulübü düzenleme yetkiniz yok.');
+        }
+
         $validated = $request->validate([
             'name'              => 'required|string|max:255|unique:clubs,name,' . $club->id,
             'description'       => 'nullable|string',
@@ -133,7 +146,76 @@ class ClubController extends Controller
 
     public function destroy(Club $club)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Kulüp silme yetkiniz yok.');
+        }
+
         $club->delete();
         return redirect()->route('admin.kulupler')->with('success', 'Kulüp silindi.');
+    }
+
+    public function members(Club $club)
+    {
+        if (auth()->user()->isEditor() && $club->id !== auth()->user()->club_id) {
+            abort(403, 'Bu kulübün üyelerini görme yetkiniz yok.');
+        }
+
+        $filter = request('status', 'all');
+
+        $query = \App\Models\ClubMember::with('user')
+            ->where('club_id', $club->id);
+
+        if ($filter !== 'all') {
+            $query->where('status', $filter);
+        }
+
+        $members = $query->latest()->paginate(20)->appends(['status' => $filter]);
+
+        $stats = [
+            'total'    => \App\Models\ClubMember::where('club_id', $club->id)->count(),
+            'pending'  => \App\Models\ClubMember::where('club_id', $club->id)->where('status', 'pending')->count(),
+            'approved' => \App\Models\ClubMember::where('club_id', $club->id)->where('status', 'approved')->count(),
+            'rejected' => \App\Models\ClubMember::where('club_id', $club->id)->where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.kulup-uyeleri', compact('club', 'members', 'stats', 'filter'));
+    }
+
+    public function approveMember(\App\Models\ClubMember $member)
+    {
+        if (auth()->user()->isEditor() && $member->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu üyeyi onaylama yetkiniz yok.');
+        }
+
+        if ($member->status !== 'approved') {
+            $member->update(['status' => 'approved', 'approved_at' => now()]);
+        }
+        return back()->with('success', 'Üyelik onaylandı.');
+    }
+
+    public function rejectMember(\App\Models\ClubMember $member)
+    {
+        if (auth()->user()->isEditor() && $member->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu üyeyi reddetme yetkiniz yok.');
+        }
+
+        if ($member->status === 'approved') {
+            $member->club->decrement('member_count');
+        }
+        $member->update(['status' => 'rejected']);
+        return back()->with('success', 'Üyelik reddedildi.');
+    }
+
+    public function removeMember(\App\Models\ClubMember $member)
+    {
+        if (auth()->user()->isEditor() && $member->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu üyeyi silme yetkiniz yok.');
+        }
+
+        if ($member->status === 'approved' || $member->status === 'pending') {
+            $member->club->decrement('member_count');
+        }
+        $member->delete();
+        return back()->with('success', 'Üyelik kaydı silindi.');
     }
 }

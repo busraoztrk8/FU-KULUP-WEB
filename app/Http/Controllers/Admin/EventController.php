@@ -17,6 +17,10 @@ class EventController extends Controller
             try {
                 $query = Event::with(['club', 'category']);
 
+                if (auth()->user()->isEditor()) {
+                    $query->where('club_id', auth()->user()->club_id);
+                }
+
                 if ($request->filled('status') && $request->status !== 'all') {
                     $query->where('status', $request->status);
                 }
@@ -78,7 +82,9 @@ class EventController extends Controller
         }
 
         $categories = Category::all();
-        $clubs      = Club::where('is_active', true)->get();
+        $clubs      = auth()->user()->isEditor() 
+                      ? Club::where('id', auth()->user()->club_id)->get() 
+                      : Club::where('is_active', true)->get();
 
         return view('admin.etkinlikler', compact('categories', 'clubs'));
     }
@@ -101,6 +107,10 @@ class EventController extends Controller
             'image'            => 'nullable|image|max:5120',
         ]);
 
+        if (auth()->user()->isEditor()) {
+            $validated['club_id'] = auth()->user()->club_id;
+        }
+
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('events', 'public');
         }
@@ -114,6 +124,10 @@ class EventController extends Controller
 
     public function update(Request $request, Event $event)
     {
+        if (auth()->user()->isEditor() && $event->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu etkinliği düzenleme yetkiniz yok.');
+        }
+
         $validated = $request->validate([
             'title'            => 'required|string|max:255',
             'description'      => 'required|string',
@@ -130,6 +144,10 @@ class EventController extends Controller
             'image'            => 'nullable|image|max:5120',
         ]);
 
+        if (auth()->user()->isEditor()) {
+            $validated['club_id'] = auth()->user()->club_id;
+        }
+
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('events', 'public');
         }
@@ -141,7 +159,24 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
+        if (auth()->user()->isEditor() && $event->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu etkinliği silme yetkiniz yok.');
+        }
+
         $event->delete();
         return redirect()->route('admin.etkinlikler')->with('success', 'Etkinlik silindi.');
+    }
+
+    public function registrations(Event $event)
+    {
+        if (auth()->user()->isEditor() && $event->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu etkinliğin kayıtlarını görme yetkiniz yok.');
+        }
+
+        $registrations = \App\Models\EventRegistration::with('user')
+            ->where('event_id', $event->id)
+            ->latest()
+            ->paginate(20);
+        return view('admin.etkinlik-kayitlari', compact('event', 'registrations'));
     }
 }

@@ -154,11 +154,24 @@ function showDuyuruModal() {
     document.getElementById('duyuru-modal').classList.remove('hidden');
 }
 function showDuyuruDuzenle(id) {
-    document.getElementById('duyuru-modal-title').textContent = 'Duyuruyu Düzenle';
-    document.getElementById('duyuru-form').action = "/admin/duyurular/" + id;
-    document.getElementById('duyuru-method').value = 'PUT';
-    document.getElementById('duyuru-baslik').value = 'Düzenlenen Duyuru (Lütfen tekrar yazın)';
-    document.getElementById('duyuru-modal').classList.remove('hidden');
+    // Show loading state
+    document.getElementById('duyuru-baslik').value = 'Yükleniyor...';
+    document.getElementById('duyuru-icerik').value = '';
+    
+    // Fetch real data via AJAX
+    $.get('/admin/duyurular/' + id, function(data) {
+        document.getElementById('duyuru-modal-title').textContent = 'Duyuruyu Düzenle';
+        document.getElementById('duyuru-form').action = "/admin/duyurular/" + id;
+        document.getElementById('duyuru-method').value = 'PUT';
+        
+        document.getElementById('duyuru-baslik').value = data.title;
+        document.getElementById('duyuru-icerik').value = data.content;
+        document.getElementById('duyuru-durum').value = data.is_published ? '1' : '0';
+        
+        document.getElementById('duyuru-modal').classList.remove('hidden');
+    }).fail(function() {
+        alert('Duyuru verileri yüklenirken bir hata oluştu.');
+    });
 }
 function hideDuyuruModal() {
     document.getElementById('duyuru-modal').classList.add('hidden');

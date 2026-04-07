@@ -2,36 +2,46 @@
 
 @section('title', 'Etkinlikler - Fırat Üniversitesi')
 @section('data-page', 'events')
-@section('page-title', 'Etkinlikler')
 
 @section('content')
+@php $featured = $events->where('is_featured', true)->first() ?? $events->first(); @endphp
+
     <!-- Hero Section -->
     <section class="relative h-[350px] sm:h-[420px] md:h-[500px] lg:h-[600px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-xl">
-        <img alt="Summit Event" class="absolute inset-0 w-full h-full object-cover brightness-[0.4] sm:brightness-50 md:brightness-100"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzgZ7wHZiMgjwpgluAsvjSzS-728fh-7EyYz0A8nKY-NlVb91E0b5f9yopQ1QbxRkANmud5pEvGECLIzbh1HAKTScv0dAVMuHnP5WxTAahbaTI5vlN1k2jpGjGK07uflPJh0p1eWCJGrNnH5AWVljCgvr4H59lWAJDuveb4DMx8LQI0D0zM8bP2w5yafS9Q6aYVk6EshhkxZORlKJ2ie0thRufJm7wNLHRApFAdOdVnIHYPCg5_8OQk9fXTsInkuBCiG99lt_yw2I" />
+        @if($featured && $featured->image)
+            <img alt="{{ $featured->title }}" class="absolute inset-0 w-full h-full object-cover"
+                src="{{ asset('storage/' . $featured->image) }}" />
+        @else
+            <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
+        @endif
         <div class="absolute inset-0 bg-gradient-to-r from-black/90 md:from-black/80 via-black/40 to-transparent"></div>
         <div class="relative z-10 max-w-3xl px-4 sm:px-6 md:px-20 text-center md:text-left">
-            <span
-                class="bg-primary text-white px-3 md:px-4 py-1 rounded-full text-[10px] font-bold mb-3 md:mb-4 inline-block uppercase tracking-widest">Ana
-                Etkinlik</span>
+            <span class="bg-primary text-white px-3 md:px-4 py-1 rounded-full text-[10px] font-bold mb-3 md:mb-4 inline-block uppercase tracking-widest">
+                Ana Etkinlik
+            </span>
+            @if($featured)
             <h1 class="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-bold font-headline text-white mb-4 md:mb-6 leading-tight tracking-tight uppercase">
-                Geleceğin Teknolojileri Zirvesi 2024</h1>
+                {{ $featured->title }}
+            </h1>
+            @if($featured->short_description)
             <p class="text-sm sm:text-base md:text-xl text-slate-200 mb-6 md:mb-10 max-w-xl font-body leading-relaxed mx-auto md:mx-0">
-                Yapay zeka, kuantum bilişim ve sürdürülebilir enerji konularında dünyanın en iyi araştırmacıları ile
-                tanışın.
+                {{ $featured->short_description }}
             </p>
+            @endif
             <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-3 md:gap-4">
-                <a href="{{ route('etkinlik.detay', ['slug' => 'gelecegin-teknolojileri-zirvesi-2024']) }}"
+                <a href="{{ route('etkinlik.detay', $featured->slug) }}"
                     class="bg-primary hover:bg-primary-dark text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold transition-all flex justify-center items-center gap-2 group text-sm md:text-base">
                     Kayıt Ol
-                    <span
-                        class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </a>
-                <a href="{{ route('etkinlik.detay', ['slug' => 'gelecegin-teknolojileri-zirvesi-2024']) }}"
+                <a href="{{ route('etkinlik.detay', $featured->slug) }}"
                     class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold transition-all text-sm md:text-base text-center">
                     Detayları Gör
                 </a>
             </div>
+            @else
+            <h1 class="text-3xl md:text-5xl font-bold font-headline text-white mb-4">Etkinlikler</h1>
+            @endif
         </div>
     </section>
 

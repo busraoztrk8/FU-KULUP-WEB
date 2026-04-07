@@ -8,22 +8,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user() || !$request->user()->hasRole($role)) {
-            // If they are admin, they can access anything
-            if ($request->user() && $request->user()->hasRole('admin')) {
-                return $next($request);
-            }
-            
-            abort(403, 'Bu işlem için yetkiniz bulunmamaktadır.');
+        $user = $request->user();
+
+        if (!$user) {
+            abort(403, 'Bu işlem için giriş yapmanız gerekmektedir.');
         }
 
-        return $next($request);
+        // Admin her şeye erişebilir
+        if ($user->hasRole('admin')) {
+            return $next($request);
+        }
+
+        // Verilen rollerden birine sahip mi?
+        foreach ($roles as $role) {
+            if ($user->hasRole($role)) {
+                return $next($request);
+            }
+        }
+
+        abort(403, 'Bu işlem için yetkiniz bulunmamaktadır.');
     }
 }

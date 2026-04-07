@@ -3,6 +3,7 @@
     if (request()->routeIs('admin.haberler*')) $currentPage = 'news';
     elseif (request()->routeIs('admin.etkinlikler*')) $currentPage = 'events';
     elseif (request()->routeIs('admin.duyurular*')) $currentPage = 'announcements';
+    elseif (request()->routeIs('admin.kulupler.uyeler*')) $currentPage = 'members';
     elseif (request()->routeIs('admin.kulupler*')) $currentPage = 'clubs';
     elseif (request()->routeIs('admin.slider*')) $currentPage = 'slider';
     elseif (request()->routeIs('admin.gallery*')) $currentPage = 'gallery';
@@ -32,13 +33,16 @@
         <x-admin-sidebar-link id="events"        icon="event"     label="Etkinlikler"        href="{{ route('admin.etkinlikler') }}" :current="$currentPage" />
         <x-admin-sidebar-link id="announcements" icon="campaign"  label="Duyurular"          href="{{ route('admin.duyurular') }}"   :current="$currentPage" />
         <x-admin-sidebar-link id="clubs"         icon="groups"    label="Kulüpler"           href="{{ route('admin.kulupler') }}"    :current="$currentPage" />
+        <x-admin-sidebar-link id="members"       icon="how_to_reg" label="Üyelik Yönetimi"    href="{{ route('admin.kulupler') }}"    :current="$currentPage" />
         <x-admin-sidebar-link id="slider"        icon="image"     label="Slider Yönetimi"    href="{{ route('admin.slider') }}"      :current="$currentPage" />
         <x-admin-sidebar-link id="gallery"       icon="collections" label="Galeri Yönetimi"    href="{{ route('admin.gallery') }}"     :current="$currentPage" />
 
+        @if(auth()->user()->isAdmin())
         <p class="px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-6">Site Yönetimi</p>
         <x-admin-sidebar-link id="users"         icon="person"    label="Kullanıcı Yönetimi" href="{{ route('admin.kullanicilar') }}" :current="$currentPage" />
         <x-admin-sidebar-link id="menu"          icon="menu"      label="Menü Yönetimi"      href="{{ route('admin.menu') }}"         :current="$currentPage" />
         <x-admin-sidebar-link id="settings"      icon="settings"  label="Site Ayarları"      href="{{ route('admin.ayarlar') }}"      :current="$currentPage" />
+        @endif
     </nav>
 
 

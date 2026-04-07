@@ -65,4 +65,14 @@ class Club extends Model
     {
         return $this->hasMany(Event::class);
     }
+
+    public function members()
+    {
+        return $this->hasMany(ClubMember::class);
+    }
+
+    public function approvedMembers()
+    {
+        return $this->hasMany(ClubMember::class)->where('status', 'approved');
+    }
 }

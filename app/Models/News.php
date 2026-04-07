@@ -14,9 +14,15 @@ class News extends Model
         'slug',
         'content',
         'image_path',
+        'club_id',
         'is_published',
         'published_at',
     ];
+
+    public function club()
+    {
+        return $this->belongsTo(Club::class);
+    }
     
     protected $casts = [
         'is_published' => 'boolean',

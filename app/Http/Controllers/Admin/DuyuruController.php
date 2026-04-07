@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Announcement;
+use App\Models\Club;
 
 class DuyuruController extends Controller
 {
@@ -11,7 +13,13 @@ class DuyuruController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $data = \App\Models\Announcement::latest()->get();
+                $query = Announcement::query();
+
+                if (auth()->user()->isEditor()) {
+                    $query->where('club_id', auth()->user()->club_id);
+                }
+
+                $data = $query->latest()->get();
                 return \Yajra\DataTables\Facades\DataTables::of($data)
                     ->addIndexColumn()
                     ->addColumn('image', function($row) {
@@ -80,13 +88,32 @@ class DuyuruController extends Controller
             $validated['published_at'] = now();
         }
 
-        \App\Models\Announcement::create($validated);
+        if (auth()->user()->isEditor()) {
+            $validated['club_id'] = auth()->user()->club_id;
+        }
+
+        Announcement::create($validated);
 
         return redirect()->route('admin.duyurular')->with('success', 'Duyuru başarıyla oluşturuldu.');
     }
 
-    public function update(Request $request, \App\Models\Announcement $announcement)
+    public function show($id)
     {
+        $announcement = Announcement::findOrFail($id);
+        
+        if (auth()->user()->isEditor() && $announcement->club_id !== auth()->user()->club_id) {
+            return response()->json(['error' => 'Bu duyuruyu görme yetkiniz yok.'], 403);
+        }
+
+        return response()->json($announcement);
+    }
+
+    public function update(Request $request, Announcement $announcement)
+    {
+        if (auth()->user()->isEditor() && $announcement->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu duyuruyu düzenleme yetkiniz yok.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -98,10 +125,15 @@ class DuyuruController extends Controller
             $validated['image_path'] = $request->file('image')->store('announcements', 'public');
         }
 
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
         $validated['is_published'] = ($validated['is_published'] === '1' || $validated['is_published'] === 'published');
         
         if ($validated['is_published'] && !$announcement->is_published) {
             $validated['published_at'] = now();
+        }
+
+        if (auth()->user()->isEditor()) {
+            $validated['club_id'] = auth()->user()->club_id;
         }
 
         $announcement->update($validated);
@@ -109,8 +141,12 @@ class DuyuruController extends Controller
         return redirect()->route('admin.duyurular')->with('success', 'Duyuru başarıyla güncellendi.');
     }
 
-    public function destroy(\App\Models\Announcement $announcement)
+    public function destroy(Announcement $announcement)
     {
+        if (auth()->user()->isEditor() && $announcement->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu duyuruyu silme yetkiniz yok.');
+        }
+
         $announcement->delete();
         return redirect()->route('admin.duyurular')->with('success', 'Duyuru başarıyla silindi.');
     }
