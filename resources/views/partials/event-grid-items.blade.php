@@ -5,7 +5,7 @@
         @if($event->image)
             <img alt="{{ $event->title }}"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                src="{{ asset('storage/' . $event->image) }}" />
+                src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" />
         @else
             <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
                 <span class="material-symbols-outlined text-5xl">event</span>

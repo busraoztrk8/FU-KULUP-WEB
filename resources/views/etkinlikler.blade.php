@@ -10,7 +10,7 @@
     <section class="relative h-[350px] sm:h-[420px] md:h-[500px] lg:h-[600px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-xl">
         @if($featured && $featured->image)
             <img alt="{{ $featured->title }}" class="absolute inset-0 w-full h-full object-cover"
-                src="{{ asset('storage/' . $featured->image) }}" />
+                src="{{ str_starts_with($featured->image, 'http') ? $featured->image : asset('storage/' . $featured->image) }}" />
         @else
             <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
         @endif

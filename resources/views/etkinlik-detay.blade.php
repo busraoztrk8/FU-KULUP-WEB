@@ -7,7 +7,7 @@
 {{-- Hero --}}
 <section class="relative h-[350px] sm:h-[450px] md:h-[550px] w-full overflow-hidden">
     @if($event->image)
-        <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="w-full h-full object-cover"/>
+        <img src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="w-full h-full object-cover"/>
     @else
         <div class="w-full h-full bg-gradient-to-br from-primary to-primary-dark"></div>
     @endif
@@ -66,7 +66,7 @@
             <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center gap-5">
                 <div class="w-16 h-16 rounded-xl bg-primary flex items-center justify-center shrink-0">
                     @if($event->club->logo)
-                        <img src="{{ asset('storage/' . $event->club->logo) }}" class="w-full h-full object-cover rounded-xl" alt="{{ $event->club->name }}"/>
+                        <img src="{{ str_starts_with($event->club->logo, 'http') ? $event->club->logo : asset('storage/' . $event->club->logo) }}" class="w-full h-full object-cover rounded-xl" alt="{{ $event->club->name }}"/>
                     @else
                         <span class="material-symbols-outlined text-white text-[28px]">groups</span>
                     @endif

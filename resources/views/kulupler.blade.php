@@ -12,7 +12,7 @@
         <div class="relative overflow-hidden rounded-2xl md:rounded-3xl min-h-[280px] md:h-[400px] flex items-center group shadow-2xl">
             <div class="absolute inset-0 z-0">
                 @if($featured->cover_image)
-                    <img src="{{ asset('storage/' . $featured->cover_image) }}" alt="{{ $featured->name }}"
+                    <img src="{{ str_starts_with($featured->cover_image, 'http') ? $featured->cover_image : asset('storage/' . $featured->cover_image) }}" alt="{{ $featured->name }}"
                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"/>
                 @else
                     <div class="w-full h-full bg-gradient-to-br from-primary to-primary-dark"></div>
@@ -71,10 +71,10 @@
             class="burgundy-card group rounded-2xl md:rounded-3xl overflow-hidden flex flex-col h-full shadow-lg hover:shadow-2xl transition-all duration-500 border border-white/10">
             <div class="h-44 md:h-48 overflow-hidden relative">
                 @if($club->cover_image)
-                    <img src="{{ asset('storage/' . $club->cover_image) }}" alt="{{ $club->name }}"
+                    <img src="{{ str_starts_with($club->cover_image, 'http') ? $club->cover_image : asset('storage/' . $club->cover_image) }}" alt="{{ $club->name }}"
                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
                 @elseif($club->logo)
-                    <img src="{{ asset('storage/' . $club->logo) }}" alt="{{ $club->name }}"
+                    <img src="{{ str_starts_with($club->logo, 'http') ? $club->logo : asset('storage/' . $club->logo) }}" alt="{{ $club->name }}"
                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>
                 @else
                     <div class="w-full h-full bg-primary-dark flex items-center justify-center">

@@ -139,9 +139,7 @@
                     class="group bg-surface-container-high rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col lg:flex-row hover:shadow-xl transition-all duration-500 block text-left">
                     <div class="lg:w-1/2 relative overflow-hidden h-48 sm:h-64 lg:h-auto">
                         @if($club->logo)
-                            <img alt="{{ $club->name }}"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                src="{{ asset('storage/' . $club->logo) }}" />
+                            <img src="{{ str_starts_with($club->logo, 'http') ? $club->logo : asset('storage/' . $club->logo) }}" alt="{{ $club->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         @else
                             <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
                                 <span class="material-symbols-outlined text-5xl">groups</span>
@@ -205,7 +203,7 @@
                                     <div class="relative group cursor-pointer {{ $heightClass }} overflow-hidden rounded-2xl md:rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500">
                                         <img alt="{{ $image->title ?? 'Kampüs Yaşamı' }}"
                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                            src="{{ asset('storage/' . $image->image_path) }}" />
+                                            src="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}" />
                                         <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4 md:p-6">
                                             <p class="text-white text-sm font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{{ $image->title }}</p>
                                         </div>

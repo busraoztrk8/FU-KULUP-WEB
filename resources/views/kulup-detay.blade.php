@@ -40,7 +40,7 @@
     {{-- Hero Sector --}}
     <section class="relative mb-12 rounded-3xl overflow-hidden h-[300px] md:h-[450px] shadow-2xl group">
         @if($club->cover_image)
-            <img src="{{ asset('storage/' . $club->cover_image) }}" alt="{{ $club->name }}"
+            <img src="{{ str_starts_with($club->cover_image, 'http') ? $club->cover_image : asset('storage/' . $club->cover_image) }}" alt="{{ $club->name }}"
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"/>
         @else
             <div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
@@ -51,7 +51,7 @@
             {{-- Logo --}}
             <div class="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-white p-2 shadow-2xl shrink-0">
                 @if($club->logo)
-                    <img src="{{ asset('storage/' . $club->logo) }}" alt="{{ $club->name }}"
+                    <img src="{{ str_starts_with($club->logo, 'http') ? $club->logo : asset('storage/' . $club->logo) }}" alt="{{ $club->name }}"
                         class="w-full h-full object-cover rounded-xl"/>
                 @else
                     <div class="w-full h-full bg-primary rounded-xl flex items-center justify-center">
@@ -144,8 +144,8 @@
                         <div class="swiper-slide !w-auto">
                             <div class="gallery-image-container relative w-[240px] md:w-[320px] aspect-[4/3] rounded-2xl overflow-hidden border border-slate-100 group shadow-sm hover:shadow-xl transition-all cursor-pointer"
                                  onclick="openLightbox({{ $index }})">
-                                <img src="{{ asset('storage/' . $image->image_path) }}" 
-                                     data-full="{{ asset('storage/' . $image->image_path) }}"
+                                <img src="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}" 
+                                     data-full="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}"
                                      class="gallery-thumb w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                             </div>
                         </div>
@@ -170,7 +170,7 @@
                     <a href="{{ route('etkinlik.detay', $event->slug) }}" class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-slate-100">
                         <div class="aspect-[16/9] relative overflow-hidden">
                             @if($event->image)
-                                <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                                <img src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
                             @else
                                 <div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary-dark"></div>
                             @endif
