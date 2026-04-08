@@ -110,5 +110,9 @@ class DatabaseSeeder extends Seeder
             'current_participants' => 87,
             'status'           => 'published',
         ]);
+        // Default Menus
+        \App\Models\Menu::updateOrCreate(['url' => '/'], ['label' => 'Anasayfa', 'order' => 1, 'is_active' => true, 'location' => 'main']);
+        \App\Models\Menu::updateOrCreate(['url' => '/kulupler'], ['label' => 'Kulüpler', 'order' => 2, 'is_active' => true, 'location' => 'main']);
+        \App\Models\Menu::updateOrCreate(['url' => '/etkinlikler'], ['label' => 'Etkinlikler', 'order' => 3, 'is_active' => true, 'location' => 'main']);
     }
 }

@@ -16,7 +16,10 @@ class DuyuruController extends Controller
                 $query = Announcement::query();
 
                 if (auth()->user()->isEditor()) {
-                    $query->where('club_id', auth()->user()->club_id);
+                    $query->where(function($q) {
+                        $q->where('club_id', auth()->user()->club_id)
+                          ->orWhereNull('club_id');
+                    });
                 }
 
                 $data = $query->latest()->get();
@@ -65,7 +68,11 @@ class DuyuruController extends Controller
             }
         }
 
-        return view('admin.duyurular');
+        $clubs = auth()->user()->isEditor() 
+            ? Club::where('id', auth()->user()->club_id)->get() 
+            : Club::where('is_active', true)->get();
+
+        return view('admin.duyurular', compact('clubs'));
     }
 
     public function store(Request $request)
@@ -74,7 +81,7 @@ class DuyuruController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'is_published' => 'required|in:1,0,published,draft',
-            'image' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|max:10240',
         ]);
 
         if ($request->hasFile('image')) {
@@ -118,7 +125,7 @@ class DuyuruController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'is_published' => 'required|in:1,0,published,draft',
-            'image' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|max:10240',
         ]);
 
         if ($request->hasFile('image')) {

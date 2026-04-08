@@ -118,24 +118,17 @@
                             $hasEvents = $eventsByDate->has($dateStr);
                             $isSelected = $dateStr === $currentDateStr;
                             $isToday = $dateStr === now()->format('Y-m-d');
-                            $eventDotClass = 'bg-primary';
                         @endphp
                         
-                        @if($isSelected)
-                            <a href="?date={{ $dateStr }}#calendar-view" class="p-1.5 md:p-2 text-xs md:text-sm font-bold bg-primary text-white rounded-lg md:rounded-xl shadow-lg ring-2 md:ring-4 ring-primary/10 relative block hover:scale-105 transition-transform">
-                                {{ $day }}
-                                @if($hasEvents)
-                                    <span class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full"></span>
-                                @endif
-                            </a>
-                        @else
-                            <a href="?date={{ $dateStr }}#calendar-view" class="p-1.5 md:p-2 text-xs md:text-sm {{ $hasEvents ? 'font-bold text-primary bg-primary/10 rounded-lg md:rounded-xl' : ($isToday ? 'text-primary font-bold' : 'text-slate-600') }} relative block hover:bg-slate-100 rounded-lg transition-colors">
-                                {{ $day }}
-                                @if($hasEvents)
-                                    <span class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 {{ $eventDotClass }} rounded-full"></span>
-                                @endif
-                            </a>
-                        @endif
+                        <a href="javascript:void(0)" 
+                           onclick="filterByDate('{{ $dateStr }}', this)"
+                           data-date="{{ $dateStr }}"
+                           class="calendar-day p-1.5 md:p-2 text-xs md:text-sm {{ $isSelected ? 'active bg-primary text-white shadow-lg ring-2 md:ring-4 ring-primary/10' : ($hasEvents ? 'font-bold text-primary bg-primary/10' : ($isToday ? 'text-primary font-bold' : 'text-slate-600')) }} relative block hover:scale-105 rounded-lg md:rounded-xl transition-all">
+                            {{ $day }}
+                            @if($hasEvents)
+                                <span class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 {{ $isSelected ? 'bg-white' : 'bg-primary' }} rounded-full event-dot"></span>
+                            @endif
+                        </a>
                     @endfor
                     
                     @php $endDayOfWeek = $endOfMonth->dayOfWeekIso; @endphp
@@ -167,187 +160,24 @@
             <!-- Event List Side -->
             <div class="lg:col-span-1 space-y-4 md:space-y-6">
                 <div class="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 class="font-headline font-bold text-lg md:text-xl text-on-background capitalize">{{ $currentDate->translatedFormat('j F, l') }}</h3>
-                    <span class="text-on-surface-variant text-xs md:text-sm">{{ $selectedEvents->count() }} Etkinlik Bulundu</span>
+                    <h3 id="selected-date-title" class="font-headline font-bold text-lg md:text-xl text-on-background capitalize">
+                        {{ $currentDate->translatedFormat('j F, l') }}
+                    </h3>
+                    <span id="event-count-badge" class="text-on-surface-variant text-xs md:text-sm">
+                        {{ $selectedEvents->count() }} Etkinlik Bulundu
+                    </span>
                 </div>
                 
-                @forelse($selectedEvents as $event)
-                <a href="{{ route('etkinlik.detay', ['slug' => $event->slug]) }}"
-                    class="group bg-white border border-slate-100 hover:border-primary/30 hover:shadow-xl rounded-2xl md:rounded-[2rem] p-4 sm:p-5 md:p-6 transition-all duration-300 flex flex-col sm:flex-row gap-4 md:gap-6 items-start">
-                    <div class="w-full sm:w-40 md:w-48 h-32 rounded-xl md:rounded-2xl overflow-hidden shrink-0 bg-slate-100">
-                        @if($event->image)
-                            <img alt="{{ $event->title }}"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                src="{{ asset('storage/' . $event->image) }}" />
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-slate-300">
-                                <span class="material-symbols-outlined text-4xl">event</span>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="flex-1 min-w-0 flex flex-col h-full">
-                        <div class="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
-                            @if($event->category)
-                            <span class="bg-primary/10 text-primary text-[10px] font-extrabold uppercase px-2 py-0.5 rounded truncate max-w-[120px]">{{ $event->category->name }}</span>
-                            @endif
-                            <span class="text-on-surface-variant text-xs flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">schedule</span> 
-                                {{ \Carbon\Carbon::parse($event->start_time)->format('H:i') }}
-                                @if($event->end_time)
-                                 - {{ \Carbon\Carbon::parse($event->end_time)->format('H:i') }}
-                                @endif
-                            </span>
-                        </div>
-                        <h4 class="text-lg md:text-xl font-bold font-headline mb-2 text-on-background group-hover:text-primary transition-colors">
-                            {{ $event->title }}</h4>
-                        <p class="text-on-surface-variant text-sm mb-3 md:mb-4 line-clamp-2 leading-relaxed flex-1">
-                            {{ $event->short_description ?? strip_tags($event->description) }}
-                        </p>
-                        <div class="flex items-center justify-between mt-auto flex-wrap gap-2">
-                            <div class="flex items-center gap-1 md:gap-2">
-                                <span class="material-symbols-outlined text-primary text-base md:text-lg">location_on</span>
-                                <span class="text-xs text-on-surface-variant truncate max-w-[150px]">{{ $event->location ?? 'Belirtilmedi' }}</span>
-                            </div>
-                            <div class="text-primary font-bold text-sm flex items-center gap-1 opacity-100 transition-opacity">
-                                İncele <span class="material-symbols-outlined text-sm">open_in_new</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                @empty
-                <div class="bg-slate-50 border border-dashed border-slate-200 rounded-2xl md:rounded-[2rem] p-8 md:p-12 text-center flex flex-col items-center justify-center h-full min-h-[200px]">
-                    <span class="material-symbols-outlined text-4xl md:text-5xl text-slate-300 mb-3">event_busy</span>
-                    <h4 class="text-slate-600 font-bold mb-1 text-lg">Etkinlik Bulunamadı</h4>
-                    <p class="text-slate-400 text-sm">Bu güne ait planlanmış bir etkinlik gözükmüyor.</p>
+                <div id="event-list-container" class="space-y-4 md:space-y-6 transition-all duration-300">
+                    @include('partials.event-list-items')
                 </div>
-                @endforelse
             </div>
         </div>
 
         <!-- Tab Content 2: Grid View -->
-        <div id="grid-view" class="tab-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+        <div id="grid-view" class="tab-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[400px]"
             data-tab-content="all">
-            <!-- Card 1 -->
-            <a href="{{ route('etkinlik.detay', ['slug' => 'ux-tasarim-atolyesi']) }}"
-                class="group bg-primary rounded-2xl md:rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full border border-white/5 cursor-pointer">
-                <div class="relative h-48 md:h-60 w-full overflow-hidden shrink-0">
-                    <img alt="UX Design Workshop"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7Pr3Bd9lO7zz1OtX8bLbtRlbvZeexoAnlTkGU7KNtHDaIsXbf49Oik9tTHE8BTZLhgEexI9p5im9I8FrDRaVV2K-VpXYkNIcWZzrtUneEpZek65YoLPgCBr5B6gN5wSFVaWkOroy8VQb7o7l6DBv0cr3KNApCdfprnirugWlW8dRDlE_8hfOqg3NL1xCa0Ec6laLEfUGAJ2GPLBFAlymhG0t6SVi5C6upGq9BKU8vBSWwsdjjU2F2QE5Kz_4kQPgbSfxftkprNq8" />
-                    <div
-                        class="absolute top-3 md:top-4 left-3 md:left-4 bg-white rounded-xl md:rounded-2xl p-2 md:p-3 text-center min-w-[50px] md:min-w-[60px] shadow-lg text-primary">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase leading-none mb-0.5 md:mb-1">ARA</div>
-                        <div class="text-xl md:text-2xl font-extrabold">15</div>
-                    </div>
-                </div>
-                <div class="p-5 md:p-8 flex flex-col flex-1 text-white">
-                    <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                        <span
-                            class="bg-white/20 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">AKADEMİK</span>
-                        <span class="text-white/80 text-xs flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs">schedule</span> 14:00 - 17:00
-                        </span>
-                    </div>
-                    <h4 class="text-xl md:text-2xl font-bold font-headline mb-2 md:mb-3 leading-tight uppercase">UX Tasarım Atölyesi
-                    </h4>
-                    <p class="text-white/70 text-sm mb-4 md:mb-6 line-clamp-2 leading-relaxed">Kullanıcı deneyimi
-                        tasarımının temellerini öğreneceğiniz, pratik uygulamalarla dolu interaktif bir gün.</p>
-                    <div class="mt-auto flex items-center justify-between pt-3 md:pt-4 border-t border-white/10">
-                        <div class="flex items-center gap-1 md:gap-2">
-                            <span class="material-symbols-outlined text-sm text-white/60">location_on</span>
-                            <span class="text-xs text-white/80">Tasarım Lab 2</span>
-                        </div>
-                        <div class="text-white font-bold text-sm flex items-center gap-1">
-                            Detaylar <span class="material-symbols-outlined text-sm">chevron_right</span>
-                        </div>
-                    </div>
-                </div>
-            </a>
-            <!-- Card 2 -->
-            <div
-                class="group bg-primary rounded-2xl md:rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full border border-white/5">
-                <div class="relative h-48 md:h-60 w-full overflow-hidden shrink-0">
-                    <img alt="Jazz Night"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpOtHgvlADgB0kXGp0HzLw8lamM5V-rgVXmtlAbvgqn92KzyU6L0nebIShZVccEV56D0V5af4BdjIeauGFspE2NzGYu-ARxthc8-l7qiSevfG-rUSI8q8MVhMVGsdObXNrGBxjFI_prZfIJxENOMiQeIjgkvAHjapiccs_ZwQoYuSbazhq542HdJUbHH_3Bnx7LfDqpsPyuyjRTodhzfXP2hieRrFC9mz96AFdl4gRAK_WWYW2zv7bfDwoWbI3xQhgEtpEnw-h2pw" />
-                    <div class="absolute top-3 md:top-4 left-3 md:left-4 bg-white rounded-xl md:rounded-2xl p-2 md:p-3 text-center min-w-[50px] md:min-w-[60px] shadow-lg">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase leading-none mb-0.5 md:mb-1">ARA</div>
-                        <div class="text-xl md:text-2xl font-extrabold text-primary">18</div>
-                    </div>
-                </div>
-                <div class="p-5 md:p-8 flex flex-col flex-1 text-white">
-                    <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                        <span class="bg-white/20 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">KÜLTÜR &
-                            SANAT</span>
-                        <span class="text-white/80 text-xs flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs">schedule</span> 20:30
-                        </span>
-                    </div>
-                    <h4 class="text-xl md:text-2xl font-bold font-headline mb-2 md:mb-3 leading-tight">Caz Gecesi: Kış Melodileri</h4>
-                    <p class="text-white/70 text-sm mb-4 md:mb-6 line-clamp-2 leading-relaxed">Üniversitemiz caz
-                        topluluğunun hazırladığı büyüleyici bir kış konseri. Sıcak içecekler eşliğinde.</p>
-                    <div class="mt-auto flex items-center justify-between pt-3 md:pt-4 border-t border-white/10">
-                        <div class="flex items-center gap-1 md:gap-2">
-                            <span class="material-symbols-outlined text-sm text-white/60">location_on</span>
-                            <span class="text-xs text-white/80">Ana Amfi</span>
-                        </div>
-                        <a class="text-white font-bold text-sm flex items-center gap-1 hover:underline"
-                            href="{{ route('etkinlik.detay', ['slug' => 'caz-gecesi-kis-melodileri']) }}">
-                            Detaylar <span class="material-symbols-outlined text-sm">chevron_right</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- Card 3 -->
-            <div
-                class="group bg-primary rounded-2xl md:rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full border border-white/5">
-                <div class="relative h-48 md:h-60 w-full overflow-hidden shrink-0">
-                    <img alt="Networking"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzgZ7wHZiMgjwpgluAsvjSzS-728fh-7EyYz0A8nKY-NlVb91E0b5f9yopQ1QbxRkANmud5pEvGECLIzbh1HAKTScv0dAVMuHnP5WxTAahbaTI5vlN1k2jpGjGK07uflPJh0p1eWCJGrNnH5AWVljCgvr4H59lWAJDuveb4DMx8LQI0D0zM8bP2w5yafS9Q6aYVk6EshhkxZORlKJ2ie0thRufJm7wNLHRApFAdOdVnIHYPCg5_8OQk9fXTsInkuBCiG99lt_yw2I" />
-                    <div class="absolute top-3 md:top-4 left-3 md:left-4 bg-white rounded-xl md:rounded-2xl p-2 md:p-3 text-center min-w-[50px] md:min-w-[60px] shadow-lg">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase leading-none mb-0.5 md:mb-1">ARA</div>
-                        <div class="text-xl md:text-2xl font-extrabold text-primary">21</div>
-                    </div>
-                </div>
-                <div class="p-5 md:p-8 flex flex-col flex-1 text-white">
-                    <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                        <span
-                            class="bg-white/20 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">KARİYER</span>
-                        <span class="text-white/80 text-xs flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs">schedule</span> 10:00 - 18:00
-                        </span>
-                    </div>
-                    <h4 class="text-xl md:text-2xl font-bold font-headline mb-2 md:mb-3 leading-tight">Networking 101: Sektör Buluşması
-                    </h4>
-                    <p class="text-white/70 text-sm mb-4 md:mb-6 line-clamp-2 leading-relaxed">Mezunlarımız ve önde gelen
-                        şirketlerin temsilcileriyle tanışın, staj ve iş fırsatlarını ilk elden yakalayın.</p>
-                    <div class="mt-auto flex items-center justify-between pt-3 md:pt-4 border-t border-white/10">
-                        <div class="flex items-center gap-1 md:gap-2">
-                            <span class="material-symbols-outlined text-sm text-white/60">location_on</span>
-                            <span class="text-xs text-white/80">Kültür Merkezi</span>
-                        </div>
-                        <a class="text-white font-bold text-sm flex items-center gap-1 hover:underline"
-                            href="{{ route('etkinlik.detay', ['slug' => 'networking-101']) }}">
-                            Detaylar <span class="material-symbols-outlined text-sm">chevron_right</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <!-- Create Event Card -->
-            <div
-                class="bg-primary rounded-2xl md:rounded-[2rem] p-6 md:p-10 flex flex-col items-center justify-center text-center text-white border-2 border-dashed border-white/20 hover:border-white/40 transition-all group cursor-pointer sm:col-span-2 lg:col-span-1">
-                <div
-                    class="w-16 h-16 md:w-20 md:h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 md:mb-8 group-hover:scale-110 transition-transform">
-                    <span class="material-symbols-outlined text-3xl md:text-4xl">add_circle</span>
-                </div>
-                <h3 class="text-xl md:text-2xl font-bold font-headline mb-3 md:mb-4">Kendi Etkinliğini Oluştur</h3>
-                <p class="text-white/70 text-sm mb-6 md:mb-10 leading-relaxed max-w-[200px]">Bir kulüp üyesi misin?
-                    Etkinliğini şimdi planla!</p>
-                <button
-                    class="w-full bg-white text-primary py-3 md:py-4 rounded-xl md:rounded-2xl font-bold hover:bg-surface transition-all shadow-xl shadow-black/10">Etkinlik
-                    Başvurusu</button>
-            </div>
+            @include('partials.event-grid-items')
         </div>
 
         <!-- More Load Button (Common) -->
@@ -411,4 +241,58 @@
             </div>
         </div>
     </section>
+    <script>
+        function filterByDate(date, element) {
+            // UI Update
+            document.querySelectorAll('.calendar-day').forEach(el => {
+                el.classList.remove('active', 'bg-primary', 'text-white', 'shadow-lg', 'ring-2', 'md:ring-4', 'ring-primary/10');
+                el.classList.add('text-slate-600');
+                const dot = el.querySelector('.event-dot');
+                if(dot) dot.classList.replace('bg-white', 'bg-primary');
+            });
+            
+            element.classList.add('active', 'bg-primary', 'text-white', 'shadow-lg', 'ring-2', 'md:ring-4', 'ring-primary/10');
+            element.classList.remove('text-slate-600');
+            const activeDot = element.querySelector('.event-dot');
+            if(activeDot) activeDot.classList.replace('bg-primary', 'bg-white');
+
+            const dateObj = new Date(date);
+            const options = { day: 'numeric', month: 'long', weekday: 'long' };
+            document.getElementById('selected-date-title').innerText = dateObj.toLocaleDateString('tr-TR', options);
+
+            const container = document.getElementById('event-list-container');
+            container.style.opacity = '0.5';
+
+            fetch(`/etkinlikler?date=${date}&view_type=calendar_list`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                container.style.opacity = '1';
+                
+                const count = container.querySelectorAll('.group').length;
+                document.getElementById('event-count-badge').innerText = `${count} Etkinlik Bulundu`;
+            });
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-tab-btn');
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
+                    b.classList.add('text-slate-600', 'font-medium');
+                });
+                btn.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
+                btn.classList.remove('text-slate-600', 'font-medium');
+
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    if(content.getAttribute('data-tab-content') === target) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

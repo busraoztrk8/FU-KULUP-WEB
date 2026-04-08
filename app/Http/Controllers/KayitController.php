@@ -72,12 +72,22 @@ class KayitController extends Controller
             return back()->with('error', 'Bu etkinliğe kayıt yapılamaz.');
         }
 
-        // Kontenjan dolu mu?
-        if ($event->max_participants && $event->current_participants >= $event->max_participants) {
-            return back()->with('error', 'Etkinlik kontenjanı dolmuştur.');
+        // 1. Kulübe üyelik kontrolü/kaydı
+        $clubMember = ClubMember::where('club_id', $event->club_id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$clubMember) {
+            ClubMember::create([
+                'club_id' => $event->club_id,
+                'user_id' => $user->id,
+                'status'  => 'pending',
+                'message' => $request->note ? 'Etkinlik kaydı sırasında otomatik oluşturuldu. Not: ' . $request->note : 'Etkinlik kaydı sırasında otomatik oluşturuldu.',
+            ]);
+            $event->club->increment('member_count');
         }
 
-        // Zaten kayıtlı mı?
+        // 2. Etkinlik kaydı
         $existing = EventRegistration::where('event_id', $event->id)
             ->where('user_id', $user->id)
             ->first();
@@ -86,13 +96,13 @@ class KayitController extends Controller
             if ($existing->status === 'cancelled') {
                 $existing->update(['status' => 'registered']);
                 $event->increment('current_participants');
-                return back()->with('success', 'Etkinliğe yeniden kayıt oldunuz!');
+                return back()->with('success', 'Etkinliğe ve kulübe başarıyla kayıt oldunuz!');
             }
             return back()->with('info', 'Bu etkinliğe zaten kayıtlısınız.');
         }
 
         $request->validate([
-            'note' => 'nullable|string|max:300',
+            'note' => 'nullable|string|max:1000',
         ]);
 
         EventRegistration::create([
@@ -104,7 +114,7 @@ class KayitController extends Controller
 
         $event->increment('current_participants');
 
-        return back()->with('success', '"' . $event->title . '" etkinliğine başarıyla kayıt oldunuz!');
+        return back()->with('success', '"' . $event->title . '" etkinliğine ve ' . $event->club->name . ' kulübüne başarıyla kayıt oldunuz!');
     }
 
     public function etkinlikIptal(Event $event)

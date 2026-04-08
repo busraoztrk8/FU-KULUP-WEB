@@ -56,7 +56,7 @@
 {{-- Ekle/Düzenle Modal --}}
 <div id="duyuru-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideDuyuruModal()"></div>
-    <div class="relative bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
+    <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 shadow-2xl">
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             <h3 id="duyuru-modal-title" class="text-lg font-bold font-headline text-slate-800">Yeni Duyuru</h3>
             <button type="button" onclick="hideDuyuruModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
@@ -71,10 +71,19 @@
                     <label class="block text-sm font-bold text-slate-700 mb-2">Başlık <span class="text-red-500">*</span></label>
                     <input id="duyuru-baslik" name="title" type="text" required placeholder="Duyuru başlığı..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                          <label class="block text-sm font-bold text-slate-700 mb-2">Görsel (Opsiyonel)</label>
                          <input id="duyuru-gorsel" name="image" type="file" accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+                    </div>
+                    <div class="{{ auth()->user()->isEditor() ? 'hidden' : '' }}">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp <span class="text-red-500">*</span></label>
+                        <select id="duyuru-kulup" name="club_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                            <option value="">Seçiniz...</option>
+                            @foreach($clubs as $club)
+                                <option value="{{ $club->id }}">{{ $club->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Durum <span class="text-red-500">*</span></label>
@@ -150,6 +159,7 @@ function showDuyuruModal() {
     document.getElementById('duyuru-method').value = 'POST';
     document.getElementById('duyuru-baslik').value = '';
     document.getElementById('duyuru-icerik').value = '';
+    document.getElementById('duyuru-kulup').value = "{{ auth()->user()->isEditor() ? auth()->user()->club_id : '' }}";
     document.getElementById('duyuru-durum').value = '1';
     document.getElementById('duyuru-modal').classList.remove('hidden');
 }
@@ -166,6 +176,7 @@ function showDuyuruDuzenle(id) {
         
         document.getElementById('duyuru-baslik').value = data.title;
         document.getElementById('duyuru-icerik').value = data.content;
+        document.getElementById('duyuru-kulup').value = data.club_id || '';
         document.getElementById('duyuru-durum').value = data.is_published ? '1' : '0';
         
         document.getElementById('duyuru-modal').classList.remove('hidden');

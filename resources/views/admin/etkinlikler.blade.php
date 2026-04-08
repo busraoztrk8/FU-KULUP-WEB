@@ -58,79 +58,120 @@
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
-        <div class="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-5">
+        <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
             <form id="event-form" action="{{ route('admin.etkinlikler.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <!-- Görsel -->
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Görseli (Afiş)</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group">
-                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-primary text-[24px]">cloud_upload</span>
-                        </div>
-                        <p class="text-sm font-semibold text-slate-800">Fotoğraf yüklemek için tıklayın</p>
-                        <p class="text-xs text-slate-500 mt-1">SVG, PNG, JPG veya GIF (Maks. 5MB)</p>
-                        <input type="file" name="image" class="hidden" accept="image/*"/>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="space-y-5">
+                        <!-- Görsel -->
                         <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Adı <span class="text-red-500">*</span></label>
-                            <input type="text" name="title" placeholder="Örn: Kariyer Zirvesi 2024" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Başlangıç Tarihi ve Saati <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" name="start_time" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Konum / Salon</label>
-                            <div class="relative">
-                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">location_on</span>
-                                <input type="text" name="location" placeholder="Örn: Mühendislik Fakültesi Konferans Salonu" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm pl-11 pr-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Görseli (Afiş)</label>
+                            <div id="event-upload-area" class="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group overflow-hidden relative"
+                                onclick="document.getElementById('event-image-input').click()">
+                                <div id="event-upload-placeholder" class="flex flex-col items-center">
+                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined text-primary text-[20px]">cloud_upload</span>
+                                    </div>
+                                    <p class="text-xs font-semibold text-slate-800">Yüklemek için tıklayın</p>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">Maks. 10MB</p>
+                                </div>
+                                <img id="event-image-preview" src="" class="hidden absolute inset-0 w-full h-full object-cover"/>
+                                <input id="event-image-input" type="file" name="image" class="hidden" accept="image/*" onchange="previewImage(this, 'event-image-preview', 'event-upload-placeholder')"/>
                             </div>
                         </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Adı <span class="text-red-500">*</span></label>
+                            <input type="text" name="title" required placeholder="Örn: Kariyer Zirvesi 2024" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Başlangıç <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" name="start_time" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Bitiş</label>
+                                <input type="datetime-local" name="end_time" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Kısa Açıklama</label>
+                            <textarea name="short_description" rows="2" placeholder="Liste sayfalarında görünecek kısa özet..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                        </div>
                     </div>
+
                     <div class="space-y-5">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
-                            <select name="category_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm">
-                                <option value="">Seçiniz...</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
+                            <div class="flex gap-2">
+                                <select name="category_id" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    <option value="">Seçiniz...</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" onclick="addQuickCategory(this)" class="bg-primary/10 text-primary w-11 h-11 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-all shrink-0">
+                                    <span class="material-symbols-outlined text-[20px]">add</span>
+                                </button>
+                            </div>
                         </div>
+
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp <span class="text-red-500">*</span></label>
-                            <select name="club_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm">
+                            <select name="club_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                                 <option value="">Seçiniz...</option>
                                 @foreach($clubs as $club)
                                     <option value="{{ $club->id }}">{{ $club->name }}</option>
                                 @endforeach
                             </select>
                         </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Katılımcı Sınırı</label>
+                                <input type="number" name="max_participants" placeholder="Limitsiz için boş bırakın" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Yayın Durumu</label>
+                                <select name="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    <option value="published">Hemen Yayınla</option>
+                                    <option value="draft">Taslak</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-2">Yayın Durumu</label>
-                            <select name="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm">
-                                <option value="published">Hemen Yayınla</option>
-                                <option value="draft">Taslak Olarak Kaydet</option>
-                            </select>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Konum / Salon</label>
+                            <input type="text" name="location" placeholder="Örn: Konferans Salonu" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Harita / Konum URL</label>
+                            <input type="url" name="location_url" placeholder="Google Haritalar linki..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        </div>
+
+                        <div class="flex items-center gap-3 pt-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_featured" value="1" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                            <span class="text-sm font-bold text-slate-700">Öne Çıkarılan Etkinlik</span>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Açıklaması</label>
-                    <textarea name="description" rows="4" placeholder="Etkinlik hakkında detaylı bilgi giriniz..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm resize-none"></textarea>
+                <div class="mt-6">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Detaylı Açıklama <span class="text-red-500">*</span></label>
+                    <textarea name="description" rows="4" required placeholder="Etkinlik detayları..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
                 </div>
             </form>
         </div>
         <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
-            <button onclick="hideEventModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
-            <button type="submit" form="event-form" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md shadow-primary/20 flex items-center gap-2 active:scale-95">
-                <span class="material-symbols-outlined text-[18px]">done</span>Kaydet ve Yayınla
+            <button onclick="hideEventModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all">İptal</button>
+            <button type="submit" form="event-form" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md shadow-primary/20">
+                Kaydet ve Yayınla
             </button>
         </div>
     </div>
@@ -194,61 +235,120 @@
         </div>
         <form id="etkinlik-duzenle-form" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
             @csrf @method('PUT')
-            <div class="p-6 overflow-y-auto flex-1 space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Adı <span class="text-red-500">*</span></label>
-                        <input id="edit-etkinlik-adi" name="title" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Adı <span class="text-red-500">*</span></label>
+                            <input id="edit-etkinlik-adi" name="title" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Başlangıç <span class="text-red-500">*</span></label>
+                                <input name="start_time" type="datetime-local" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Bitiş</label>
+                                <input name="end_time" type="datetime-local" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Kısa Açıklama</label>
+                            <textarea name="short_description" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Görseli (Afiş)</label>
+                            <div id="edit-event-upload-area" class="border-2 border-dashed border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative overflow-hidden min-h-[100px]"
+                                 onclick="document.getElementById('edit-event-image-input').click()">
+                                
+                                <div id="edit-event-placeholder" class="flex items-center gap-4">
+                                    <span class="material-symbols-outlined text-primary text-[24px]">cloud_upload</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-700">Fotoğrafı değiştir</p>
+                                        <p class="text-xs text-slate-400">PNG, JPG (Maks. 10MB)</p>
+                                    </div>
+                                </div>
+                                <img id="edit-event-image-preview" src="" class="hidden absolute inset-0 w-full h-full object-cover"/>
+                                <input id="edit-event-image-input" type="file" name="image" class="hidden" accept="image/*" onchange="previewImage(this, 'edit-event-image-preview', 'edit-event-placeholder')"/>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Durum</label>
-                        <select id="edit-etkinlik-durum" name="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                            <option value="published">Aktif</option>
-                            <option value="draft">Taslak</option>
-                            <option value="cancelled">İptal</option>
-                            <option value="completed">Tamamlandı</option>
-                        </select>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
+                                <div class="flex gap-2">
+                                    <select name="category_id" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                        <option value="">Seçiniz...</option>
+                                        @foreach($categories as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="button" onclick="addQuickCategory(this)" class="bg-primary/10 text-primary w-11 h-11 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-all shrink-0">
+                                        <span class="material-symbols-outlined text-[20px]">add</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Durum</label>
+                                <select id="edit-etkinlik-durum" name="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    <option value="published">Aktif</option>
+                                    <option value="draft">Taslak</option>
+                                    <option value="cancelled">İptal</option>
+                                    <option value="completed">Tamamlandı</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp <span class="text-red-500">*</span></label>
+                            <select name="club_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                <option value="">Seçiniz...</option>
+                                @foreach($clubs as $club)
+                                    <option value="{{ $club->id }}">{{ $club->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Katılımcı Sınırı</label>
+                                <input type="number" name="max_participants" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-2">Konum</label>
+                                <input name="location" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Harita / Konum URL</label>
+                            <input type="url" name="location_url" placeholder="Google Haritalar linki..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        </div>
+
+                        <div class="flex items-center gap-3 pt-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_featured" value="1" id="edit-etkinlik-featured" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                            <span class="text-sm font-bold text-slate-700">Öne Çıkarılan Etkinlik</span>
+                        </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Başlangıç Tarihi <span class="text-red-500">*</span></label>
-                        <input name="start_time" type="datetime-local" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Konum</label>
-                        <input name="location" type="text" placeholder="Konum..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
-                        <select name="category_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                            <option value="">Seçiniz...</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp <span class="text-red-500">*</span></label>
-                        <select name="club_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                            <option value="">Seçiniz...</option>
-                            @foreach($clubs as $club)
-                                <option value="{{ $club->id }}">{{ $club->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Açıklama <span class="text-red-500">*</span></label>
-                    <textarea name="description" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Detaylı Açıklama <span class="text-red-500">*</span></label>
+                    <textarea name="description" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
-                <button type="button" onclick="hideEtkinlikDuzenle()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
-                    <span class="material-symbols-outlined text-[18px]">done</span>Güncelle
+                <button type="button" onclick="hideEtkinlikDuzenle()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all">İptal</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md flex items-center gap-2">
+                    Güncelle
                 </button>
             </div>
         </form>
@@ -301,14 +401,104 @@ function showEtkinlikDetay(id, adi) {
 function hideEtkinlikDetay() {
     document.getElementById('etkinlik-detay-modal').classList.add('hidden');
 }
-function showEtkinlikDuzenle(id, adi, durum) {
-    document.getElementById('edit-etkinlik-adi').value = adi;
-    document.getElementById('edit-etkinlik-durum').value = durum;
+function showEtkinlikDuzenle(id) {
+    // Modal açılmadan önce alanları temizle/hazırla
+    document.getElementById('edit-etkinlik-adi').value = 'Yükleniyor...';
+    document.getElementById('edit-event-image-preview').classList.add('hidden');
+    document.getElementById('edit-event-placeholder').classList.remove('hidden');
+    
     document.getElementById('etkinlik-duzenle-form').action = '/admin/etkinlikler/' + id;
     document.getElementById('etkinlik-duzenle-modal').classList.remove('hidden');
+
+    fetch('/admin/etkinlikler/' + id)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('edit-etkinlik-adi').value = data.title;
+            document.getElementById('edit-etkinlik-durum').value = data.status;
+            
+            // Diğer alanları doldur
+            let form = document.getElementById('etkinlik-duzenle-form');
+            form.querySelector('input[name="start_time"]').value = data.start_time ? data.start_time.substring(0, 16) : '';
+            form.querySelector('input[name="end_time"]').value = data.end_time ? data.end_time.substring(0, 16) : '';
+            form.querySelector('input[name="location"]').value = data.location || '';
+            form.querySelector('input[name="location_url"]').value = data.location_url || '';
+            form.querySelector('input[name="max_participants"]').value = data.max_participants || '';
+            form.querySelector('select[name="category_id"]').value = data.category_id || '';
+            form.querySelector('select[name="club_id"]').value = data.club_id || '';
+            form.querySelector('textarea[name="short_description"]').value = data.short_description || '';
+            form.querySelector('textarea[name="description"]').value = data.description || '';
+            
+            // Checkbox/Toggle
+            document.getElementById('edit-etkinlik-featured').checked = (data.is_featured == 1);
+
+            // Mevcut Resmi Göster
+            if (data.image) {
+                const previewImg = document.getElementById('edit-event-image-preview');
+                const placeholder = document.getElementById('edit-event-placeholder');
+                previewImg.src = '/storage/' + data.image;
+                previewImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            alert('Veriler yüklenirken bir hata oluştu.');
+        });
+}
+
+function previewImage(input, previewId, placeholderId) {
+    const file = input.files[0];
+    const preview = document.getElementById(previewId);
+    const placeholder = document.getElementById(placeholderId);
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+        reader.readAsDataURL(file);
+    }
 }
 function hideEtkinlikDuzenle() {
     document.getElementById('etkinlik-duzenle-modal').classList.add('hidden');
+}
+
+function addQuickCategory(btn) {
+    const name = prompt("Yeni kategori adını giriniz:");
+    if (!name || name.trim() === "") return;
+
+    fetch("{{ route('admin.kategoriler.store') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ name: name })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Tüm kategori selectlerini bul ve güncelle
+            const selects = document.querySelectorAll('select[name="category_id"]');
+            selects.forEach(select => {
+                const option = new Option(data.category.name, data.category.id);
+                select.add(option);
+            });
+            // Tıklanan butonun yanındaki selecti seç
+            const currentSelect = btn.previousElementSibling;
+            if (currentSelect) currentSelect.value = data.category.id;
+        } else {
+            alert(data.message || "Kategori eklenirken bir hata oluştu. İsim zaten mevcut olabilir.");
+        }
+    })
+    .catch(error => {
+        console.error("Hata:", error);
+        alert("Kategori eklenirken bir hata oluştu.");
+    });
 }
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;

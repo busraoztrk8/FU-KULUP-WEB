@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClubMember extends Model
 {
-    protected $fillable = ['club_id', 'user_id', 'status', 'message', 'approved_at'];
+    use HasFactory, SoftDeletes;
+    protected $fillable = ['club_id', 'user_id', 'status', 'message', 'title', 'approved_at'];
 
     protected $casts = ['approved_at' => 'datetime'];
 

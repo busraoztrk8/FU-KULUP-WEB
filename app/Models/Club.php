@@ -23,7 +23,24 @@ class Club extends Model
         'member_count',
         'event_count',
         'is_active',
+        'website_url',
+        'instagram_url',
+        'youtube_url',
+        'twitter_url',
+        'facebook_url',
+        'mission',
+        'vision',
+        'founder_name',
+        'established_year',
     ];
+
+    /**
+     * Get the images for the club gallery.
+     */
+    public function images()
+    {
+        return $this->hasMany(ClubImage::class);
+    }
 
     /**
      * Set the club name and slug.

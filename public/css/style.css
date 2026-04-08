@@ -1,7 +1,10 @@
 /* ---------- Base ---------- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { 
+    scroll-behavior: smooth; 
+    scrollbar-gutter: stable;
+}
 
 body {
     background-color: #ffffff;
@@ -75,6 +78,32 @@ body {
 #main-nav.scrolled {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #5d1021;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+.nav-link:hover {
+    color: #5d1021;
+    opacity: 1 !important;
 }
 
 /* ---------- Mobile Menu ---------- */

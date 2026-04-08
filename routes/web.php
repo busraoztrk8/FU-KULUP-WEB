@@ -17,24 +17,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Public routes
-Route::get('/etkinlikler', function () {
-    $events = \App\Models\Event::with(['category', 'club'])
-        ->where('status', 'published')
-        ->orderBy('start_time', 'asc')
-        ->get();
-        
-    return view('etkinlikler', compact('events'));
-})->name('etkinlikler');
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'tr'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
-Route::get('/tum-etkinlikler', function () {
-    $events = \App\Models\Event::with(['category', 'club'])
-        ->where('status', 'published')
-        ->orderBy('start_time', 'desc')
-        ->paginate(12);
-        
-    return view('tum-etkinlikler', compact('events'));
-})->name('tum-etkinlikler');
+// Public routes
+Route::get('/etkinlikler', [HomeController::class, 'etkinlikler'])->name('etkinlikler');
+Route::get('/tum-etkinlikler', [HomeController::class, 'etkinlikler'])->name('tum-etkinlikler');
 
 Route::get('/kulupler', function () {
     $clubs = \App\Models\Club::with('category')
@@ -98,12 +90,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
 
     // Events
     Route::get('/etkinlikler', [EventController::class, 'index'])->name('etkinlikler');
+    Route::get('/etkinlikler/{event}', [EventController::class, 'show'])->name('etkinlikler.show');
     Route::post('/etkinlikler', [EventController::class, 'store'])->name('etkinlikler.store');
     Route::put('/etkinlikler/{event}', [EventController::class, 'update'])->name('etkinlikler.update');
     Route::delete('/etkinlikler/{event}', [EventController::class, 'destroy'])->name('etkinlikler.destroy');
 
     // Clubs
     Route::get('/kulupler', [ClubController::class, 'index'])->name('kulupler');
+    Route::get('/kulupler/{club}', [ClubController::class, 'show'])->name('kulupler.show');
     Route::post('/kulupler', [ClubController::class, 'store'])->name('kulupler.store');
     Route::put('/kulupler/{club}', [ClubController::class, 'update'])->name('kulupler.update');
     Route::delete('/kulupler/{club}', [ClubController::class, 'destroy'])->name('kulupler.destroy');
@@ -113,6 +107,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::post('/kulup-uyelik/{member}/onayla', [ClubController::class, 'approveMember'])->name('kulupler.uyeler.onayla');
     Route::post('/kulup-uyelik/{member}/reddet', [ClubController::class, 'rejectMember'])->name('kulupler.uyeler.reddet');
     Route::delete('/kulup-uyelik/{member}', [ClubController::class, 'removeMember'])->name('kulupler.uyeler.sil');
+    Route::post('/kulupler/{club}/set-president/{user}', [ClubController::class, 'setPresident'])->name('kulupler.set-president');
+    Route::post('/kulup-uyelik/{member}/update-title', [ClubController::class, 'updateMemberTitle'])->name('kulupler.update-member-title');
+    Route::delete('/kulup-gallery/{image}', [ClubController::class, 'deleteGalleryImage'])->name('kulupler.delete-gallery-image');
+
+    // Genel Üyelik Yönetimi (Onarım)
+    Route::get('/uyeler', [\App\Http\Controllers\Admin\MembershipController::class, 'index'])->name('members.index');
+    Route::post('/uyeler', [\App\Http\Controllers\Admin\MembershipController::class, 'store'])->name('members.store');
+    Route::post('/uyeler/{member}/onayla', [\App\Http\Controllers\Admin\MembershipController::class, 'approve'])->name('members.approve');
+    Route::post('/uyeler/{member}/reddet', [\App\Http\Controllers\Admin\MembershipController::class, 'reject'])->name('members.reject');
+    Route::delete('/uyeler/{member}', [\App\Http\Controllers\Admin\MembershipController::class, 'destroy'])->name('members.destroy');
 
     // Categories
     Route::get('/kategoriler', [CategoryController::class, 'index'])->name('kategoriler');
@@ -121,23 +125,29 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::delete('/kategoriler/{category}', [CategoryController::class, 'destroy'])->name('kategoriler.destroy');
 
     // Users
+    Route::get('/kullanicilar/search', [UserController::class, 'search'])->name('kullanicilar.search');
     Route::get('/kullanicilar', [UserController::class, 'index'])->name('kullanicilar');
     Route::post('/kullanicilar', [UserController::class, 'store'])->name('kullanicilar.store');
     Route::put('/kullanicilar/{user}', [UserController::class, 'update'])->name('kullanicilar.update');
     Route::delete('/kullanicilar/{user}', [UserController::class, 'destroy'])->name('kullanicilar.destroy');
 
-    // Settings & Reports (static views)
-    Route::get('/ayarlar', fn() => view('admin.ayarlar'))->name('ayarlar');
+    // Settings & Reports
+    Route::get('/ayarlar', function() {
+        return view('admin.ayarlar');
+    })->name('ayarlar');
+    Route::post('/ayarlar', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('ayarlar.update');
     Route::get('/raporlar', fn() => view('admin.raporlar'))->name('raporlar');
 
     // Haberler
     Route::get('/haberler', [HaberController::class, 'index'])->name('haberler');
+    Route::get('/haberler/{news}', [HaberController::class, 'show'])->name('haberler.show');
     Route::post('/haberler', [HaberController::class, 'store'])->name('haberler.store');
     Route::put('/haberler/{news}', [HaberController::class, 'update'])->name('haberler.update');
     Route::delete('/haberler/{news}', [HaberController::class, 'destroy'])->name('haberler.destroy');
 
     // Duyurular
     Route::get('/duyurular', [DuyuruController::class, 'index'])->name('duyurular');
+    Route::get('/duyurular/{announcement}', [DuyuruController::class, 'show'])->name('duyurular.show');
     Route::post('/duyurular', [DuyuruController::class, 'store'])->name('duyurular.store');
     Route::put('/duyurular/{announcement}', [DuyuruController::class, 'update'])->name('duyurular.update');
     Route::delete('/duyurular/{announcement}', [DuyuruController::class, 'destroy'])->name('duyurular.destroy');
@@ -154,7 +164,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
     Route::put('/menu/{menu}', [MenuController::class, 'update'])->name('menu.update');
     Route::delete('/menu/{menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
-    Route::patch('/menu/{menu}/toggle', [MenuController::class, 'toggle'])->name('menu.toggle');
+    Route::post('/menu/{menu}/toggle', [MenuController::class, 'toggle'])->name('menu.toggle');
 
     // Galeri Yönetimi
     Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery');

@@ -86,4 +86,20 @@ class User extends Authenticatable
     {
         return $this->hasRole('editor');
     }
+
+    /**
+     * Get the student's club memberships.
+     */
+    public function clubMemberships()
+    {
+        return $this->hasMany(ClubMember::class);
+    }
+
+    /**
+     * Get the student's event registrations.
+     */
+    public function eventRegistrations()
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
 }

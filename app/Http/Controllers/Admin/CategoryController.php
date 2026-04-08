@@ -29,7 +29,15 @@ class CategoryController extends Controller
             'color' => 'nullable|string|max:100',
         ]);
 
-        Category::create($validated);
+        $category = Category::create($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'category' => $category,
+                'message' => 'Kategori başarıyla oluşturuldu.'
+            ]);
+        }
 
         return redirect()->route('admin.kategoriler')->with('success', 'Kategori oluşturuldu.');
     }

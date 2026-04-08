@@ -154,25 +154,7 @@
                         </div>
                     </div>
                     @endif
-                    @if($event->max_participants)
-                    <div class="flex items-start gap-4">
-                        <div class="p-2.5 bg-primary/5 rounded-xl text-primary shrink-0">
-                            <span class="material-symbols-outlined">people</span>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Kontenjan</p>
-                            <p class="font-bold text-slate-800">
-                                {{ $event->current_participants }} / {{ $event->max_participants }}
-                                <span class="text-xs text-slate-400 font-normal ml-1">kişi</span>
-                            </p>
-                            {{-- Doluluk çubuğu --}}
-                            <div class="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-primary rounded-full transition-all"
-                                    style="width: {{ min(100, ($event->current_participants / $event->max_participants) * 100) }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
+
                 </div>
 
                 {{-- Durum badge --}}
@@ -210,20 +192,11 @@
                 @endif
 
                 @if(!$registration || $registration->status === 'cancelled')
-                    @if($event->max_participants && $event->current_participants >= $event->max_participants)
-                        <div class="w-full mt-6 bg-slate-100 text-slate-500 py-4 rounded-xl font-bold text-base text-center">
-                            Kontenjan Doldu
-                        </div>
-                    @else
-                        <form action="{{ route('etkinlik.kayit', $event) }}" method="POST">
-                            @csrf
-                            <button type="submit"
-                                class="w-full mt-6 bg-primary hover:bg-primary-dark text-white py-4 rounded-xl font-bold text-base shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined">how_to_reg</span>
-                                Kayıt Ol
-                            </button>
-                        </form>
-                    @endif
+                    <button type="button" onclick="showRegistrationModal()"
+                        class="w-full mt-6 bg-primary hover:bg-primary-dark text-white py-4 rounded-xl font-bold text-base shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">how_to_reg</span>
+                        Kayıt Ol
+                    </button>
                 @elseif($registration->status === 'registered')
                     <div class="w-full mt-6 bg-green-50 border border-green-200 text-green-700 py-4 rounded-xl font-bold text-sm text-center flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">check_circle</span>
@@ -334,3 +307,58 @@
 @endif
 
 @endsection
+
+@push('scripts')
+<script>
+    function showRegistrationModal() {
+        document.getElementById('registration-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function hideRegistrationModal() {
+        document.getElementById('registration-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+</script>
+@endpush
+
+{{-- Registration Modal --}}
+<div id="registration-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hideRegistrationModal()"></div>
+    <div class="relative bg-white rounded-3xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+        <div class="bg-primary p-8 text-white relative">
+            <h3 class="text-2xl font-headline font-bold mb-2">Etkinliğe Kayıt Ol</h3>
+            <p class="text-white/80 text-sm leading-relaxed">
+                Bu etkinliğe kayıt olarak aynı zamanda <strong>{{ $event->club->name }}</strong> kulübüne üyelik başvurusunda bulunmuş olacaksınız.
+            </p>
+            <button onclick="hideRegistrationModal()" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
+                <span class="material-symbols-outlined font-bold">close</span>
+            </button>
+            <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        </div>
+        
+        <form action="{{ route('etkinlik.kayit', $event) }}" method="POST" class="p-8 space-y-6">
+            @csrf
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Başvuru Notu (İsteğe Bağlı)</label>
+                <textarea name="note" rows="4" 
+                    placeholder="Kulüp yönetimine veya etkinlik düzenleyicisine iletmek istediğiniz bir not varsa buraya yazabilirsiniz..."
+                    class="w-full bg-slate-50 border border-slate-200 rounded-2xl text-sm px-4 py-3 focus:bg-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none shadow-inner"></textarea>
+            </div>
+            
+            <div class="flex flex-col gap-3 pt-2">
+                <button type="submit" 
+                    class="w-full bg-primary hover:bg-primary-dark text-white py-4 rounded-2xl font-bold text-base shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Kaydımı Tamamla
+                </button>
+                <button type="button" onclick="hideRegistrationModal()"
+                    class="w-full py-3 text-slate-500 font-bold text-sm hover:bg-slate-50 rounded-2xl transition-all">
+                    Vazgeç
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section('scripts_extra')
+

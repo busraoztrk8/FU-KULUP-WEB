@@ -1,103 +1,190 @@
 @extends('layouts.app')
 @section('title', $club->name . ' - Fırat Üniversitesi')
 @section('data-page', 'club-detail')
+@push('styles')
+<style>
+    .gallery-slider .swiper-slide {
+        width: auto;
+    }
+    .gallery-image-container::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        opacity: 0;
+        transition: opacity 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .gallery-image-container:hover::after {
+        opacity: 1;
+        content: "\e3f4"; /* photo_library icon in material symbols */
+        font-family: 'Material Symbols Outlined';
+        color: white;
+        font-size: 24px;
+    }
+    #lightbox-modal {
+        transition: opacity 0.3s ease-out;
+    }
+    #lightbox-modal.hidden {
+        display: none;
+        opacity: 0;
+    }
+</style>
+@endpush
 
 @section('content')
 <div class="pb-12 md:pb-20 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
 
-    {{-- Hero --}}
-    <section class="relative mb-8 md:mb-12 rounded-2xl md:rounded-3xl overflow-hidden h-[280px] sm:h-[350px] md:h-[420px] shadow-2xl">
+    {{-- Hero Sector --}}
+    <section class="relative mb-12 rounded-3xl overflow-hidden h-[300px] md:h-[450px] shadow-2xl group">
         @if($club->cover_image)
             <img src="{{ asset('storage/' . $club->cover_image) }}" alt="{{ $club->name }}"
-                class="absolute inset-0 w-full h-full object-cover"/>
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"/>
         @else
-            <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900"></div>
         @endif
-        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
-        <div class="absolute bottom-0 left-0 p-5 sm:p-8 md:p-12 w-full flex flex-col sm:flex-row items-start sm:items-end gap-4 md:gap-6">
+        <div class="absolute bottom-0 left-0 p-8 md:p-12 w-full flex flex-col md:flex-row items-start md:items-end gap-6">
             {{-- Logo --}}
-            <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl bg-white p-2 shadow-2xl shrink-0">
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-white p-2 shadow-2xl shrink-0">
                 @if($club->logo)
                     <img src="{{ asset('storage/' . $club->logo) }}" alt="{{ $club->name }}"
                         class="w-full h-full object-cover rounded-xl"/>
                 @else
                     <div class="w-full h-full bg-primary rounded-xl flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-3xl md:text-4xl">groups</span>
+                        <span class="material-symbols-outlined text-white text-4xl">groups</span>
                     </div>
                 @endif
             </div>
-            <div>
-                <h1 class="font-headline text-2xl sm:text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-3">
+            <div class="flex-1">
+                <h1 class="font-headline text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4 drop-shadow-lg">
                     {{ $club->name }}
                 </h1>
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-3">
                     @if($club->category)
-                    <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-widest">
+                    <span class="px-4 py-1.5 bg-primary/90 backdrop-blur-md text-white rounded-full text-[11px] font-bold uppercase tracking-widest border border-white/20">
                         {{ $club->category->name }}
                     </span>
                     @endif
-                    <span class="px-3 py-1 bg-white/20 backdrop-blur text-white rounded-full text-[10px] font-bold">
-                        {{ $club->member_count }} Üye
+                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-md text-white rounded-full text-[11px] font-bold border border-white/10">
+                        {{ number_format($club->member_count) }} Üye
                     </span>
-                    @if($club->is_active)
-                    <span class="px-3 py-1 bg-green-500/80 text-white rounded-full text-[10px] font-bold">Aktif</span>
-                    @endif
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- İçerik --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+    {{-- Main Layout --}}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
-        {{-- Sol: Ana İçerik --}}
-        <div class="lg:col-span-8 space-y-10 md:space-y-14">
+        {{-- Left Column: Hakkımızda & Activities --}}
+        <div class="lg:col-span-8 space-y-12">
+            
+            {{-- Hakkımızda --}}
+            <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-4 mb-8">
+                    <span class="w-1.5 h-10 bg-primary rounded-full"></span>
+                    <h2 class="font-headline text-3xl font-bold text-slate-800">Hakkımızda</h2>
+                </div>
+                
+                <div class="prose prose-slate max-w-none mb-10 text-slate-600 leading-relaxed text-lg">
+                    {!! nl2br(e($club->description ?? 'Bu kulüp hakkında henüz detaylı bir açıklama girilmemiş.')) !!}
+                </div>
 
-            {{-- Hakkında --}}
-            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
-                <h2 class="font-headline text-2xl font-bold mb-5 flex items-center gap-3 text-on-surface">
-                    <span class="w-1.5 h-8 bg-primary rounded-full"></span>
-                    Hakkımızda
-                </h2>
-                @if($club->description)
-                    <div class="text-on-surface-variant leading-relaxed text-base space-y-3">
-                        {!! nl2br(e($club->description)) !!}
+                {{-- Mission & Vision Cards --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    {{-- Mission --}}
+                    <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 group hover:border-primary/30 transition-colors">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                            <span class="material-symbols-outlined text-primary text-[28px]">rocket_launch</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-2">Misyonumuz</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed italic">
+                            {{ $club->mission ?? 'Öğrencilerimize sosyal ve teknik alanlarda değer katmak, üniversite vizyonunu ileriye taşımak.' }}
+                        </p>
                     </div>
-                @else
-                    <p class="text-slate-400 italic">Henüz açıklama eklenmemiş.</p>
-                @endif
+                    {{-- Vision --}}
+                    <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 group hover:border-primary/30 transition-colors">
+                        <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
+                            <span class="material-symbols-outlined text-amber-500 text-[28px]">visibility</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-2">Vizyonumuz</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed italic">
+                            {{ $club->vision ?? 'Alanında öncü, disiplinler arası çalışmalara odaklanan sürdürülebilir bir topluluk olmak.' }}
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            {{-- Yaklaşan Etkinlikler --}}
-            @if($club->events->count() > 0)
-            <div>
+            {{-- Club Gallery --}}
+            @if($club->images->count() > 0)
+            <div class="gallery-wrapper">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="font-headline text-2xl font-bold text-on-surface">Kulüp Etkinlikleri</h2>
+                    <h2 class="font-headline text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">photo_library</span>
+                        Kulüp Galerisi
+                    </h2>
+                    {{-- Slider Nav --}}
+                    <div class="flex gap-2">
+                        <button class="gallery-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                        </button>
+                        <button class="gallery-next w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="swiper gallery-slider overflow-hidden rounded-3xl">
+                    <div class="swiper-wrapper">
+                        @foreach($club->images as $index => $image)
+                        <div class="swiper-slide !w-auto">
+                            <div class="gallery-image-container relative w-[240px] md:w-[320px] aspect-[4/3] rounded-2xl overflow-hidden border border-slate-100 group shadow-sm hover:shadow-xl transition-all cursor-pointer"
+                                 onclick="openLightbox({{ $index }})">
+                                <img src="{{ asset('storage/' . $image->image_path) }}" 
+                                     data-full="{{ asset('storage/' . $image->image_path) }}"
+                                     class="gallery-thumb w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            {{-- Upcoming Events --}}
+            @php
+                $upcomingEvents = $club->events()->where('start_time', '>=', now())->orderBy('start_time')->get();
+            @endphp
+            @if($upcomingEvents->count() > 0)
+            <div>
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="font-headline text-2xl font-bold text-slate-800">Yaklaşan Kulüp Etkinlikleri</h2>
                     <a href="{{ route('etkinlikler') }}" class="text-primary text-sm font-bold hover:underline">Tümünü Gör</a>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    @foreach($club->events as $event)
-                    <a href="{{ route('etkinlik.detay', $event->slug) }}"
-                        class="group relative rounded-2xl overflow-hidden aspect-video shadow-md hover:shadow-xl transition-all">
-                        @if($event->image)
-                            <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}"
-                                class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
-                        @else
-                            <div class="absolute inset-0 bg-gradient-to-br from-primary/60 to-primary-dark"></div>
-                        @endif
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                        <div class="absolute bottom-0 left-0 p-5">
-                            <span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded mb-2 inline-block uppercase">
-                                {{ $event->start_time->format('d M') }}
-                            </span>
-                            <h3 class="text-base font-bold text-white leading-snug line-clamp-2">{{ $event->title }}</h3>
-                            @if($event->location)
-                            <p class="text-white/70 text-xs mt-1 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[12px]">location_on</span>
-                                {{ $event->location }}
-                            </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    @foreach($upcomingEvents as $event)
+                    <a href="{{ route('etkinlik.detay', $event->slug) }}" class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-slate-100">
+                        <div class="aspect-[16/9] relative overflow-hidden">
+                            @if($event->image)
+                                <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                            @else
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary-dark"></div>
                             @endif
+                            <div class="absolute bottom-4 left-4">
+                                <span class="bg-red-600 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded shadow-lg">
+                                    {{ $event->start_time->format('d M') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors line-clamp-2">{{ $event->title }}</h3>
+                            <div class="flex items-center gap-4 text-slate-400 text-[11px] font-medium italic">
+                                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">location_on</span>{{ $event->location ?? 'Belirtilmedi' }}</span>
+                            </div>
                         </div>
                     </a>
                     @endforeach
@@ -107,151 +194,224 @@
 
         </div>
 
-        {{-- Sağ: Sidebar --}}
-        <aside class="lg:col-span-4 space-y-6">
+        {{-- Right Column: Sidebar --}}
+        <aside class="lg:col-span-4 space-y-8">
 
-            {{-- Kulüp Bilgileri --}}
-            <div class="bg-white rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm">
-                <h3 class="font-headline text-xl font-bold mb-6 text-on-surface">Kulüp Bilgileri</h3>
-                <div class="space-y-4 mb-6">
-                    @if($club->president)
-                    <div class="flex items-center justify-between py-2.5 border-b border-slate-50">
-                        <span class="text-slate-500 flex items-center gap-2 text-sm">
-                            <span class="material-symbols-outlined text-primary text-lg">person_search</span>
-                            Başkan
+            {{-- Info Table --}}
+            <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm relative overflow-hidden">
+                <h3 class="font-headline text-2xl font-bold mb-8 text-slate-800">Kulüp Bilgileri</h3>
+                
+                <div class="space-y-6 mb-8">
+                    <div class="flex items-center justify-between group">
+                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">person_search</span>
+                            Kurucu
                         </span>
-                        <span class="font-bold text-slate-800 text-sm">{{ $club->president->name }}</span>
+                        <span class="font-bold text-slate-800 text-sm text-right">{{ $club->founder_name ?? ($club->president->name ?? '-') }}</span>
                     </div>
-                    @endif
-                    <div class="flex items-center justify-between py-2.5 border-b border-slate-50">
-                        <span class="text-slate-500 flex items-center gap-2 text-sm">
-                            <span class="material-symbols-outlined text-primary text-lg">group</span>
+                    <div class="flex items-center justify-between group">
+                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">group</span>
                             Üye Sayısı
                         </span>
                         <span class="font-bold text-slate-800 text-sm">{{ number_format($club->member_count) }}</span>
                     </div>
-                    @if($club->category)
-                    <div class="flex items-center justify-between py-2.5 border-b border-slate-50">
-                        <span class="text-slate-500 flex items-center gap-2 text-sm">
-                            <span class="material-symbols-outlined text-primary text-lg">category</span>
+                    <div class="flex items-center justify-between group">
+                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">category</span>
                             Kategori
                         </span>
-                        <span class="font-bold text-slate-800 text-sm">{{ $club->category->name }}</span>
+                        <span class="font-bold text-slate-800 text-sm">{{ $club->category->name ?? '-' }}</span>
                     </div>
-                    @endif
-                    <div class="flex items-center justify-between py-2.5 border-b border-slate-50">
-                        <span class="text-slate-500 flex items-center gap-2 text-sm">
-                            <span class="material-symbols-outlined text-primary text-lg">event</span>
-                            Etkinlik Sayısı
-                        </span>
-                        <span class="font-bold text-slate-800 text-sm">{{ $club->event_count }}</span>
-                    </div>
-                    <div class="flex items-center justify-between py-2.5">
-                        <span class="text-slate-500 flex items-center gap-2 text-sm">
-                            <span class="material-symbols-outlined text-primary text-lg">calendar_today</span>
+                    <div class="flex items-center justify-between group">
+                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">history</span>
                             Kuruluş
                         </span>
-                        <span class="font-bold text-slate-800 text-sm">{{ $club->created_at->format('Y') }}</span>
+                        <span class="font-bold text-slate-800 text-sm">{{ $club->established_year ?? $club->created_at->format('Y') }}</span>
                     </div>
                 </div>
 
                 @auth
-                @php
-                    $membership = \App\Models\ClubMember::where('club_id', $club->id)
-                        ->where('user_id', auth()->id())
-                        ->first();
-                @endphp
+                    @php
+                        $membership = \App\Models\ClubMember::where('club_id', $club->id)
+                            ->where('user_id', auth()->id())
+                            ->first();
+                    @endphp
 
-                @if(session('success'))
-                <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">check_circle</span>{{ session('success') }}
-                </div>
-                @endif
-                @if(session('info'))
-                <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">info</span>{{ session('info') }}
-                </div>
-                @endif
-                @if(session('error'))
-                <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">error</span>{{ session('error') }}
-                </div>
-                @endif
-
-                @if(!$membership)
-                    <form action="{{ route('kulup.kayit', $club) }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="w-full py-4 bg-primary text-white rounded-xl font-bold text-base hover:bg-primary-dark active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">person_add</span>
-                            Kulübe Katıl
-                        </button>
-                    </form>
-                @elseif($membership->status === 'pending')
-                    <div class="w-full py-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-bold text-sm text-center flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">hourglass_empty</span>
-                        Başvurunuz İnceleniyor
-                    </div>
-                    <form action="{{ route('kulup.ayril', $club) }}" method="POST" class="mt-2">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="w-full py-2.5 border border-slate-200 text-slate-500 rounded-xl text-sm font-medium hover:bg-slate-50 transition-all">
-                            Başvuruyu İptal Et
-                        </button>
-                    </form>
-                @elseif($membership->status === 'approved')
-                    <div class="w-full py-4 bg-green-50 border border-green-200 text-green-700 rounded-xl font-bold text-sm text-center flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                        Kulüp Üyesisiniz
-                    </div>
-                    <form action="{{ route('kulup.ayril', $club) }}" method="POST" class="mt-2">
-                        @csrf @method('DELETE')
-                        <button type="submit" onclick="return confirm('Kulüpten ayrılmak istediğinize emin misiniz?')"
-                            class="w-full py-2.5 border border-red-200 text-red-500 rounded-xl text-sm font-medium hover:bg-red-50 transition-all">
-                            Kulüpten Ayrıl
-                        </button>
-                    </form>
-                @elseif($membership->status === 'rejected')
-                    <div class="w-full py-4 bg-red-50 border border-red-200 text-red-600 rounded-xl font-bold text-sm text-center flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">cancel</span>
-                        Başvurunuz Reddedildi
-                    </div>
-                @endif
-
+                    @if(!$membership)
+                        <form action="{{ route('kulup.kayit', $club) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full py-4 bg-primary text-white rounded-2xl font-bold text-base hover:bg-primary-dark active:scale-95 transition-all shadow-xl shadow-primary/30 flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">person_add</span>
+                                Kulübe Katıl
+                            </button>
+                        </form>
+                    @elseif($membership->status === 'pending')
+                         <div class="w-full py-4 bg-amber-50 text-amber-700 rounded-2xl font-bold text-sm text-center">Başvuru Beklemede</div>
+                    @else
+                         <div class="w-full py-4 bg-green-50 text-green-700 rounded-2xl font-bold text-sm text-center">Kulüp Üyesisiniz</div>
+                    @endif
                 @else
-                <a href="{{ route('login') }}"
-                    class="w-full py-4 bg-primary text-white rounded-xl font-bold text-base hover:bg-primary-dark active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">login</span>
-                    Giriş Yap ve Katıl
-                </a>
+                    <a href="{{ route('login') }}" class="w-full py-4 bg-primary text-white rounded-2xl font-bold text-base hover:bg-primary-dark flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">login</span> Giriş Yap ve Katıl
+                    </a>
                 @endauth
             </div>
 
-            {{-- Kısa Açıklama --}}
-            @if($club->short_description)
-            <div class="bg-primary/5 rounded-2xl p-6 border border-primary/10">
-                <p class="text-sm text-slate-600 italic leading-relaxed text-center">
-                    "{{ $club->short_description }}"
-                </p>
+            {{-- Active Members / Board --}}
+            @php
+                $activeMembers = $club->members()->where('status', 'approved')->whereNotNull('title')->orderBy('title')->get();
+            @endphp
+            @if($activeMembers->count() > 0)
+            <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                <h3 class="font-headline text-2xl font-bold mb-8 text-slate-800">Aktif Üyeler</h3>
+                <div class="space-y-6">
+                    @foreach($activeMembers as $member)
+                    <div class="flex items-center gap-4 group">
+                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-100 group-hover:border-primary transition-colors shrink-0 shadow-sm">
+                            @if($member->user && $member->user->profile_photo)
+                                <img src="{{ asset('storage/' . $member->user->profile_photo) }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <span class="material-symbols-outlined text-[20px]">person</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors">{{ $member->user->name }}</h4>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ $member->title }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                {{-- See all link --}}
+                <div class="mt-8 pt-6 border-t border-slate-50">
+                    <button class="w-full py-3 bg-slate-50 text-slate-500 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all border border-slate-100">Tüm Üyeleri Görüntüle</button>
+                </div>
             </div>
             @endif
 
-            {{-- Paylaş --}}
-            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Paylaş</p>
-                <div class="flex justify-center gap-3">
-                    <a href="https://wa.me/?text={{ urlencode($club->name . ' - ' . request()->url()) }}"
-                        target="_blank"
-                        class="w-10 h-10 rounded-xl bg-white flex items-center justify-center hover:bg-primary hover:text-white transition-all text-primary shadow-sm">
-                        <span class="material-symbols-outlined text-[18px]">chat</span>
+            {{-- Social & Actions --}}
+            <div class="flex justify-center gap-4">
+                @if($club->website_url)
+                    <a href="{{ $club->website_url }}" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-[22px]">language</span>
                     </a>
-                    <button onclick="navigator.clipboard.writeText('{{ request()->url() }}'); alert('Link kopyalandı!')"
-                        class="w-10 h-10 rounded-xl bg-white flex items-center justify-center hover:bg-primary hover:text-white transition-all text-primary shadow-sm">
-                        <span class="material-symbols-outlined text-[18px]">link</span>
-                    </button>
-                </div>
+                @endif
+                <button class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[22px]">share</span>
+                </button>
+                <a href="mailto:{{ $club->president->email ?? '' }}" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[22px]">alternate_email</span>
+                </a>
             </div>
 
         </aside>
     </div>
 </div>
+
+{{-- Lightbox Modal --}}
+<div id="lightbox-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    {{-- Close Btn --}}
+    <button onclick="closeLightbox()" class="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all z-[110]">
+        <span class="material-symbols-outlined text-[32px]">close</span>
+    </button>
+    
+    {{-- Navigation --}}
+    <button onclick="prevImage()" class="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all z-[110]">
+        <span class="material-symbols-outlined text-[40px]">chevron_left</span>
+    </button>
+    <button onclick="nextImage()" class="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all z-[110]">
+        <span class="material-symbols-outlined text-[40px]">chevron_right</span>
+    </button>
+
+    {{-- Image Container --}}
+    <div class="relative w-full h-full flex items-center justify-center p-4 md:p-20">
+        <img id="lightbox-img" src="" alt="Galeri Resim" class="max-w-full max-h-full object-contain shadow-2xl rounded-lg transform transition-transform duration-300 scale-95">
+    </div>
+    
+    {{-- Counter --}}
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-6 py-2 rounded-full border border-white/10 text-white/80 font-bold text-sm tracking-wider">
+        <span id="lightbox-counter-current">1</span> / <span id="lightbox-counter-total">1</span>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    let currentImageIndex = 0;
+    const galleryImages = [];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Collect all images for lightbox
+        document.querySelectorAll('.gallery-thumb').forEach((img, index) => {
+            galleryImages.push(img.getAttribute('data-full'));
+        });
+
+        // Initialize Swiper for gallery
+        new Swiper('.gallery-slider', {
+            slidesPerView: 'auto',
+            spaceBetween: 20,
+            freeMode: true,
+            navigation: {
+                nextEl: '.gallery-next',
+                prevEl: '.gallery-prev',
+            },
+            breakpoints: {
+                320: { spaceBetween: 12 },
+                768: { spaceBetween: 20 }
+            }
+        });
+    });
+
+    function openLightbox(index) {
+        currentImageIndex = index;
+        updateLightbox();
+        const modal = document.getElementById('lightbox-modal');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            document.getElementById('lightbox-img').classList.remove('scale-95');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        const modal = document.getElementById('lightbox-modal');
+        modal.classList.add('opacity-0');
+        document.getElementById('lightbox-img').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+        document.body.style.overflow = '';
+    }
+
+    function updateLightbox() {
+        const img = document.getElementById('lightbox-img');
+        img.src = galleryImages[currentImageIndex];
+        document.getElementById('lightbox-counter-current').innerText = currentImageIndex + 1;
+        document.getElementById('lightbox-counter-total').innerText = galleryImages.length;
+    }
+
+    function nextImage() {
+        currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+        updateLightbox();
+    }
+
+    function prevImage() {
+        currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+        updateLightbox();
+    }
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('lightbox-modal').classList.contains('hidden')) return;
+        
+        if (e.key === 'ArrowRight') nextImage();
+        if (e.key === 'ArrowLeft') prevImage();
+        if (e.key === 'Escape') closeLightbox();
+    });
+</script>
+@endpush
+
 @endsection

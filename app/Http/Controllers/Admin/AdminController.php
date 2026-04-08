@@ -41,7 +41,16 @@ class AdminController extends Controller
         $recentNews = $recentNewsQuery->latest()->take(5)->get();
         $recentAnnouncements = $recentAnnouncementsQuery->latest()->take(5)->get();
 
-        return view('admin.index', compact('stats', 'recentEvents', 'recentNews', 'recentAnnouncements'));
+        $recentMembers = [];
+        if ($isEditor) {
+            $recentMembers = \App\Models\ClubMember::with('user')
+                ->where('club_id', $clubId)
+                ->latest()
+                ->take(5)
+                ->get();
+        }
+
+        return view('admin.index', compact('stats', 'recentNews', 'recentEvents', 'recentAnnouncements', 'recentMembers'));
     }
 
     public function toggleStatus(\Illuminate\Http\Request $request)

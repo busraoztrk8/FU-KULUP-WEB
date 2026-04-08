@@ -51,7 +51,7 @@ class SliderController extends Controller
             'button_url'  => 'nullable|string|max:500',
             'order'       => 'nullable|integer',
             'is_active'   => 'nullable|boolean',
-            'image'       => 'nullable|image|max:5120',
+            'image'       => 'nullable|image|max:10240',
         ]);
 
         $data = $request->only(['title', 'subtitle', 'button_text', 'button_url', 'order']);

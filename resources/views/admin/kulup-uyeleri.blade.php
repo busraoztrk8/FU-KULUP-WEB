@@ -135,7 +135,17 @@
                                 @endif
                             </div>
                             <div>
-                                <p class="font-semibold text-slate-800 text-sm">{{ $member->user->name ?? 'Bilinmiyor' }}</p>
+                                <p class="font-semibold text-slate-800 text-sm flex items-center gap-2">
+                                    {{ $member->user->name ?? 'Bilinmiyor' }}
+                                    @if($club->president_id && $member->user_id == $club->president_id)
+                                        <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white shadow-sm" title="Kulüp Başkanı">
+                                            <span class="material-symbols-outlined text-[12px]">workspace_premium</span> BAŞKAN
+                                        </span>
+                                    @endif
+                                </p>
+                                @if($member->title)
+                                    <p class="text-[11px] font-bold text-primary uppercase tracking-wider mt-0.5">{{ $member->title }}</p>
+                                @endif
                             </div>
                         </div>
                     </td>
@@ -191,10 +201,25 @@
                                     </button>
                                 </form>
                             @elseif($member->status === 'approved')
+                                {{-- Başkan Yap --}}
+                                @if(auth()->user()->isAdmin() && (!$club->president_id || $member->user_id != $club->president_id))
+                                    <form action="{{ route('admin.kulupler.set-president', [$club->id, $member->user_id]) }}" method="POST" class="inline" onsubmit="return confirm('{{ $member->user->name }} adlı kişiyi bu kulübün BAŞKANI yapmak istediğinize emin misiniz? Mevcut başkan değişecektir.')">
+                                        @csrf
+                                        <button type="submit" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Kulüp Başkanı Yap">
+                                            <span class="material-symbols-outlined text-[16px]">workspace_premium</span>
+                                        </button>
+                                    </form>
+                                @endif
+
+                                {{-- Unvan Belirle --}}
+                                <button type="button" onclick="showTitleModal({{ $member->id }}, '{{ addslashes($member->user->name) }}', '{{ addslashes($member->title ?? '') }}')" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-100" title="Unvan Belirle">
+                                    <span class="material-symbols-outlined text-[16px]">badge</span>
+                                </button>
+                                
                                 {{-- Reddet (onaylı üyeyi geri al) --}}
                                 <form action="{{ route('admin.kulupler.uyeler.reddet', $member->id) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Üyeliği Kaldır">
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Üyeliği Kaldır">
                                         <span class="material-symbols-outlined text-[16px]">person_remove</span>
                                     </button>
                                 </form>

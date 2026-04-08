@@ -19,7 +19,7 @@ class GalleryController extends Controller
     {
         $request->validate([
             'title' => 'nullable|string|max:255',
-            'image' => 'required|image|max:5120', // Max 5MB
+            'image' => 'required|image|max:10240', // Max 10MB
             'order' => 'nullable|integer',
         ]);
 

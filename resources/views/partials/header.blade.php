@@ -15,18 +15,31 @@
 
         <!-- Desktop Navigation (Center) -->
         <div class="hidden md:flex items-center space-x-8 font-headline font-bold">
-            <a href="{{ route('home') }}"
-                class="{{ request()->routeIs('home') ? 'text-primary relative after:content-[\'\'] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary' : 'text-on-surface opacity-70 hover:text-primary hover:opacity-100' }} transition-all duration-300">
-                Ana Sayfa
-            </a>
-            <a href="{{ route('kulupler') }}"
-                class="{{ request()->is('kulupler*') ? 'text-primary relative after:content-[\'\'] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary' : 'text-on-surface opacity-70 hover:text-primary hover:opacity-100' }} transition-all duration-300">
-                Kulüpler
-            </a>
-            <a href="{{ route('etkinlikler') }}"
-                class="{{ request()->is('etkinlikler*') ? 'text-primary relative after:content-[\'\'] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary' : 'text-on-surface opacity-70 hover:text-primary hover:opacity-100' }} transition-all duration-300">
-                Etkinlikler
-            </a>
+            @foreach($mainMenus as $menu)
+                @if($menu->children->count() > 0)
+                    <div class="relative group">
+                        <button class="flex items-center gap-1 nav-link text-on-surface opacity-70 group-hover:text-primary transition-all">
+                            {{ $menu->label }}
+                            <span class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
+                        </button>
+                        <div class="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 py-2.5 min-w-[220px] overflow-hidden">
+                                @foreach($menu->children as $child)
+                                    <a href="{{ $child->url }}" target="{{ $child->target }}" class="flex items-center gap-3 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-primary/5 hover:text-primary transition-all">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-primary/20 group-hover:bg-primary transition-colors"></div>
+                                        {{ $child->label }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ $menu->url }}" target="{{ $menu->target }}"
+                        class="nav-link {{ request()->url() == url($menu->url) ? 'active text-primary' : 'text-on-surface opacity-70' }}">
+                        {{ $menu->label }}
+                    </a>
+                @endif
+            @endforeach
         </div>
 
         <!-- Right Actions -->
@@ -59,19 +72,14 @@
                                 <p class="text-xs text-slate-500 truncate mt-0.5">{{ auth()->user()->email }}</p>
                             </div>
                             <div class="p-2 space-y-1">
-                                <a href="{{ route('dashboard') }}"
-                                    class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-colors">
-                                    <span class="material-symbols-outlined text-[20px]">dashboard</span> Dashboard
-                                </a>
                                 <a href="{{ route('profile.edit') }}"
-                                    class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-colors">
+                                    class="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-primary transition-all">
                                     <span class="material-symbols-outlined text-[20px]">person</span> Profilim
                                 </a>
                                 @if(auth()->user()->isAdmin() || auth()->user()->isEditor())
-                                    <a href="{{ route('admin.index') }}"
-                                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-colors">
-                                        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> Yönetim
-                                        Paneli
+                                    <a href="{{ route('dashboard') }}"
+                                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-primary transition-all">
+                                        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> Yönetim Paneli
                                     </a>
                                 @endif
                             </div>
@@ -125,18 +133,30 @@
     </div>
     <div class="flex-1 overflow-y-auto p-6 flex flex-col">
         <nav class="space-y-2 mb-8">
-            <a href="{{ route('home') }}"
-                class="flex items-center gap-3 p-4 rounded-2xl font-bold {{ request()->routeIs('home') ? 'bg-primary/5 text-primary' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
-                <span class="material-symbols-outlined">home</span> Ana Sayfa
-            </a>
-            <a href="{{ route('kulupler') }}"
-                class="flex items-center gap-3 p-4 rounded-2xl font-bold {{ request()->is('kulupler*') ? 'text-primary' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
-                <span class="material-symbols-outlined">groups</span> Kulüpler
-            </a>
-            <a href="{{ route('etkinlikler') }}"
-                class="flex items-center gap-3 p-4 rounded-2xl font-bold {{ request()->is('etkinlikler*') ? 'text-primary' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
-                <span class="material-symbols-outlined">event</span> Etkinlikler
-            </a>
+            @foreach($mainMenus as $menu)
+                @if($menu->children->count() > 0)
+                    <div x-data="{ open: false }">
+                        <button @click="open = !open" class="w-full flex items-center justify-between p-4 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined">menu_open</span> {{ $menu->label }}
+                            </div>
+                            <span class="material-symbols-outlined transition-transform" :class="open ? 'rotate-180' : ''">expand_more</span>
+                        </button>
+                        <div x-show="open" class="pl-8 space-y-1 mt-1">
+                            @foreach($menu->children as $child)
+                                <a href="{{ $child->url }}" target="{{ $child->target }}" class="block p-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors">
+                                    {{ $child->label }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ $menu->url }}" target="{{ $menu->target }}"
+                        class="flex items-center gap-3 p-4 rounded-2xl font-bold {{ request()->url() == url($menu->url) ? 'bg-primary/5 text-primary' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
+                        <span class="material-symbols-outlined">link</span> {{ $menu->label }}
+                    </a>
+                @endif
+            @endforeach
         </nav>
 
         <div class="mt-auto space-y-3">

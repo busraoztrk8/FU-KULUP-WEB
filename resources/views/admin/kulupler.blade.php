@@ -6,6 +6,38 @@
 
 @push('styles')
 <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        background-color: rgb(248 250 252);
+        border: 1px solid rgb(226 232 240);
+        border-radius: 0.75rem;
+        height: 48px;
+        display: flex;
+        items-center: center;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: normal;
+        padding-left: 1rem;
+        font-size: 0.875rem;
+        color: rgb(71 85 105);
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px;
+    }
+    .select2-container--focus .select2-selection--single {
+        border-color: var(--primary) !important;
+        background-color: #fff !important;
+        box-shadow: 0 0 0 2px rgba(93, 16, 33, 0.1);
+    }
+    .select2-dropdown {
+        border-radius: 1rem;
+        border: 1px solid rgb(226 232 240);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        margin-top: 4px;
+        overflow: hidden;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -68,9 +100,11 @@
             @endforeach
         </select>
     </div>
+    @if(auth()->user()->isAdmin())
     <button onclick="showKulupEkle()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm shadow-primary/10 active:scale-95">
         <span class="material-symbols-outlined text-[18px]">add</span>Yeni Kulüp
     </button>
+    @endif
 </div>
 
 <!-- Table -->
@@ -167,33 +201,122 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
-                        <select name="category_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
-                            <option value="">Seçiniz...</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
+                        <div class="flex gap-2">
+                            <select name="category_id" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                <option value="">Seçiniz...</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" onclick="addQuickCategory(this)" class="bg-primary/10 text-primary w-11 h-11 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-all shrink-0" title="Yeni Kategori Ekle">
+                                <span class="material-symbols-outlined text-[20px]">add</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                @if(auth()->user()->isAdmin())
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp Başkanı</label>
+                    <select id="edit-kulup-president" name="president_id" class="w-full ajax-user-select">
+                        <option value="">Seçiniz...</option>
+                    </select>
+                </div>
+                @endif
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Kurucu Adı</label>
+                        <input id="edit-founder-name" name="founder_name" type="text" placeholder="Dr. Ahmet Tekin" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Kuruluş Yılı</label>
+                        <input id="edit-established-year" name="established_year" type="text" placeholder="2018" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Web Sitesi</label>
+                        <input id="edit-website-url" name="website_url" type="url" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Instagram</label>
+                        <input id="edit-instagram-url" name="instagram_url" type="url" placeholder="https://instagram.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">YouTube</label>
+                        <input id="edit-youtube-url" name="youtube_url" type="url" placeholder="https://youtube.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Twitter (X)</label>
+                        <input id="edit-twitter-url" name="twitter_url" type="url" placeholder="https://twitter.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Açıklama</label>
-                    <textarea id="edit-kulup-aciklama" name="description" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                    <textarea id="edit-kulup-aciklama" name="description" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Logo</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors">
-                        <span class="material-symbols-outlined text-primary text-[24px]">cloud_upload</span>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-700">Logo yükle</p>
-                            <p class="text-xs text-slate-400">PNG, JPG (Maks. 2MB)</p>
-                        </div>
-                        <input type="file" name="logo" class="hidden" accept="image/*"/>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Misyonumuz</label>
+                        <textarea id="edit-mission" name="mission" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Vizyonumuz</label>
+                        <textarea id="edit-vision" name="vision" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
                     </div>
                 </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Logo</label>
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors relative h-[72px] overflow-hidden"
+                             onclick="document.getElementById('edit-logo-input').click()">
+                            <img id="edit-logo-preview" class="absolute inset-0 w-full h-full object-contain p-1 hidden bg-white">
+                            <div id="edit-logo-placeholder" class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-primary text-[24px]">cloud_upload</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-700">Logo yükle</p>
+                                </div>
+                            </div>
+                            <input id="edit-logo-input" type="file" name="logo" class="hidden" accept="image/*" onchange="previewImage(this, 'edit-logo-preview', 'edit-logo-placeholder')"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Kapak Fotoğrafı</label>
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors relative h-[72px] overflow-hidden"
+                             onclick="document.getElementById('edit-cover-input').click()">
+                            <img id="edit-cover-preview" class="absolute inset-0 w-full h-full object-cover hidden bg-white">
+                            <div id="edit-cover-placeholder" class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-primary text-[24px]">image</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-slate-700">Kapak seç</p>
+                                </div>
+                            </div>
+                            <input id="edit-cover-input" type="file" name="cover_image" class="hidden" accept="image/*" onchange="previewImage(this, 'edit-cover-preview', 'edit-cover-placeholder')"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-5 mt-5">
+                    <label class="block text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-500 text-[20px]">photo_library</span>
+                        Kulüp Galerisi
+                    </label>
+                    <div class="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-4" id="edit-gallery-list">
+                        {{-- AJAX ile dolacak --}}
+                    </div>
+                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors"
+                         onclick="document.getElementById('edit-gallery-input').click()">
+                        <span class="material-symbols-outlined text-slate-400 text-[32px] mb-2">add_a_photo</span>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Yeni Fotoğraflar Ekle</p>
+                        <input id="edit-gallery-input" type="file" name="gallery[]" multiple class="hidden" accept="image/*"/>
+                    </div>
+                </div>
+                @if(auth()->user()->isAdmin())
                 <div class="flex items-center gap-3">
                     <input type="checkbox" id="edit-kulup-aktif" name="is_active" value="1" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"/>
                     <label for="edit-kulup-aktif" class="text-sm font-semibold text-slate-600 cursor-pointer">Aktif kulüp</label>
                 </div>
+                @endif
             </div>
             <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
                 <button type="button" onclick="hideKulupDuzenle()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
@@ -224,14 +347,30 @@
                 {{-- Logo yükleme --}}
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Logo</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group"
+                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative min-h-[160px] overflow-hidden"
                          onclick="document.getElementById('logo-input').click()">
-                        <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-primary text-[24px]">cloud_upload</span>
+                        <img id="logo-preview" class="absolute inset-0 w-full h-full object-contain p-4 hidden bg-white">
+                        <div id="logo-placeholder" class="flex flex-col items-center justify-center">
+                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-primary text-[24px]">cloud_upload</span>
+                            </div>
+                            <p class="text-sm font-semibold text-slate-700">Logo yüklemek için tıklayın</p>
+                            <p class="text-xs text-slate-400 mt-1">PNG, JPG (Maks. 10MB)</p>
                         </div>
-                        <p class="text-sm font-semibold text-slate-700">Logo yüklemek için tıklayın</p>
-                        <p class="text-xs text-slate-400 mt-1">PNG, JPG (Maks. 2MB)</p>
-                        <input id="logo-input" type="file" name="logo" class="hidden" accept="image/*"/>
+                        <input id="logo-input" type="file" name="logo" class="hidden" accept="image/*" onchange="previewImage(this, 'logo-preview', 'logo-placeholder')"/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Kurucu Adı</label>
+                        <input type="text" name="founder_name" placeholder="Örn: Dr. Ahmet Tekin"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Kuruluş Yılı</label>
+                        <input type="text" name="established_year" placeholder="Örn: 2018"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
                     </div>
                 </div>
 
@@ -244,23 +383,37 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
-                        <select name="category_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm">
-                            <option value="">Seçiniz...</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
+                        <div class="flex gap-2">
+                            <select name="category_id" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm">
+                                <option value="">Seçiniz...</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" onclick="addQuickCategory(this)" class="bg-primary/10 text-primary w-11 h-11 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-all shrink-0" title="Yeni Kategori Ekle">
+                                <span class="material-symbols-outlined text-[20px]">add</span>
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Misyonumuz</label>
+                    <textarea name="mission" rows="2" placeholder="Kulübün misyonu..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Vizyonumuz</label>
+                    <textarea name="vision" rows="2" placeholder="Kulübün vizyonu..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp Başkanı</label>
-                        <select name="president_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm">
+                        <select name="president_id" class="w-full ajax-user-select">
                             <option value="">Seçiniz...</option>
-                            @foreach(\App\Models\User::whereHas('role', fn($q) => $q->whereIn('name', ['editor','admin']))->get() as $u)
-                                <option value="{{ $u->id }}">{{ $u->name }}</option>
-                            @endforeach
                         </select>
                     </div>
                     <div>
@@ -269,6 +422,25 @@
                             <option value="1">Aktif</option>
                             <option value="0">Pasif</option>
                         </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Web Sitesi</label>
+                        <input name="website_url" type="url" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all shadow-sm"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Instagram</label>
+                        <input name="instagram_url" type="url" placeholder="https://instagram.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all shadow-sm"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">YouTube</label>
+                        <input name="youtube_url" type="url" placeholder="https://youtube.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all shadow-sm"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Twitter (X)</label>
+                        <input name="twitter_url" type="url" placeholder="https://twitter.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all shadow-sm"/>
                     </div>
                 </div>
 
@@ -298,6 +470,7 @@
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
     let table = $('#kulupler-table').DataTable({
@@ -328,6 +501,37 @@ $(document).ready(function() {
     $('#kategori-filter').change(function(){
         table.draw();
     });
+
+    // Select2 AJAX initialization
+    $('.ajax-user-select').each(function() {
+        $(this).select2({
+            placeholder: 'Başkan seçmek için isim yazın...',
+            allowClear: true,
+            ajax: {
+                url: "{{ route('admin.kullanicilar.search') }}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term,
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: {
+                            more: data.pagination.more
+                        }
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 0,
+            dropdownParent: $(this).closest('.fixed') // Modallar içinde çalışması için
+        });
+    });
 });
 
 function showKulupEkle() {
@@ -350,15 +554,113 @@ function showKulupDetay(id, adi) {
 function hideKulupDetay() {
     document.getElementById('kulup-detay-modal').classList.add('hidden');
 }
-function showKulupDuzenle(id, adi, aciklama, kategoriId, aktif) {
-    document.getElementById('edit-kulup-adi').value = adi;
-    document.getElementById('edit-kulup-aciklama').value = aciklama;
-    document.getElementById('edit-kulup-aktif').checked = (aktif === '1' || aktif === 1 || aktif === true || aktif === 'true');
+function showKulupDuzenle(id) {
+    // Modal açılmadan önce alanları temizle/hazırla
+    document.getElementById('edit-kulup-adi').value = 'Yükleniyor...';
+    document.getElementById('edit-kulup-aciklama').value = '';
+    document.getElementById('edit-kulup-aktif').checked = false;
+    document.getElementById('kulup-duzenle-form').querySelectorAll('select[name="category_id"]').forEach(el => el.value = '');
+    
     document.getElementById('kulup-duzenle-form').action = '/admin/kulupler/' + id;
     document.getElementById('kulup-duzenle-modal').classList.remove('hidden');
+
+    fetch('/admin/kulupler/' + id)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('edit-kulup-adi').value = data.name;
+            document.getElementById('edit-kulup-aciklama').value = data.description || '';
+            document.getElementById('edit-kulup-aktif').checked = (data.is_active == 1);
+            
+            // Kategori seçimi
+            let catSelect = document.querySelector('#kulup-duzenle-form select[name="category_id"]');
+            if (catSelect) catSelect.value = data.category_id || '';
+
+            // Başkan ve Linkler
+            const presSelect = document.getElementById('edit-kulup-president');
+            if(presSelect) {
+                if(data.president) {
+                    // Mevcut başkanı Select2'ye ekle
+                    var option = new Option(data.president.name + " (" + data.president.email + ")", data.president.id, true, true);
+                    $(presSelect).append(option).trigger('change');
+                } else {
+                    $(presSelect).val(null).trigger('change');
+                }
+            }
+            
+            document.getElementById('edit-website-url').value = data.website_url || '';
+            document.getElementById('edit-instagram-url').value = data.instagram_url || '';
+            document.getElementById('edit-youtube-url').value = data.youtube_url || '';
+            document.getElementById('edit-twitter-url').value = data.twitter_url || '';
+
+            // Yeni alanlar
+            if(document.getElementById('edit-mission')) document.getElementById('edit-mission').value = data.mission || '';
+            if(document.getElementById('edit-vision')) document.getElementById('edit-vision').value = data.vision || '';
+            if(document.getElementById('edit-founder-name')) document.getElementById('edit-founder-name').value = data.founder_name || '';
+            if(document.getElementById('edit-established-year')) document.getElementById('edit-established-year').value = data.established_year || '';
+
+            // Galeri yükle
+            const galleryList = document.getElementById('edit-gallery-list');
+            if(galleryList) {
+                galleryList.innerHTML = '';
+                if(data.images && data.images.length > 0) {
+                    data.images.forEach(img => {
+                        galleryList.innerHTML += `
+                            <div class="relative group aspect-square rounded-lg overflow-hidden border border-slate-200">
+                                <img src="/storage/${img.image_path}" class="w-full h-full object-cover">
+                                <button type="button" onclick="deleteGalleryImage(${img.id}, this)" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="material-symbols-outlined text-[16px]">close</span>
+                                </button>
+                            </div>
+                        `;
+                    });
+                } else {
+                    galleryList.innerHTML = '<p class="col-span-full text-xs text-slate-400 italic">Henüz galeri resmi eklenmemiş.</p>';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+            alert('Veriler yüklenirken bir hata oluştu.');
+        });
 }
 function hideKulupDuzenle() {
     document.getElementById('kulup-duzenle-modal').classList.add('hidden');
+}
+
+function addQuickCategory(btn) {
+    const name = prompt("Yeni kategori adını giriniz:");
+    if (!name || name.trim() === "") return;
+
+    fetch("{{ route('admin.kategoriler.store') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ name: name })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Tüm kategori selectlerini bul ve güncelle
+            const selects = document.querySelectorAll('select[name="category_id"]');
+            selects.forEach(select => {
+                const option = new Option(data.category.name, data.category.id);
+                select.add(option);
+            });
+            // Tıklanan butonun yanındaki selecti seç
+            const currentSelect = btn.previousElementSibling;
+            if (currentSelect) currentSelect.value = data.category.id;
+        } else {
+            alert(data.message || "Kategori eklenirken bir hata oluştu. İsim zaten mevcut olabilir.");
+        }
+    })
+    .catch(error => {
+        console.error("Hata:", error);
+        alert("Kategori eklenirken bir hata oluştu.");
+    });
 }
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;
@@ -367,6 +669,44 @@ function showDeleteModal(id, baslik) {
 }
 function hideDeleteModal() {
     document.getElementById('delete-modal').classList.add('hidden');
+}
+function deleteGalleryImage(id, btn) {
+    if(!confirm('Bu resmi galeriden silmek istediğinize emin misiniz?')) return;
+    
+    fetch('/admin/kulup-gallery/' + id, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            btn.parentElement.remove();
+        } else {
+            alert('Silme sırasında bir hata oluştu.');
+        }
+    })
+    .catch(error => {
+        console.error('Hata:', error);
+        alert('Silme sırasında bir hata oluştu.');
+    });
+}
+
+function previewImage(input, previewId, placeholderId) {
+    const preview = document.getElementById(previewId);
+    const placeholder = document.getElementById(placeholderId);
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            if (placeholder) placeholder.classList.add('opacity-0');
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
 }
 </script>
 @endpush

@@ -18,7 +18,10 @@ class EventController extends Controller
                 $query = Event::with(['club', 'category']);
 
                 if (auth()->user()->isEditor()) {
-                    $query->where('club_id', auth()->user()->club_id);
+                    $query->where(function($q) {
+                        $q->where('club_id', auth()->user()->club_id)
+                          ->orWhereNull('club_id');
+                    });
                 }
 
                 if ($request->filled('status') && $request->status !== 'all') {
@@ -68,7 +71,7 @@ class EventController extends Controller
                     })
                     ->addColumn('action', function($row) {
                         $btn = '<div class="flex items-center justify-start gap-2">';
-                        $btn .= '<button onclick="showEtkinlikDuzenle('.$row->id.', \''.addslashes($row->title).'\')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
+                        $btn .= '<button onclick="showEtkinlikDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.addslashes($row->title).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
@@ -89,6 +92,11 @@ class EventController extends Controller
         return view('admin.etkinlikler', compact('categories', 'clubs'));
     }
 
+    public function show(Event $event)
+    {
+        return response()->json($event);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -104,8 +112,10 @@ class EventController extends Controller
             'max_participants'  => 'nullable|integer|min:1',
             'status'           => 'required|in:draft,published,cancelled,completed',
             'is_featured'      => 'boolean',
-            'image'            => 'nullable|image|max:5120',
+            'image'            => 'nullable|image|max:10240',
         ]);
+
+        $validated['is_featured'] = $request->has('is_featured');
 
         if (auth()->user()->isEditor()) {
             $validated['club_id'] = auth()->user()->club_id;
@@ -141,8 +151,10 @@ class EventController extends Controller
             'max_participants'  => 'nullable|integer|min:1',
             'status'           => 'required|in:draft,published,cancelled,completed',
             'is_featured'      => 'boolean',
-            'image'            => 'nullable|image|max:5120',
+            'image'            => 'nullable|image|max:10240',
         ]);
+
+        $validated['is_featured'] = $request->has('is_featured');
 
         if (auth()->user()->isEditor()) {
             $validated['club_id'] = auth()->user()->club_id;
