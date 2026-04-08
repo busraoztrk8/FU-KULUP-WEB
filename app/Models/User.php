@@ -102,4 +102,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(EventRegistration::class);
     }
+
+    /**
+     * Check if user is associated with a specific club.
+     */
+    public function belongsToClub($clubId)
+    {
+        return $this->club_id == $clubId;
+    }
+
+    /**
+     * Get role name string safely.
+     */
+    public function getRoleNameAttribute()
+    {
+        return $this->role ? $this->role->name : 'user';
+    }
 }

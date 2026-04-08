@@ -441,8 +441,9 @@ div.dataTables_wrapper > div.grid:last-of-type {
 }
 .dataTables_wrapper .dataTables_length label,
 .dataTables_wrapper .dataTables_filter label {
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
+    white-space: nowrap !important;
     gap: 0.5rem !important;
     margin: 0 !important;
     line-height: normal !important;

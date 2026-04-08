@@ -10,10 +10,50 @@
 
 @section('content')
 
+<!-- Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
+    <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">event_available</span>
+        </div>
+        <div>
+            <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['total'] }}">0</p>
+            <p class="text-sm text-slate-500 font-medium">Toplam</p>
+        </div>
+    </div>
+    <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-green-600">verified</span>
+        </div>
+        <div>
+            <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['active'] }}">0</p>
+            <p class="text-sm text-slate-500 font-medium">Aktif</p>
+        </div>
+    </div>
+    <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-blue-600">task_alt</span>
+        </div>
+        <div>
+            <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['completed'] }}">0</p>
+            <p class="text-sm text-slate-500 font-medium">Tamamlandı</p>
+        </div>
+    </div>
+    <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+        <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-red-600">event_busy</span>
+        </div>
+        <div>
+            <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['cancelled'] }}">0</p>
+            <p class="text-sm text-slate-500 font-medium">İptal</p>
+        </div>
+    </div>
+</div>
+
 <!-- Top Actions -->
 <div class="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
     <div class="flex items-center gap-3">
-        <select id="status-filter" class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm">
+        <select id="status-filter" class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm transition-all">
             <option value="all">Tüm Durumlar</option>
             <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Aktif</option>
             <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Taslak</option>
@@ -34,6 +74,7 @@
                 <tr>
                     <th class="w-12 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
                     <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">ETKİNLİK</th>
+                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KULÜP</th>
                     <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KATEGORİ</th>
                     <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">TARİH</th>
                     <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KAYIT</th>
@@ -374,6 +415,7 @@ $(document).ready(function() {
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
             {data: 'event_info', name: 'title', orderable: false, searchable: false},
+            {data: 'club_name', name: 'club.name', orderable: false},
             {data: 'category_name', name: 'category.name', orderable: false},
             {data: 'date', name: 'start_time'},
             {data: 'participants', name: 'current_participants'},
@@ -384,7 +426,20 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"flex flex-col md:flex-row justify-between items-center gap-4 mb-4"l f>rt<"flex flex-col md:flex-row justify-between items-center gap-4 mt-4"i p>',
+        dom: '<"grid"l f>rt<"grid"i p>',
+    });
+
+    // İstatistik animasyonu
+    $('[data-count]').each(function () {
+        $(this).prop('Counter', 0).animate({
+            Counter: $(this).data('count')
+        }, {
+            duration: 1500,
+            easing: 'swing',
+            step: function (now) {
+                $(this).text(Math.ceil(now));
+            }
+        });
     });
 
     $('#status-filter').change(function(){

@@ -38,6 +38,9 @@ class EventController extends Controller
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">event</span></div>';
                         return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . htmlspecialchars($row->title) . '</span></div>';
                     })
+                    ->addColumn('club_name', function($row) {
+                        return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
+                    })
                     ->addColumn('category_name', function($row) {
                         return $row->category ? '<span class="badge badge-primary">'.htmlspecialchars($row->category->name).'</span>' : '<span class="text-slate-400 text-sm">—</span>';
                     })
@@ -76,7 +79,7 @@ class EventController extends Controller
                         $btn .= '</div>';
                         return $btn;
                     })
-                    ->rawColumns(['event_info', 'category_name', 'date', 'participants', 'status', 'action'])
+                    ->rawColumns(['event_info', 'club_name', 'category_name', 'date', 'participants', 'status', 'action'])
                     ->make(true);
             } catch (\Exception $e) {
                 \Log::error("DataTables Events Error: " . $e->getMessage());
@@ -89,7 +92,23 @@ class EventController extends Controller
                       ? Club::where('id', auth()->user()->club_id)->get() 
                       : Club::where('is_active', true)->get();
 
-        return view('admin.etkinlikler', compact('categories', 'clubs'));
+        // İstatistikler
+        $statsQuery = Event::query();
+        if (auth()->user()->isEditor()) {
+            $statsQuery->where(function($q) {
+                $q->where('club_id', auth()->user()->club_id)
+                  ->orWhereNull('club_id');
+            });
+        }
+
+        $stats = [
+            'total'     => (clone $statsQuery)->count(),
+            'active'    => (clone $statsQuery)->where('status', 'published')->count(),
+            'completed' => (clone $statsQuery)->where('status', 'completed')->count(),
+            'cancelled' => (clone $statsQuery)->where('status', 'cancelled')->count(),
+        ];
+
+        return view('admin.etkinlikler', compact('categories', 'clubs', 'stats'));
     }
 
     public function show(Event $event)

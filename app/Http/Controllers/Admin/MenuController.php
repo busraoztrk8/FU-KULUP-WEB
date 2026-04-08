@@ -12,7 +12,14 @@ class MenuController extends Controller
     {
         $mainMenus = Menu::whereNull('parent_id')->orderBy('order')->get();
         $allMenus = Menu::orderBy('label')->get();
-        return view('admin.menu', compact('mainMenus', 'allMenus'));
+        
+        $stats = [
+            'total' => Menu::count(),
+            'main' => Menu::whereNull('parent_id')->count(),
+            'active' => Menu::where('is_active', true)->count(),
+        ];
+        
+        return view('admin.menu', compact('mainMenus', 'allMenus', 'stats'));
     }
 
     public function store(Request $request)

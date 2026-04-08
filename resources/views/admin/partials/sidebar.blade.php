@@ -10,6 +10,7 @@
     elseif (request()->routeIs('admin.gallery*')) $currentPage = 'gallery';
     elseif (request()->routeIs('admin.kullanicilar*')) $currentPage = 'users';
     elseif (request()->routeIs('admin.menu*')) $currentPage = 'menu';
+    elseif (request()->routeIs('admin.kulupler.dosyalar*')) $currentPage = 'documents';
     elseif (request()->routeIs('admin.ayarlar*')) $currentPage = 'settings';
 @endphp
 <div class="flex flex-col h-full">
@@ -35,6 +36,8 @@
         <x-admin-sidebar-link id="announcements" icon="campaign"  label="Duyurular"          href="{{ route('admin.duyurular') }}"   :current="$currentPage" />
         <x-admin-sidebar-link id="clubs"         icon="groups"    label="Kulüpler"           href="{{ route('admin.kulupler') }}"    :current="$currentPage" />
         
+        <x-admin-sidebar-link id="documents"     icon="folder"    label="Kulüp Dosyaları"     href="{{ route('admin.kulupler.dosyalar') }}" :current="$currentPage" />
+
         @if(auth()->user()->isEditor())
         <x-admin-sidebar-link id="my_club"      icon="edit_square" label="Kulübüm"          href="{{ route('admin.kulupler') }}"    :current="$currentPage" />
         @endif

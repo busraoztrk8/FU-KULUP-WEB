@@ -25,18 +25,17 @@ class HaberController extends Controller
                 $data = $query->latest()->get();
                 return \Yajra\DataTables\Facades\DataTables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('image', function($row) {
+                    ->addColumn('news_info', function($row) {
                         $url = $row->image_path ? asset('storage/'.$row->image_path) : asset('images/logo_orj.png');
-                        return '<div class="w-16 h-12 bg-white border border-slate-100 p-1 flex items-center justify-center rounded-lg shadow-sm"><img src="'.$url.'" class="max-w-full max-h-full object-contain" alt="Görsel"></div>';
+                        return '<div class="flex items-center gap-3">
+                            <div class="w-12 h-10 bg-white border border-slate-100 p-1 flex items-center justify-center rounded-lg shadow-sm shrink-0">
+                                <img src="'.$url.'" class="max-w-full max-h-full object-contain" alt="Görsel">
+                            </div>
+                            <span class="font-bold text-slate-700">'.e($row->title).'</span>
+                        </div>';
                     })
-                    ->editColumn('title', function($row) {
-                        return '<span class="font-medium text-slate-700">'.e($row->title).'</span>';
-                    })
-                    ->addColumn('order', function($row) {
-                        return '<span class="text-slate-600 font-medium">0</span>';
-                    })
-                    ->addColumn('author', function($row) {
-                        return '<span class="text-slate-600 font-medium">Admin</span>';
+                    ->addColumn('club_name', function($row) {
+                        return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
                     })
                     ->addColumn('status', function($row) {
                         $checked = $row->is_published ? 'checked' : '';
@@ -66,7 +65,7 @@ class HaberController extends Controller
                         $btn .= '</div>';
                         return $btn;
                     })
-                    ->rawColumns(['image', 'title', 'order', 'author', 'status', 'action'])
+                    ->rawColumns(['news_info', 'club_name', 'status', 'action'])
                     ->make(true);
             } catch (\Exception $e) {
                 \Log::error("DataTables Haber Error: " . $e->getMessage());
@@ -78,7 +77,22 @@ class HaberController extends Controller
             ? Club::where('id', auth()->user()->club_id)->get() 
             : Club::where('is_active', true)->get();
 
-        return view('admin.haberler', compact('clubs'));
+        // İstatistikler için sorgu
+        $statsQuery = News::query();
+        if (auth()->user()->isEditor()) {
+            $statsQuery->where(function($q) {
+                $q->where('club_id', auth()->user()->club_id)
+                  ->orWhereNull('club_id');
+            });
+        }
+        
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'published' => (clone $statsQuery)->where('is_published', true)->count(),
+            'draft' => (clone $statsQuery)->where('is_published', false)->count(),
+        ];
+
+        return view('admin.haberler', compact('clubs', 'stats'));
     }
 
     public function store(Request $request)

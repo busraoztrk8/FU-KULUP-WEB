@@ -3,11 +3,42 @@
 @section('page_title', __('messages.title'))
 @section('data-page', 'news')
 
+@push('styles')
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
+@endpush
+
 @section('content')
 
-    @push('styles')
-        <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
-    @endpush
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+        <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary">feed</span>
+            </div>
+            <div>
+                <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['total'] }}">0</p>
+                <p class="text-sm text-slate-500 font-medium">Toplam Haber</p>
+            </div>
+        </div>
+        <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-green-600">visibility</span>
+            </div>
+            <div>
+                <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['published'] }}">0</p>
+                <p class="text-sm text-slate-500 font-medium">Yayında</p>
+            </div>
+        </div>
+        <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-all">
+            <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
+                <span class="material-symbols-outlined text-amber-600">edit_note</span>
+            </div>
+            <div>
+                <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['draft'] }}">0</p>
+                <p class="text-sm text-slate-500 font-medium">Taslak</p>
+            </div>
+        </div>
+    </div>
 
     @if(session('success'))
         <div
@@ -28,7 +59,7 @@
         </div>
     @endif
 
-    <div class="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
         <button onclick="showHaberModal()"
             class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95">
             <span class="material-symbols-outlined text-[18px]">add</span>{{ __('messages.add_new') }}
@@ -41,12 +72,10 @@
                 <thead>
                     <tr>
                         <th class="w-12 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">GÖRSEL</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">BAŞLIK</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">SIRA</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">YAZAR</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">DURUM</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">İŞLEMLER</th>
+                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">Haber</th>
+                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">Kulüp</th>
+                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">Durum</th>
+                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -152,16 +181,27 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
+            // İstatistik animasyonu
+            $('[data-count]').each(function () {
+                $(this).prop('Counter', 0).animate({
+                    Counter: $(this).data('count')
+                }, {
+                    duration: 1500,
+                    easing: 'swing',
+                    step: function (now) {
+                        $(this).text(Math.ceil(now));
+                    }
+                });
+            });
+
             let table = $('#haberler-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.haberler') }}",
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium' },
-                    { data: 'image', name: 'image', orderable: false, searchable: false },
-                    { data: 'title', name: 'title' },
-                    { data: 'order', name: 'order', orderable: false, searchable: false },
-                    { data: 'author', name: 'author' },
+                    { data: 'news_info', name: 'title' },
+                    { data: 'club_name', name: 'club.name', orderable: false },
                     { data: 'status', name: 'status', orderable: false, searchable: false },
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                 ],
@@ -169,7 +209,7 @@
                     url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
                     paginate: { previous: "Önceki", next: "Sonraki" }
                 },
-                dom: '<"flex flex-col md:flex-row justify-between items-center gap-4 mb-4"l f>rt<"flex flex-col md:flex-row justify-between items-center gap-4 mt-4"i p>',
+                dom: '<"grid"l f>rt<"grid"i p>',
             });
         });
 

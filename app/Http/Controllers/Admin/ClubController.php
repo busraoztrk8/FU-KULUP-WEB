@@ -9,8 +9,12 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\ClubMember;
 use App\Models\ClubImage;
+use App\Models\ClubDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+
 
 class ClubController extends Controller
 {
@@ -136,24 +140,22 @@ class ClubController extends Controller
             $validated['cover_image'] = $request->file('cover_image')->store('clubs/covers', 'public');
         }
 
-        $validated['slug'] = Str::slug($validated['name']);
+        try {
+            return DB::transaction(function() use ($validated, $request) {
+                \Log::info("Club Store Started", ['name' => $validated['name'], 'president_id' => $validated['president_id'] ?? 'none']);
+                $club = Club::create($validated);
 
-        $club = Club::create($validated);
-
-        // Atanan başkanı o kulübün editörü yap
-        if ($club->president_id) {
-            $president = User::find($club->president_id);
-            if ($president) {
-                $editorRole = Role::where('name', 'editor')->first();
-                $updateData = ['club_id' => $club->id];
-                if (!$president->isAdmin() && $editorRole) {
-                    $updateData['role_id'] = $editorRole->id;
+                if ($club->president_id) {
+                    $this->syncPresidentRole($club);
                 }
-                $president->update($updateData);
-            }
+
+                return redirect()->route('admin.kulupler')->with('success', 'Kulüp başarıyla oluşturuldu.');
+            });
+        } catch (\Exception $e) {
+            \Log::error("Club Store Error: " . $e->getMessage());
+            return back()->withInput()->with('error', 'Kulüp oluşturulurken bir hata oluştu: ' . $e->getMessage());
         }
 
-        return redirect()->route('admin.kulupler')->with('success', 'Kulüp başarıyla oluşturuldu.');
     }
 
     public function update(Request $request, Club $club)
@@ -196,47 +198,33 @@ class ClubController extends Controller
             $validated['cover_image'] = $request->file('cover_image')->store('clubs/covers', 'public');
         }
 
-        $oldPresidentId = $club->getOriginal('president_id');
+        try {
+            return DB::transaction(function() use ($validated, $club, $request) {
+                $oldPresidentId = $club->getOriginal('president_id');
+                \Log::info("Club Update Started", ['club_id' => $club->id, 'old_pres' => $oldPresidentId, 'new_pres' => $validated['president_id'] ?? 'none']);
 
-        $club->update($validated);
+                $club->update($validated);
 
-        // Galeri yükleme
-        if ($request->hasFile('gallery')) {
-            foreach ($request->file('gallery') as $image) {
-                $path = $image->store('clubs/gallery', 'public');
-                $club->images()->create(['image_path' => $path]);
-            }
-        }
-
-        // Başkan değiştiyse yetkilerini güncelle
-        if ($oldPresidentId != $club->president_id) {
-            // Eski başkanı normale döndür
-            if ($oldPresidentId) {
-                $oldPresident = User::find($oldPresidentId);
-                if ($oldPresident && !$oldPresident->isAdmin()) {
-                    $userRole = Role::where('name', 'student')->first();
-                    $oldPresident->update([
-                        'role_id' => $userRole->id ?? $oldPresident->role_id,
-                        'club_id' => null
-                    ]);
-                }
-            }
-
-            // Yeni başkanı editör yap
-            if ($club->president_id) {
-                $newPresident = User::find($club->president_id);
-                if ($newPresident) {
-                    $editorRole = Role::where('name', 'editor')->first();
-                    $updateData = ['club_id' => $club->id];
-                    if (!$newPresident->isAdmin() && $editorRole) {
-                        $updateData['role_id'] = $editorRole->id;
+                // Galeri yükleme
+                if ($request->hasFile('gallery')) {
+                    foreach ($request->file('gallery') as $image) {
+                        $path = $image->store('clubs/gallery', 'public');
+                        $club->images()->create(['image_path' => $path]);
                     }
-                    $newPresident->update($updateData);
                 }
-            }
+
+                // Başkan değiştiyse veya mevcut başkanın rolünün senkronize edilmesi gerekiyorsa
+                if ($oldPresidentId != $club->president_id || $club->president_id) {
+                    $this->syncPresidentRole($club, $oldPresidentId);
+                }
+
+                return redirect()->route('admin.kulupler')->with('success', 'Kulüp güncellendi.');
+            });
+        } catch (\Exception $e) {
+            \Log::error("Club Update Error: " . $e->getMessage());
+            return back()->withInput()->with('error', 'Kulüp güncellenirken bir hata oluştu: ' . $e->getMessage());
         }
 
-        return redirect()->route('admin.kulupler')->with('success', 'Kulüp güncellendi.');
     }
 
     public function destroy(Club $club)
@@ -332,21 +320,24 @@ class ClubController extends Controller
             abort(403, 'Başkan atama yetkiniz yok.');
         }
 
-        // Kulübün yeni başkanını ata
-        $club->update(['president_id' => $user->id]);
+        try {
+            DB::transaction(function() use ($club, $user) {
+                $oldPresidentId = $club->president_id;
+                
+                // Kulübün yeni başkanını ata
+                $club->update(['president_id' => $user->id]);
 
-        // Kullanıcının rolünü editör yap (eğer admin değilse) ve kulüp ID'sini ata
-        $updateData = ['club_id' => $club->id];
-        if (!$user->isAdmin()) {
-            $editorRole = Role::where('name', 'editor')->first();
-            if ($editorRole) {
-                $updateData['role_id'] = $editorRole->id;
-            }
+                // Rolleri senkronize et
+                $this->syncPresidentRole($club, $oldPresidentId);
+            });
+
+            return back()->with('success', $user->name . ' başarıyla yeni kulüp başkanı olarak atandı.');
+        } catch (\Exception $e) {
+            \Log::error("Set President Error: " . $e->getMessage());
+            return back()->with('error', 'Başkan atanırken bir hata oluştu.');
         }
-        $user->update($updateData);
-
-        return back()->with('success', $user->name . ' başarıyla yeni kulüp başkanı olarak atandı.');
     }
+
 
     public function updateMemberTitle(Request $request, ClubMember $member)
     {
@@ -367,11 +358,144 @@ class ClubController extends Controller
         }
 
         // Dosyayı sil
-        if (\Storage::disk('public')->exists($image->image_path)) {
-            \Storage::disk('public')->delete($image->image_path);
+        if (Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
         }
 
         $image->delete();
         return response()->json(['success' => true]);
     }
+
+    /**
+     * Kulüp dosyalarını listele
+     */
+    public function documents(Request $request)
+    {
+        $club = null;
+        if (auth()->user()->isEditor()) {
+            $club = Club::findOrFail(auth()->user()->club_id);
+        } elseif ($request->has('club_id')) {
+            $club = Club::findOrFail($request->club_id);
+        }
+
+        if (!$club) {
+            // Admin için tüm kulüplerin listesini getir veya bir kulüp seçmesini iste
+            $clubs = Club::all();
+            return view('admin.kulup-dosyalari', compact('clubs'));
+        }
+
+        $documents = $club->documents()->latest()->paginate(20);
+        return view('admin.kulup-dosyalari', compact('club', 'documents'));
+    }
+
+    /**
+     * Yeni dosya yükle
+     */
+    public function storeDocument(Request $request)
+    {
+        $request->validate([
+            'club_id' => 'required|exists:clubs,id',
+            'file'    => 'required|file|max:20480', // Max 20MB
+        ]);
+
+        $club = Club::findOrFail($request->club_id);
+        
+        if (auth()->user()->isEditor() && $club->id !== auth()->user()->club_id) {
+            abort(403, 'Bu kulübe dosya yükleme yetkiniz yok.');
+        }
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $path = $file->store('clubs/documents/' . $club->id, 'public');
+
+            ClubDocument::create([
+                'club_id'   => $club->id,
+                'file_name' => $fileName,
+                'file_path' => $path,
+                'file_type' => $file->getClientMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+
+            return back()->with('success', 'Dosya başarıyla yüklendi.');
+        }
+
+        return back()->with('error', 'Dosya yüklenemedi.');
+    }
+
+    /**
+     * Dosyayı sil (Soft delete yok - Hard delete)
+     */
+    public function destroyDocument(ClubDocument $document)
+    {
+        if (auth()->user()->isEditor() && $document->club_id !== auth()->user()->club_id) {
+            abort(403, 'Bu dosyayı silme yetkiniz yok.');
+        }
+
+        // Fiziksel dosyayı sil
+        if (Storage::disk('public')->exists($document->file_path)) {
+            Storage::disk('public')->delete($document->file_path);
+        }
+
+        // DB kaydını sil (Hard delete)
+        $document->forceDelete();
+
+        return back()->with('success', 'Dosya kalıcı olarak silindi.');
+    }
+
+    /**
+     * Kulüp başkanı rollerini senkronize eder.
+     * Yeni başkanı editör yapar, eski başkanı (eğer başka kulübü yoksa) öğrenci yapar.
+     */
+    private function syncPresidentRole(Club $club, $oldPresidentId = null)
+    {
+        \Log::info("Syncing President Roles", [
+            'club_id' => $club->id, 
+            'current_pres' => $club->president_id, 
+            'old_pres' => $oldPresidentId
+        ]);
+
+        // 1. Eski başkanı işle (eğer değiştiyse)
+        if ($oldPresidentId && $oldPresidentId != $club->president_id) {
+            $oldPresident = User::find($oldPresidentId);
+            if ($oldPresident && !$oldPresident->isAdmin()) {
+                // Sadece başka kulüplerde başkan değilse rolünü 'student' yap
+                $isStillPresident = Club::where('president_id', $oldPresidentId)
+                                      ->where('id', '!=', $club->id)
+                                      ->exists();
+                if (!$isStillPresident) {
+                    $studentRole = Role::where('name', 'student')->first();
+                    $oldPresident->update([
+                        'role_id' => $studentRole->id ?? $oldPresident->role_id,
+                        'club_id' => null
+                    ]);
+                    \Log::info("Old president demoted to student", ['user_id' => $oldPresidentId]);
+                }
+            }
+        }
+
+        // 2. Mevcut/Yeni başkanı işle
+        if ($club->president_id) {
+            $user = User::find($club->president_id);
+            if ($user) {
+                $updateData = ['club_id' => $club->id];
+                
+                // Admin değilse rolünü 'editor' yap
+                if (!$user->isAdmin()) {
+                    $editorRole = Role::where('name', 'editor')->first();
+                    if ($editorRole) {
+                        $updateData['role_id'] = $editorRole->id;
+                    }
+                }
+                
+                $user->update($updateData);
+                \Log::info("President synchronized", [
+                    'user_id' => $user->id, 
+                    'role_id' => $user->role_id, 
+                    'club_id' => $user->club_id
+                ]);
+            }
+        }
+    }
 }
+

@@ -11,19 +11,54 @@
 </div>
 @endif
 
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-    <h2 class="text-xl font-bold font-headline text-slate-800">Menü Öğeleri</h2>
+<!-- Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary">menu</span>
+        </div>
+        <div>
+            <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['total'] }}">0</p>
+            <p class="text-sm text-slate-500">Toplam Öğe</p>
+        </div>
+    </div>
+    <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-blue-600">account_tree</span>
+        </div>
+        <div>
+            <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['main'] }}">0</p>
+            <p class="text-sm text-slate-500">Ana Menü</p>
+        </div>
+    </div>
+    <div class="admin-card flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-green-600">check_circle</span>
+        </div>
+        <div>
+            <p class="text-2xl font-bold font-headline text-slate-800" data-count="{{ $stats['active'] }}">0</p>
+            <p class="text-sm text-slate-500">Aktif Öğeler</p>
+        </div>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
+    <div class="flex items-center gap-3">
+        <div class="relative group">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-[20px]">search</span>
+            <input type="text" id="menu-search" placeholder="Menü öğelerinde ara..." 
+                class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-64 focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm transition-all">
+        </div>
+    </div>
     <button onclick="showMenuModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95">
         <span class="material-symbols-outlined text-[18px]">add</span>Ana Menü Öğesi Ekle
     </button>
 </div>
 
-<div class="admin-card overflow-hidden p-0 shadow-sm border border-slate-200">
-    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200">
-        <h3 class="font-bold text-slate-700 text-sm">Hiyerarşik Menü Listesi</h3>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+<div class="admin-card p-0 overflow-hidden shadow-sm border border-slate-200">
+    <div class="overflow-x-auto w-full">
+        <table class="w-full text-left" id="menu-table">
             <thead>
                 <tr class="border-b border-slate-100 bg-white">
                     <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center w-16">#</th>
@@ -37,43 +72,53 @@
                 @php $counter = 1; @endphp
                 @forelse($mainMenus as $item)
                     {{-- Row for main menu --}}
-                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <tr class="hover:bg-slate-50/50 transition-colors group border-b border-slate-50 menu-row" data-id="{{ $item->id }}">
                         <td class="px-6 py-4 text-center">
-                            <div class="flex items-center justify-center gap-2 text-slate-300">
-                                <span class="material-symbols-outlined text-[14px]">remove</span>
-                                <span class="text-sm font-medium text-slate-600">{{ $counter++ }}</span>
+                            @if($item->children->count() > 0)
+                                <button onclick="toggleSubmenu({{ $item->id }}, this)" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-all">
+                                    <span class="material-symbols-outlined text-[20px]">add</span>
+                                </button>
+                            @else
+                                <span class="text-xs font-bold text-slate-300">{{ $counter++ }}</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:shadow-sm transition-all">
+                                    <span class="material-symbols-outlined text-[20px]">link</span>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800 text-[15px] search-target">{{ $item->label }}</p>
+                                    <p class="text-[11px] text-slate-400 font-medium">Ana Menü Öğesi</p>
+                                </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="font-bold text-slate-800 text-[15px]">{{ $item->label }}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium border border-slate-200">
-                                <span class="material-symbols-outlined text-[14px]">bolt</span>
-                                {{ $item->url }}
-                            </div>
+                            <span class="text-sm text-slate-500 font-medium">{{ Str::limit($item->url, 40) }}</span>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" class="sr-only peer" {{ $item->is_active ? 'checked' : '' }} onchange="toggleMenuStatus({{ $item->id }})">
-                                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 shadow-inner"></div>
                                 </label>
-                                <span class="text-xs font-bold text-slate-500">{{ $item->is_active ? 'Aktif' : 'Pasif' }}</span>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-tight">{{ $item->is_active ? 'Aktif' : 'Pasif' }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-right">
+                        <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-2">
-                                <button onclick="showSubMenuModal({{ $item->id }}, '{{ addslashes($item->label) }}')" class="h-9 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm shadow-blue-100 active:scale-95">
+                                <button onclick="showSubMenuModal({{ $item->id }}, '{{ addslashes($item->label) }}')" 
+                                    class="h-9 px-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95">
                                     <span class="material-symbols-outlined text-[16px]">add</span> Alt Menü
                                 </button>
-                                <button onclick="showMenuDuzenle({{ $item->id }}, '{{ addslashes($item->label) }}', '{{ addslashes($item->url) }}', '{{ $item->parent_id }}', '{{ $item->target }}', {{ $item->order }}, {{ $item->is_active ? 'true' : 'false' }})" class="w-9 h-9 bg-amber-100 hover:bg-amber-200 text-amber-600 rounded-lg flex items-center justify-center transition-all active:scale-95" title="Düzenle">
+                                <button onclick="showMenuDuzenle({{ $item->id }}, '{{ addslashes($item->label) }}', '{{ addslashes($item->url) }}', '{{ $item->parent_id }}', '{{ $item->target }}', {{ $item->order }}, {{ $item->is_active ? 'true' : 'false' }})" 
+                                    class="w-9 h-9 bg-slate-100 hover:bg-amber-100 hover:text-amber-600 text-slate-500 rounded-xl flex items-center justify-center transition-all active:scale-95" title="Düzenle">
                                     <span class="material-symbols-outlined text-[18px]">edit_note</span>
                                 </button>
-                                <form action="{{ route('admin.menu.destroy', $item) }}" method="POST" onsubmit="return confirm('Silmek istediğine emin misin?')">
+                                <form action="{{ route('admin.menu.destroy', $item) }}" method="POST" class="delete-form">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="w-9 h-9 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition-all active:scale-95" title="Sil">
-                                        <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+                                    <button type="button" onclick="confirmDelete(this)" class="w-9 h-9 bg-slate-100 hover:bg-red-100 hover:text-red-600 text-slate-500 rounded-xl flex items-center justify-center transition-all active:scale-95" title="Sil">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
                                     </button>
                                 </form>
                             </div>
@@ -82,19 +127,18 @@
                     
                     {{-- Rows for sub-menus --}}
                     @foreach($item->children as $child)
-                    <tr class="hover:bg-slate-50/50 transition-colors group">
-                        <td class="px-6 py-3 text-center text-slate-400 text-xs font-medium">0</td>
-                        <td class="px-6 py-3 pl-12">
+                    <tr class="hidden bg-slate-50/30 transition-all border-b border-slate-50 submenu-row parent-{{ $item->id }}" data-parent="{{ $item->id }}">
+                        <td class="px-6 py-3 text-center">
+                            <span class="text-[10px] font-bold text-slate-300">└</span>
+                        </td>
+                        <td class="px-6 py-3 pl-14">
                             <div class="flex items-center gap-2">
-                                <span class="text-slate-300">-</span>
-                                <span class="text-slate-600 font-medium text-sm">{{ $child->label }}</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                <span class="text-slate-600 font-bold text-sm search-target">{{ $child->label }}</span>
                             </div>
                         </td>
                         <td class="px-6 py-3">
-                            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-white text-blue-500 rounded-lg text-[11px] border border-blue-100">
-                                <span class="material-symbols-outlined text-[13px]">open_in_new</span>
-                                {{ $child->url }}
-                            </div>
+                            <span class="text-xs text-slate-400 font-medium italic">{{ $child->url }}</span>
                         </td>
                         <td class="px-6 py-3">
                             <div class="flex items-center gap-2 opacity-80">
@@ -102,21 +146,19 @@
                                     <input type="checkbox" class="sr-only peer" {{ $child->is_active ? 'checked' : '' }} onchange="toggleMenuStatus({{ $child->id }})">
                                     <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
                                 </label>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase">{{ $child->is_active ? 'Aktif' : 'Pasif' }}</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ $child->is_active ? 'Aktif' : 'Pasif' }}</span>
                             </div>
                         </td>
                         <td class="px-6 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button onclick="showSubMenuModal({{ $child->id }}, '{{ addslashes($child->label) }}')" class="h-8 px-2.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all active:scale-95">
-                                    <span class="material-symbols-outlined text-[14px]">add</span> Alt Menü
+                                <button onclick="showMenuDuzenle({{ $child->id }}, '{{ addslashes($child->label) }}', '{{ addslashes($child->url) }}', '{{ $child->parent_id }}', '{{ $child->target }}', {{ $child->order }}, {{ $child->is_active ? 'true' : 'false' }})" 
+                                    class="w-8 h-8 text-slate-400 hover:text-amber-500 hover:bg-white hover:shadow-sm rounded-lg flex items-center justify-center transition-all" title="Düzenle">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span>
                                 </button>
-                                <button onclick="showMenuDuzenle({{ $child->id }}, '{{ addslashes($child->label) }}', '{{ addslashes($child->url) }}', '{{ $child->parent_id }}', '{{ $child->target }}', {{ $child->order }}, {{ $child->is_active ? 'true' : 'false' }})" class="w-8 h-8 text-amber-500 hover:bg-amber-50 rounded-lg flex items-center justify-center transition-all" title="Düzenle">
-                                    <span class="material-symbols-outlined text-[18px]">edit</span>
-                                </button>
-                                <form action="{{ route('admin.menu.destroy', $child) }}" method="POST" onsubmit="return confirm('Silmek istediğine emin misin?')">
+                                <form action="{{ route('admin.menu.destroy', $child) }}" method="POST" class="delete-form">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="w-8 h-8 text-red-500 hover:bg-red-50 rounded-lg flex items-center justify-center transition-all" title="Sil">
-                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    <button type="button" onclick="confirmDelete(this)" class="w-8 h-8 text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-sm rounded-lg flex items-center justify-center transition-all" title="Sil">
+                                        <span class="material-symbols-outlined text-[16px]">delete</span>
                                     </button>
                                 </form>
                             </div>
@@ -208,55 +250,131 @@
 
 @push('scripts')
 <script>
-function showMenuModal() {
-    document.getElementById('menu-modal-title').textContent = 'Yeni Menü Öğesi';
-    document.getElementById('menu-form').action = '{{ route('admin.menu.store') }}';
-    document.getElementById('menu-method').value = 'POST';
-    document.getElementById('menu-label').value = '';
-    document.getElementById('menu-url').value = '';
-    document.getElementById('menu-parent_id').value = '';
-    document.getElementById('menu-target').value = '_self';
-    document.getElementById('menu-order').value = '';
-    document.getElementById('menu-aktif').checked = true;
-    document.getElementById('menu-modal').classList.remove('hidden');
-}
+    // Stats Counter Animation
+    function animateCounters() {
+        document.querySelectorAll('[data-count]').forEach(function (el) {
+            var target = parseInt(el.dataset.count, 10);
+            var duration = 1500;
+            var start = 0;
+            var startTime = null;
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var progress = Math.min((timestamp - startTime) / duration, 1);
+                var eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.floor(eased * target).toLocaleString('tr-TR');
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    }
 
-function showSubMenuModal(parentId, parentLabel) {
-    showMenuModal();
-    document.getElementById('menu-modal-title').textContent = parentLabel + ' için Alt Menü Ekle';
-    document.getElementById('menu-parent_id').value = parentId;
-}
+    // Toggle Submenu logic
+    function toggleSubmenu(parentId, btn) {
+        const subrows = document.querySelectorAll(`.parent-${parentId}`);
+        const icon = btn.querySelector('span');
+        const isHidden = subrows[0].classList.contains('hidden');
+        
+        subrows.forEach(row => {
+            if (isHidden) {
+                row.classList.remove('hidden');
+                setTimeout(() => row.style.opacity = '1', 10);
+            } else {
+                row.style.opacity = '0';
+                setTimeout(() => row.classList.add('hidden'), 300);
+            }
+        });
+        
+        icon.textContent = isHidden ? 'remove' : 'add';
+        btn.classList.toggle('bg-primary/10', isHidden);
+        btn.classList.toggle('text-primary', isHidden);
+    }
 
-function showMenuDuzenle(id, label, url, parent_id, target, order, aktif) {
-    document.getElementById('menu-modal-title').textContent = 'Menü Öğesini Düzenle';
-    document.getElementById('menu-form').action = '/admin/menu/' + id;
-    document.getElementById('menu-method').value = 'PUT';
-    document.getElementById('menu-label').value = label;
-    document.getElementById('menu-url').value = url;
-    document.getElementById('menu-parent_id').value = parent_id || '';
-    document.getElementById('menu-target').value = target;
-    document.getElementById('menu-order').value = order;
-    document.getElementById('menu-aktif').checked = aktif;
-    document.getElementById('menu-modal').classList.remove('hidden');
-}
+    // Search Filter logic
+    document.getElementById('menu-search').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.menu-row');
+        
+        rows.forEach(row => {
+            const label = row.querySelector('.search-target').textContent.toLowerCase();
+            const parentId = row.dataset.id;
+            const subrows = document.querySelectorAll(`.parent-${parentId}`);
+            
+            let childMatch = false;
+            subrows.forEach(child => {
+                const childLabel = child.querySelector('.search-target').textContent.toLowerCase();
+                if (childLabel.includes(term)) childMatch = true;
+            });
 
-function toggleMenuStatus(id) {
-    fetch(`/admin/menu/${id}/toggle`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            showToast('Durum güncellendi', 'success');
-        } else {
-            showToast('Bir hata oluştu', 'error');
-        }
+            if (label.includes(term) || childMatch) {
+                row.classList.remove('hidden');
+                if (childMatch && term.length > 0) {
+                    subrows.forEach(c => c.classList.remove('hidden'));
+                }
+            } else {
+                row.classList.add('hidden');
+                subrows.forEach(c => c.classList.add('hidden'));
+            }
+        });
     });
-}
-function hideMenuModal() {
-    document.getElementById('menu-modal').classList.add('hidden');
-}
+
+    function showMenuModal() {
+        document.getElementById('menu-modal-title').textContent = 'Yeni Menü Öğesi';
+        document.getElementById('menu-form').action = '{{ route('admin.menu.store') }}';
+        document.getElementById('menu-method').value = 'POST';
+        document.getElementById('menu-label').value = '';
+        document.getElementById('menu-url').value = '';
+        document.getElementById('menu-parent_id').value = '';
+        document.getElementById('menu-target').value = '_self';
+        document.getElementById('menu-order').value = '';
+        document.getElementById('menu-aktif').checked = true;
+        document.getElementById('menu-modal').classList.remove('hidden');
+    }
+
+    function showSubMenuModal(parentId, parentLabel) {
+        showMenuModal();
+        document.getElementById('menu-modal-title').textContent = parentLabel + ' için Alt Menü Ekle';
+        document.getElementById('menu-parent_id').value = parentId;
+    }
+
+    function showMenuDuzenle(id, label, url, parent_id, target, order, aktif) {
+        document.getElementById('menu-modal-title').textContent = 'Menü Öğesini Düzenle';
+        document.getElementById('menu-form').action = '/admin/menu/' + id;
+        document.getElementById('menu-method').value = 'PUT';
+        document.getElementById('menu-label').value = label;
+        document.getElementById('menu-url').value = url;
+        document.getElementById('menu-parent_id').value = parent_id || '';
+        document.getElementById('menu-target').value = target;
+        document.getElementById('menu-order').value = order;
+        document.getElementById('menu-aktif').checked = aktif;
+        document.getElementById('menu-modal').classList.remove('hidden');
+    }
+
+    function toggleMenuStatus(id) {
+        fetch(`/admin/menu/${id}/toggle`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                showToast('Durum güncellendi', 'success');
+            } else {
+                showToast('Bir hata oluştu', 'error');
+            }
+        });
+    }
+
+    function confirmDelete(btn) {
+        if(confirm('Bu öğeyi silmek istediğinizden emin misiniz?')) {
+            btn.closest('form').submit();
+        }
+    }
+
+    function hideMenuModal() {
+        document.getElementById('menu-modal').classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', animateCounters);
 </script>
 @endpush

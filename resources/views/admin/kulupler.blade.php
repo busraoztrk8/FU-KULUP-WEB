@@ -194,6 +194,17 @@
         <form id="kulup-duzenle-form" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
             @csrf @method('PUT')
             <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                {{-- Global Errors --}}
+                @if($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium mb-4">
+                    <p class="font-bold mb-1 text-xs uppercase tracking-wider">Lütfen hataları düzeltin:</p>
+                    <ul class="list-disc list-inside text-xs">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp Adı <span class="text-red-500">*</span></label>
@@ -343,6 +354,18 @@
         <form action="{{ route('admin.kulupler.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
             @csrf
             <div class="p-6 overflow-y-auto flex-1 space-y-5">
+                
+                {{-- Global Errors --}}
+                @if($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
+                    <p class="font-bold mb-1">Lütfen hataları düzeltin:</p>
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
 
                 {{-- Logo yükleme --}}
                 <div>
@@ -451,8 +474,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Açıklama</label>
-                    <textarea name="description" rows="4" placeholder="Kulüp hakkında detaylı bilgi..."
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Detaylı Açıklama</label>
+                    <textarea name="description" rows="4" placeholder="Kulüp hakkında detaylı bilgilendirme..."
                         class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm resize-none"></textarea>
                 </div>
 
@@ -495,7 +518,7 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"flex flex-col md:flex-row justify-between items-center gap-4 mb-4"l f>rt<"flex flex-col md:flex-row justify-between items-center gap-4 mt-4"i p>',
+        dom: '<"grid"l f>rt<"grid"i p>',
     });
 
     $('#kategori-filter').change(function(){
@@ -504,9 +527,11 @@ $(document).ready(function() {
 
     // Select2 AJAX initialization
     $('.ajax-user-select').each(function() {
+        const parentModal = $(this).closest('.fixed');
         $(this).select2({
             placeholder: 'Başkan seçmek için isim yazın...',
             allowClear: true,
+            width: '100%',
             ajax: {
                 url: "{{ route('admin.kullanicilar.search') }}",
                 dataType: 'json',
@@ -529,7 +554,7 @@ $(document).ready(function() {
                 cache: true
             },
             minimumInputLength: 0,
-            dropdownParent: $(this).closest('.fixed') // Modallar içinde çalışması için
+            dropdownParent: parentModal.length ? parentModal : $(document.body)
         });
     });
 });

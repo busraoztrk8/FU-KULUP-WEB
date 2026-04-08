@@ -92,4 +92,12 @@ class Club extends Model
     {
         return $this->hasMany(ClubMember::class)->where('status', 'approved');
     }
+
+    /**
+     * Get the documents for the club.
+     */
+    public function documents()
+    {
+        return $this->hasMany(ClubDocument::class);
+    }
 }

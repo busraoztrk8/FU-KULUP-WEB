@@ -51,7 +51,7 @@
 </div>
 
 <!-- Actions -->
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+<div class="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
     <div class="flex items-center gap-3">
         <select id="role-filter" class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm transition-all">
             <option value="">Tüm Roller</option>
@@ -186,7 +186,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium w-12'},
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
             {data: 'user_info', name: 'name'},
             {data: 'role_name', name: 'role.name'},
             {data: 'club_name', name: 'club.name', orderable: false},
@@ -198,7 +198,20 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"flex flex-col md:flex-row justify-between items-center gap-4 mb-4"l f>rt<"flex flex-col md:flex-row justify-between items-center gap-4 mt-4"i p>',
+        dom: '<"grid"l f>rt<"grid"i p>',
+    });
+
+    // İstatistik animasyonu
+    $('[data-count]').each(function () {
+        $(this).prop('Counter', 0).animate({
+            Counter: $(this).data('count')
+        }, {
+            duration: 1500,
+            easing: 'swing',
+            step: function (now) {
+                $(this).text(Math.ceil(now));
+            }
+        });
     });
 
     $('#role-filter').change(function(){

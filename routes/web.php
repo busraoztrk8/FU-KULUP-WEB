@@ -111,6 +111,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::post('/kulup-uyelik/{member}/update-title', [ClubController::class, 'updateMemberTitle'])->name('kulupler.update-member-title');
     Route::delete('/kulup-gallery/{image}', [ClubController::class, 'deleteGalleryImage'])->name('kulupler.delete-gallery-image');
 
+    // Kulüp Dosyaları (Soft delete olmayanlar)
+    Route::get('/kulup-dosyalari', [ClubController::class, 'documents'])->name('kulupler.dosyalar');
+    Route::post('/kulup-dosyalari', [ClubController::class, 'storeDocument'])->name('kulupler.dosyalar.store');
+    Route::delete('/kulup-dosyalari/{document}', [ClubController::class, 'destroyDocument'])->name('kulupler.dosyalar.destroy');
+
     // Genel Üyelik Yönetimi (Onarım)
     Route::get('/uyeler', [\App\Http\Controllers\Admin\MembershipController::class, 'index'])->name('members.index');
     Route::post('/uyeler', [\App\Http\Controllers\Admin\MembershipController::class, 'store'])->name('members.store');
