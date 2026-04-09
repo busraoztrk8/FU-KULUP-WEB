@@ -98,7 +98,8 @@
             <div class="p-6 space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Başlık <span class="text-red-500">*</span></label>
-                    <input id="duyuru-baslik" name="title" type="text" required placeholder="Duyuru başlığı..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                    <input id="duyuru-baslik" name="title" type="text" required maxlength="100" placeholder="Duyuru başlığı..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all has-char-counter"/>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/100</span></div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
@@ -124,7 +125,8 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">İçerik <span class="text-red-500">*</span></label>
-                    <textarea id="duyuru-icerik" name="content" rows="4" required placeholder="Duyuru içeriği..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                    <textarea id="duyuru-icerik" name="content" rows="4" required maxlength="5000" placeholder="Duyuru içeriği..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/5000</span></div>
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
@@ -179,12 +181,13 @@ $(document).ready(function() {
         serverSide: true,
         ajax: "{{ route('admin.duyurular') }}",
         columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
+            {data: 'id', name: 'id', className: 'text-center text-slate-600 font-medium'},
             {data: 'announcement_info', name: 'title'},
             {data: 'club_name', name: 'club.name', orderable: false},
             {data: 'status', name: 'status', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
+        order: [[0, 'asc']],
         language: {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
@@ -216,8 +219,21 @@ function showDuyuruDuzenle(id) {
         
         document.getElementById('duyuru-baslik').value = data.title;
         document.getElementById('duyuru-icerik').value = data.content;
-        document.getElementById('duyuru-kulup').value = data.club_id || '';
+        const clubSelect = document.getElementById('duyuru-kulup');
+        clubSelect.value = data.club_id || '';
+        clubSelect.dispatchEvent(new Event('change'));
         document.getElementById('duyuru-durum').value = data.is_published ? '1' : '0';
+        
+        // Sayaçları güncelle
+        setTimeout(() => {
+            document.querySelectorAll('#duyuru-modal .has-char-counter').forEach(el => {
+                const counter = el.parentElement.querySelector('.char-counter');
+                if (counter) {
+                    const max = el.getAttribute('maxlength');
+                    counter.textContent = `${el.value.length}/${max}`;
+                }
+            });
+        }, 100);
         
         document.getElementById('duyuru-modal').classList.remove('hidden');
     }).fail(function() {
@@ -227,6 +243,18 @@ function showDuyuruDuzenle(id) {
 function hideDuyuruModal() {
     document.getElementById('duyuru-modal').classList.add('hidden');
 }
+
+$(document).on('input', '.has-char-counter', function() {
+    const counter = $(this).parent().find('.char-counter');
+    const max = $(this).attr('maxlength');
+    const len = $(this).val().length;
+    counter.text(len + '/' + max);
+    if (len >= max) {
+        counter.addClass('text-red-500').removeClass('text-slate-400');
+    } else {
+        counter.addClass('text-slate-400').removeClass('text-red-500');
+    }
+});
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;
     document.getElementById('delete-form').action = "/admin/duyurular/" + id;

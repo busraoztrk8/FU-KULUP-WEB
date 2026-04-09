@@ -146,6 +146,25 @@
     </div>
 </div>
 
+{{-- Başkan Atama Onay Modalı --}}
+<div id="president-confirm-modal" class="fixed inset-0 z-[80] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+        <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-amber-500 text-[32px]">manage_accounts</span>
+        </div>
+        <h3 class="text-xl font-bold font-headline text-center text-slate-800 mb-2">Başkanlık Durumu Uyarısı</h3>
+        <p class="text-sm text-slate-500 text-center mb-6 leading-relaxed">
+            Bu kullanıcı zaten <span id="existing-club-name" class="font-bold text-primary"></span> kulübünün başkanıdır. 
+            Devam ederseniz, kullanıcı eski görevinden alınacak ve bu kulübe atanacaktır.
+        </p>
+        <div class="flex gap-3">
+            <button type="button" onclick="cancelPresidentAssignment()" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all active:scale-95">Vazgeç</button>
+            <button type="button" onclick="confirmPresidentAssignment()" class="flex-1 py-3 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md active:scale-95">Evet, Ata</button>
+        </div>
+    </div>
+</div>
+
 {{-- Kulüp Detay Modal --}}
 <div id="kulup-detay-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideKulupDetay()"></div>
@@ -208,7 +227,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp Adı <span class="text-red-500">*</span></label>
-                        <input id="edit-kulup-adi" name="name" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        <input id="edit-kulup-adi" name="name" type="text" maxlength="100" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all has-char-counter"/>
+                        <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/100</span></div>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
@@ -236,11 +256,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Kurucu Adı</label>
-                        <input id="edit-founder-name" name="founder_name" type="text" placeholder="Dr. Ahmet Tekin" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                        <input id="edit-founder-name" name="founder_name" type="text" maxlength="100" placeholder="Dr. Ahmet Tekin" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Kuruluş Yılı</label>
-                        <input id="edit-established-year" name="established_year" type="text" placeholder="2018" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                        <input id="edit-established-year" name="established_year" type="text" maxlength="10" placeholder="2018" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
                     </div>
                 </div>
 
@@ -264,16 +284,19 @@
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Açıklama</label>
-                    <textarea id="edit-kulup-aciklama" name="description" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                    <textarea id="edit-kulup-aciklama" name="description" rows="2" maxlength="800" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/800</span></div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Misyonumuz</label>
-                        <textarea id="edit-mission" name="mission" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                        <textarea id="edit-mission" name="mission" rows="2" maxlength="300" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                        <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/300</span></div>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Vizyonumuz</label>
-                        <textarea id="edit-vision" name="vision" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                        <textarea id="edit-vision" name="vision" rows="2" maxlength="300" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                        <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/300</span></div>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -319,7 +342,7 @@
                          onclick="document.getElementById('edit-gallery-input').click()">
                         <span class="material-symbols-outlined text-slate-400 text-[32px] mb-2">add_a_photo</span>
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Yeni Fotoğraflar Ekle</p>
-                        <input id="edit-gallery-input" type="file" name="gallery[]" multiple class="hidden" accept="image/*"/>
+                        <input id="edit-gallery-input" type="file" name="gallery[]" multiple class="hidden" accept="image/*" onchange="previewGallery(this)"/>
                     </div>
                 </div>
                 @if(auth()->user()->isAdmin())
@@ -387,12 +410,12 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kurucu Adı</label>
-                        <input type="text" name="founder_name" placeholder="Örn: Dr. Ahmet Tekin"
+                        <input type="text" name="founder_name" maxlength="100" placeholder="Örn: Dr. Ahmet Tekin"
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kuruluş Yılı</label>
-                        <input type="text" name="established_year" placeholder="Örn: 2018"
+                        <input type="text" name="established_year" maxlength="10" placeholder="Örn: 2018"
                             class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
                     </div>
                 </div>
@@ -400,8 +423,9 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp Adı <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" required placeholder="Örn: Robotik Kulübü"
-                            class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+                        <input type="text" name="name" required maxlength="100" placeholder="Örn: Robotik Kulübü"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm has-char-counter"/>
+                        <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/100</span></div>
                         @error('name') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
@@ -422,14 +446,16 @@
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Misyonumuz</label>
-                    <textarea name="mission" rows="2" placeholder="Kulübün misyonu..."
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"></textarea>
+                    <textarea name="mission" rows="2" maxlength="300" placeholder="Kulübün misyonu..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm has-char-counter"></textarea>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/300</span></div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Vizyonumuz</label>
-                    <textarea name="vision" rows="2" placeholder="Kulübün vizyonu..."
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"></textarea>
+                    <textarea name="vision" rows="2" maxlength="300" placeholder="Kulübün vizyonu..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm has-char-counter"></textarea>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/300</span></div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -469,14 +495,16 @@
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Kısa Açıklama</label>
-                    <input type="text" name="short_description" placeholder="Kulüp hakkında kısa bir cümle..."
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+                    <input type="text" name="short_description" maxlength="150" placeholder="Kulüp hakkında kısa bir cümle..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm has-char-counter"/>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/150</span></div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Detaylı Açıklama</label>
-                    <textarea name="description" rows="4" placeholder="Kulüp hakkında detaylı bilgilendirme..."
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm resize-none"></textarea>
+                    <textarea name="description" rows="4" maxlength="800" placeholder="Kulüp hakkında detaylı bilgilendirme..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm resize-none has-char-counter"></textarea>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/800</span></div>
                 </div>
 
             </div>
@@ -506,7 +534,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
+            {data: 'id', name: 'id', className: 'text-center text-slate-600 font-medium'},
             {data: 'club_info', name: 'club_info', orderable: false, searchable: false},
             {data: 'category_name', name: 'category.name'},
             {data: 'president_name', name: 'president.name'},
@@ -514,11 +542,19 @@ $(document).ready(function() {
             {data: 'status', name: 'status', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
+        order: [[0, 'asc']],
         language: {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
         dom: '<"grid"l f>rt<"grid"i p>',
+        initComplete: function() {
+            this.api().columns.adjust();
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        if (table) table.columns.adjust();
     });
 
     $('#kategori-filter').change(function(){
@@ -555,9 +591,40 @@ $(document).ready(function() {
             },
             minimumInputLength: 0,
             dropdownParent: parentModal.length ? parentModal : $(document.body)
+        }).on('select2:select', function (e) {
+            const userId = e.params.data.id;
+            const $select = $(this);
+            
+            // Kullanıcı durumunu kontrol et
+            fetch(`/admin/check-president/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.is_president) {
+                        // Eğer zaten başkansa onay iste
+                        window.pendingPresidentSelect = $select;
+                        window.pendingPresidentData = e.params.data;
+                        document.getElementById('existing-club-name').textContent = data.club_name;
+                        document.getElementById('president-confirm-modal').classList.remove('hidden');
+                    }
+                });
         });
     });
 });
+
+function confirmPresidentAssignment() {
+    document.getElementById('president-confirm-modal').classList.add('hidden');
+    window.pendingPresidentSelect = null;
+    window.pendingPresidentData = null;
+}
+
+function cancelPresidentAssignment() {
+    if (window.pendingPresidentSelect) {
+        window.pendingPresidentSelect.val(null).trigger('change');
+    }
+    document.getElementById('president-confirm-modal').classList.add('hidden');
+    window.pendingPresidentSelect = null;
+    window.pendingPresidentData = null;
+}
 
 function showKulupEkle() {
     document.getElementById('kulup-ekle-modal').classList.remove('hidden');
@@ -583,9 +650,30 @@ function showKulupDuzenle(id) {
     // Modal açılmadan önce alanları temizle/hazırla
     document.getElementById('edit-kulup-adi').value = 'Yükleniyor...';
     document.getElementById('edit-kulup-aciklama').value = '';
-    document.getElementById('edit-kulup-aktif').checked = false;
+    if (document.getElementById('edit-kulup-aktif')) document.getElementById('edit-kulup-aktif').checked = false;
     document.getElementById('kulup-duzenle-form').querySelectorAll('select[name="category_id"]').forEach(el => el.value = '');
     
+    // Resim önizlemelerini ve inputları sıfırla
+    ['edit-logo-preview', 'edit-cover-preview'].forEach(id => {
+        const img = document.getElementById(id);
+        if (img) {
+            img.src = '';
+            img.classList.add('hidden');
+        }
+    });
+    ['edit-logo-placeholder', 'edit-cover-placeholder'].forEach(id => {
+        const ph = document.getElementById(id);
+        if (ph) ph.classList.remove('opacity-0');
+    });
+    ['edit-logo-input', 'edit-cover-input', 'edit-gallery-input'].forEach(id => {
+        const inp = document.getElementById(id);
+        if (inp) inp.value = '';
+    });
+    
+    // Geçici galeri önizlemelerini temizle
+    const newPreviews = document.getElementById('new-gallery-previews');
+    if (newPreviews) newPreviews.remove();
+
     document.getElementById('kulup-duzenle-form').action = '/admin/kulupler/' + id;
     document.getElementById('kulup-duzenle-modal').classList.remove('hidden');
 
@@ -594,11 +682,32 @@ function showKulupDuzenle(id) {
         .then(data => {
             document.getElementById('edit-kulup-adi').value = data.name;
             document.getElementById('edit-kulup-aciklama').value = data.description || '';
-            document.getElementById('edit-kulup-aktif').checked = (data.is_active == 1);
+            if (document.getElementById('edit-kulup-aktif')) {
+                document.getElementById('edit-kulup-aktif').checked = (data.is_active == 1);
+            }
             
+            // Logo ve Kapak Yükle
+            if (data.logo) {
+                const preview = document.getElementById('edit-logo-preview');
+                const placeholder = document.getElementById('edit-logo-placeholder');
+                preview.src = '/storage/' + data.logo;
+                preview.classList.remove('hidden');
+                if (placeholder) placeholder.classList.add('opacity-0');
+            }
+            if (data.cover_image) {
+                const preview = document.getElementById('edit-cover-preview');
+                const placeholder = document.getElementById('edit-cover-placeholder');
+                preview.src = '/storage/' + data.cover_image;
+                preview.classList.remove('hidden');
+                if (placeholder) placeholder.classList.add('opacity-0');
+            }
+
             // Kategori seçimi
             let catSelect = document.querySelector('#kulup-duzenle-form select[name="category_id"]');
-            if (catSelect) catSelect.value = data.category_id || '';
+            if (catSelect) {
+                catSelect.value = data.category_id || '';
+                catSelect.dispatchEvent(new Event('change'));
+            }
 
             // Başkan ve Linkler
             const presSelect = document.getElementById('edit-kulup-president');
@@ -623,23 +732,47 @@ function showKulupDuzenle(id) {
             if(document.getElementById('edit-founder-name')) document.getElementById('edit-founder-name').value = data.founder_name || '';
             if(document.getElementById('edit-established-year')) document.getElementById('edit-established-year').value = data.established_year || '';
 
+            // Sayaçları güncelle
+            setTimeout(() => {
+                document.querySelectorAll('.has-char-counter[maxlength]').forEach(el => {
+                    const counter = el.parentElement.querySelector('.char-counter');
+                    if (counter) {
+                        const max = el.getAttribute('maxlength');
+                        counter.textContent = `${el.value.length}/${max}`;
+                    }
+                });
+            }, 100);
+
             // Galeri yükle
             const galleryList = document.getElementById('edit-gallery-list');
             if(galleryList) {
                 galleryList.innerHTML = '';
                 if(data.images && data.images.length > 0) {
                     data.images.forEach(img => {
-                        galleryList.innerHTML += `
-                            <div class="relative group aspect-square rounded-lg overflow-hidden border border-slate-200">
-                                <img src="/storage/${img.image_path}" class="w-full h-full object-cover">
-                                <button type="button" onclick="deleteGalleryImage(${img.id}, this)" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span class="material-symbols-outlined text-[16px]">close</span>
-                                </button>
-                            </div>
-                        `;
+                        const div = document.createElement('div');
+                        div.className = 'relative group aspect-square rounded-lg overflow-hidden border border-slate-200';
+                        
+                        // Create image
+                        const image = document.createElement('img');
+                        image.src = `/storage/${img.image_path}`;
+                        image.className = 'w-full h-full object-cover';
+                        
+                        // Create delete button
+                        const delBtn = document.createElement('button');
+                        delBtn.type = 'button';
+                        delBtn.className = 'absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity';
+                        delBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">close</span>';
+                        delBtn.onclick = () => deleteGalleryImage(img.id, delBtn);
+
+                        div.appendChild(image);
+                        div.appendChild(delBtn);
+                        galleryList.appendChild(div);
                     });
                 } else {
-                    galleryList.innerHTML = '<p class="col-span-full text-xs text-slate-400 italic">Henüz galeri resmi eklenmemiş.</p>';
+                    const emptyMsg = document.createElement('p');
+                    emptyMsg.className = 'col-span-full text-xs text-slate-400 italic';
+                    emptyMsg.textContent = 'Henüz galeri resmi eklenmemiş.';
+                    galleryList.appendChild(emptyMsg);
                 }
             }
         })
@@ -720,18 +853,67 @@ function deleteGalleryImage(id, btn) {
 }
 
 function previewImage(input, previewId, placeholderId) {
+    const file = input.files[0];
     const preview = document.getElementById(previewId);
     const placeholder = document.getElementById(placeholderId);
     
-    if (input.files && input.files[0]) {
+    if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.src = e.target.result;
             preview.classList.remove('hidden');
             if (placeholder) placeholder.classList.add('opacity-0');
         }
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(file);
     }
+}
+
+$(document).on('input', '.has-char-counter', function() {
+    const counter = $(this).parent().find('.char-counter');
+    const max = $(this).attr('maxlength');
+    const len = $(this).val().length;
+    counter.text(len + '/' + max);
+    if (len >= max) {
+        counter.addClass('text-red-500').removeClass('text-slate-400');
+    } else {
+        counter.addClass('text-slate-400').removeClass('text-red-500');
+    }
+});
+function previewGallery(input) {
+    const galleryList = document.getElementById('edit-gallery-list');
+    if (!input.files || !galleryList) return;
+
+    // "Yeni Yüklenenler" bölümü yoksa oluştur
+    let newUploadsSection = document.getElementById('new-gallery-previews');
+    if (!newUploadsSection) {
+        newUploadsSection = document.createElement('div');
+        newUploadsSection.id = 'new-gallery-previews';
+        newUploadsSection.className = 'col-span-full grid grid-cols-4 sm:grid-cols-6 gap-3 pt-3 mt-3 border-t border-slate-100';
+        galleryList.appendChild(newUploadsSection);
+    } else {
+        newUploadsSection.innerHTML = ''; // Temizle
+    }
+
+    Array.from(input.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const div = document.createElement('div');
+            div.className = 'relative group aspect-square rounded-lg overflow-hidden border-2 border-primary/20 bg-slate-50';
+            
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'w-full h-full object-cover';
+            
+            const badge = document.createElement('span');
+            badge.className = 'absolute top-1 left-1 bg-primary text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase';
+            badge.textContent = 'Yeni';
+
+            div.appendChild(img);
+            div.appendChild(badge);
+            newUploadsSection.appendChild(div);
+        }
+        reader.readAsDataURL(file);
+    });
 }
 </script>
 @endpush

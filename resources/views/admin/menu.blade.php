@@ -107,11 +107,11 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-2">
-                                <button onclick="showSubMenuModal({{ $item->id }}, '{{ addslashes($item->label) }}')" 
+                                <button onclick="showSubMenuModal({{ $item->id }}, '{{ e(addslashes($item->label)) }}')" 
                                     class="h-9 px-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95">
                                     <span class="material-symbols-outlined text-[16px]">add</span> Alt Menü
                                 </button>
-                                <button onclick="showMenuDuzenle({{ $item->id }}, '{{ addslashes($item->label) }}', '{{ addslashes($item->url) }}', '{{ $item->parent_id }}', '{{ $item->target }}', {{ $item->order }}, {{ $item->is_active ? 'true' : 'false' }})" 
+                                <button onclick="showMenuDuzenle({{ $item->id }}, '{{ e(addslashes($item->label)) }}', '{{ e(addslashes($item->url)) }}', '{{ $item->parent_id }}', '{{ $item->target }}', {{ $item->order }}, {{ $item->is_active ? 'true' : 'false' }})" 
                                     class="w-9 h-9 bg-slate-100 hover:bg-amber-100 hover:text-amber-600 text-slate-500 rounded-xl flex items-center justify-center transition-all active:scale-95" title="Düzenle">
                                     <span class="material-symbols-outlined text-[18px]">edit_note</span>
                                 </button>
@@ -151,7 +151,7 @@
                         </td>
                         <td class="px-6 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button onclick="showMenuDuzenle({{ $child->id }}, '{{ addslashes($child->label) }}', '{{ addslashes($child->url) }}', '{{ $child->parent_id }}', '{{ $child->target }}', {{ $child->order }}, {{ $child->is_active ? 'true' : 'false' }})" 
+                                <button onclick="showMenuDuzenle({{ $child->id }}, '{{ e(addslashes($child->label)) }}', '{{ e(addslashes($child->url)) }}', '{{ $child->parent_id }}', '{{ $child->target }}', {{ $child->order }}, {{ $child->is_active ? 'true' : 'false' }})" 
                                     class="w-8 h-8 text-slate-400 hover:text-amber-500 hover:bg-white hover:shadow-sm rounded-lg flex items-center justify-center transition-all" title="Düzenle">
                                     <span class="material-symbols-outlined text-[16px]">edit</span>
                                 </button>

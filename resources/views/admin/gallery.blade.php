@@ -55,7 +55,7 @@
         </div>
         <div class="p-3 flex items-center justify-between bg-white mt-auto">
             <div class="flex items-center gap-1">
-                <button onclick="showGalleryEditModal({{ $image->id }}, '{{ addslashes($image->title) }}', {{ $image->order }}, {{ $image->is_active ? 'true' : 'false' }})" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle">
+                <button onclick="showGalleryEditModal({{ $image->id }}, '{{ e(addslashes($image->title)) }}', {{ $image->order }}, {{ $image->is_active ? 'true' : 'false' }})" class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle">
                     <span class="material-symbols-outlined text-[18px]">edit</span>
                 </button>
                 <form action="{{ route('admin.gallery.destroy', $image->id) }}" method="POST" onsubmit="return confirm('Bu resmi galeriden silmek istediğinize emin misiniz?')">

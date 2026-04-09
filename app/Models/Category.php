@@ -19,7 +19,7 @@ class Category extends Model
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = $value;
-        $this->attributes['slug'] = Str::slug($value);
+        $this->attributes['slug'] = Str::slug($value) . '-' . substr(md5(Str::uuid()), 0, 8);
     }
 
     /**

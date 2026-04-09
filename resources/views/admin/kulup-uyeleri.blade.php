@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', $club->name . ' - Üyelik Yönetimi')
-@section('page_title', $club->name . ' - Üyelik Yönetimi')
+@section('title', e($club->name) . ' - Üyelik Yönetimi')
+@section('page_title', e($club->name) . ' - Üyelik Yönetimi')
 @section('data-page', 'members')
 
 @section('content')
@@ -212,7 +212,7 @@
                                 @endif
 
                                 {{-- Unvan Belirle --}}
-                                <button type="button" onclick="showTitleModal({{ $member->id }}, '{{ addslashes($member->user->name) }}', '{{ addslashes($member->title ?? '') }}')" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-100" title="Unvan Belirle">
+                                <button type="button" onclick="showTitleModal({{ $member->id }}, '{{ e(addslashes($member->user->name)) }}', '{{ e(addslashes($member->title ?? '')) }}')" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-100" title="Unvan Belirle">
                                     <span class="material-symbols-outlined text-[16px]">badge</span>
                                 </button>
                                 
@@ -233,7 +233,7 @@
                                 </form>
                             @endif
                             {{-- Sil --}}
-                            <button onclick="showDeleteMemberModal({{ $member->id }}, '{{ addslashes($member->user->name ?? 'Bilinmiyor') }}')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Kaydı Sil">
+                            <button onclick="showDeleteMemberModal({{ $member->id }}, '{{ e(addslashes($member->user->name ?? 'Bilinmiyor')) }}')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Kaydı Sil">
                                 <span class="material-symbols-outlined text-[16px]">delete</span>
                             </button>
                         </div>

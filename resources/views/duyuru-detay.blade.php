@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $duyuru->title . ' - Duyurular - Fırat Üniversitesi')
+@section('title', e($duyuru->title) . ' - Duyurular - Fırat Üniversitesi')
 @section('data-page', 'announcement-detail')
 
 @section('content')

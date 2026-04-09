@@ -55,9 +55,13 @@ Route::get('/etkinlikler/{slug}', function ($slug) {
 })->name('etkinlik.detay');
 
 Route::get('/kulupler/{slug}', function ($slug) {
-    $club = \App\Models\Club::with(['category', 'president', 'events' => function($q) {
-        $q->where('status', 'published')->latest()->take(4);
-    }])
+    $club = \App\Models\Club::with([
+        'category',
+        'president',
+        'events' => function ($q) {
+            $q->where('status', 'published')->latest()->take(4);
+        }
+    ])
         ->where('slug', $slug)
         ->where('is_active', true)
         ->firstOrFail();
@@ -108,6 +112,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::post('/kulup-uyelik/{member}/reddet', [ClubController::class, 'rejectMember'])->name('kulupler.uyeler.reddet');
     Route::delete('/kulup-uyelik/{member}', [ClubController::class, 'removeMember'])->name('kulupler.uyeler.sil');
     Route::post('/kulupler/{club}/set-president/{user}', [ClubController::class, 'setPresident'])->name('kulupler.set-president');
+    Route::get('/check-president/{user}', [ClubController::class, 'checkPresident'])->name('kulupler.check-president');
     Route::post('/kulup-uyelik/{member}/update-title', [ClubController::class, 'updateMemberTitle'])->name('kulupler.update-member-title');
     Route::delete('/kulup-gallery/{image}', [ClubController::class, 'deleteGalleryImage'])->name('kulupler.delete-gallery-image');
 
@@ -137,7 +142,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::delete('/kullanicilar/{user}', [UserController::class, 'destroy'])->name('kullanicilar.destroy');
 
     // Settings & Reports
-    Route::get('/ayarlar', function() {
+    Route::get('/ayarlar', function () {
         return view('admin.ayarlar');
     })->name('ayarlar');
     Route::post('/ayarlar', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('ayarlar.update');
@@ -178,4 +183,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::delete('/galeri/{gallery}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
 });
 
-require __DIR__.'/auth.php';
+
+require __DIR__ . '/auth.php';

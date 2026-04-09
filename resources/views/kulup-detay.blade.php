@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $club->name . ' - Fırat Üniversitesi')
+@section('title', e($club->name) . ' - Fırat Üniversitesi')
 @section('data-page', 'club-detail')
 @push('styles')
 <style>
@@ -60,7 +60,7 @@
                 @endif
             </div>
             <div class="flex-1">
-                <h1 class="font-headline text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4 drop-shadow-lg">
+                <h1 class="font-headline text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4 drop-shadow-lg break-words">
                     {{ $club->name }}
                 </h1>
                 <div class="flex flex-wrap gap-3">
@@ -90,7 +90,7 @@
                     <h2 class="font-headline text-3xl font-bold text-slate-800">Hakkımızda</h2>
                 </div>
                 
-                <div class="prose prose-slate max-w-none mb-10 text-slate-600 leading-relaxed text-lg">
+                <div class="prose prose-slate max-w-none mb-10 text-slate-600 leading-relaxed text-lg break-words">
                     {!! nl2br(e($club->description ?? 'Bu kulüp hakkında henüz detaylı bir açıklama girilmemiş.')) !!}
                 </div>
 
@@ -102,7 +102,7 @@
                             <span class="material-symbols-outlined text-primary text-[28px]">rocket_launch</span>
                         </div>
                         <h4 class="font-bold text-slate-800 mb-2">Misyonumuz</h4>
-                        <p class="text-sm text-slate-500 leading-relaxed italic">
+                        <p class="text-sm text-slate-500 leading-relaxed italic break-words">
                             {{ $club->mission ?? 'Öğrencilerimize sosyal ve teknik alanlarda değer katmak, üniversite vizyonunu ileriye taşımak.' }}
                         </p>
                     </div>
@@ -112,7 +112,7 @@
                             <span class="material-symbols-outlined text-amber-500 text-[28px]">visibility</span>
                         </div>
                         <h4 class="font-bold text-slate-800 mb-2">Vizyonumuz</h4>
-                        <p class="text-sm text-slate-500 leading-relaxed italic">
+                        <p class="text-sm text-slate-500 leading-relaxed italic break-words">
                             {{ $club->vision ?? 'Alanında öncü, disiplinler arası çalışmalara odaklanan sürdürülebilir bir topluluk olmak.' }}
                         </p>
                     </div>
@@ -197,37 +197,37 @@
         {{-- Right Column: Sidebar --}}
         <aside class="lg:col-span-4 space-y-8">
 
-            {{-- Info Table --}}
-            <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm relative overflow-hidden">
+            {{-- Info Card --}}
+            <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm relative overflow-hidden">
                 <h3 class="font-headline text-2xl font-bold mb-8 text-slate-800">Kulüp Bilgileri</h3>
                 
-                <div class="space-y-6 mb-8">
+                <div class="space-y-6 mb-10">
                     <div class="flex items-center justify-between group">
-                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">person_search</span>
-                            Kurucu
-                        </span>
-                        <span class="font-bold text-slate-800 text-sm text-right">{{ $club->founder_name ?? ($club->president->name ?? '-') }}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/80 group-hover:text-primary transition-colors">person</span>
+                            <span class="text-slate-400 text-sm font-medium">Kurucu</span>
+                        </div>
+                        <span class="font-bold text-slate-800 text-sm text-right break-words">{{ $club->founder_name ?? ($club->president->name ?? '-') }}</span>
                     </div>
                     <div class="flex items-center justify-between group">
-                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">group</span>
-                            Üye Sayısı
-                        </span>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/80 group-hover:text-primary transition-colors">groups</span>
+                            <span class="text-slate-400 text-sm font-medium">Üye Sayısı</span>
+                        </div>
                         <span class="font-bold text-slate-800 text-sm">{{ number_format($club->member_count) }}</span>
                     </div>
                     <div class="flex items-center justify-between group">
-                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">category</span>
-                            Kategori
-                        </span>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/80 group-hover:text-primary transition-colors">category</span>
+                            <span class="text-slate-400 text-sm font-medium">Kategori</span>
+                        </div>
                         <span class="font-bold text-slate-800 text-sm">{{ $club->category->name ?? '-' }}</span>
                     </div>
                     <div class="flex items-center justify-between group">
-                        <span class="text-slate-400 text-sm font-medium flex items-center gap-3">
-                            <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">history</span>
-                            Kuruluş
-                        </span>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary/80 group-hover:text-primary transition-colors">calendar_today</span>
+                            <span class="text-slate-400 text-sm font-medium">Kuruluş</span>
+                        </div>
                         <span class="font-bold text-slate-800 text-sm">{{ $club->established_year ?? $club->created_at->format('Y') }}</span>
                     </div>
                 </div>
@@ -242,52 +242,67 @@
                     @if(!$membership)
                         <form action="{{ route('kulup.kayit', $club) }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full py-4 bg-primary text-white rounded-2xl font-bold text-base hover:bg-primary-dark active:scale-95 transition-all shadow-xl shadow-primary/30 flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined">person_add</span>
+                            <button type="submit" class="w-full py-4 bg-[#5d1021] text-white rounded-2xl font-bold text-base hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-[20px]">person_add</span>
                                 Kulübe Katıl
                             </button>
                         </form>
                     @elseif($membership->status === 'pending')
-                         <div class="w-full py-4 bg-amber-50 text-amber-700 rounded-2xl font-bold text-sm text-center">Başvuru Beklemede</div>
+                         <div class="space-y-3">
+                            <div class="w-full py-3 bg-amber-50 text-amber-700 rounded-2xl font-bold text-xs text-center border border-amber-100 italic">Başvuru Onay Bekliyor</div>
+                            <form action="{{ route('kulup.ayril', $club) }}" method="POST">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="w-full py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">cancel</span>
+                                    Başvuruyu Geri Al
+                                </button>
+                            </form>
+                         </div>
                     @else
-                         <div class="w-full py-4 bg-green-50 text-green-700 rounded-2xl font-bold text-sm text-center">Kulüp Üyesisiniz</div>
+                         <div class="space-y-3">
+                            <div class="w-full py-4 bg-green-50 text-green-700 rounded-2xl font-bold text-sm text-center border border-green-100">Kulüp Üyesisiniz</div>
+                            <form action="{{ route('kulup.ayril', $club) }}" method="POST" onsubmit="return confirm('Kulüpten ayrılmak istediğinize emin misiniz?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="w-full text-center text-xs text-slate-400 hover:text-red-500 font-medium transition-colors">Kulüpten Ayrıl</button>
+                            </form>
+                         </div>
                     @endif
                 @else
-                    <a href="{{ route('login') }}" class="w-full py-4 bg-primary text-white rounded-2xl font-bold text-base hover:bg-primary-dark flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined">login</span> Giriş Yap ve Katıl
+                    <a href="{{ route('login') }}" class="w-full py-4 bg-[#5d1021] text-white rounded-2xl font-bold text-base hover:opacity-90 flex items-center justify-center gap-2 shadow-xl shadow-black/10">
+                        <span class="material-symbols-outlined text-[20px]">login</span> Giriş Yap ve Katıl
                     </a>
                 @endauth
             </div>
 
             {{-- Active Members / Board --}}
             @php
-                $activeMembers = $club->members()->where('status', 'approved')->whereNotNull('title')->orderBy('title')->get();
+                $activeMembers = $club->members()->where('status', 'approved')->whereNotNull('title')->orderBy('title')->take(4)->get();
             @endphp
             @if($activeMembers->count() > 0)
-            <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+            <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">
                 <h3 class="font-headline text-2xl font-bold mb-8 text-slate-800">Aktif Üyeler</h3>
                 <div class="space-y-6">
                     @foreach($activeMembers as $member)
                     <div class="flex items-center gap-4 group">
-                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-100 group-hover:border-primary transition-colors shrink-0 shadow-sm">
+                        <div class="w-14 h-14 rounded-full overflow-hidden shrink-0 shadow-sm border border-slate-100">
                             @if($member->user && $member->user->profile_photo)
                                 <img src="{{ asset('storage/' . $member->user->profile_photo) }}" class="w-full h-full object-cover">
                             @else
-                                <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
-                                    <span class="material-symbols-outlined text-[20px]">person</span>
+                                <div class="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
+                                    <span class="material-symbols-outlined text-[24px]">person</span>
                                 </div>
                             @endif
                         </div>
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm group-hover:text-primary transition-colors">{{ $member->user->name }}</h4>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ $member->title }}</p>
+                            <h4 class="font-bold text-slate-800 group-hover:text-primary transition-colors">{{ $member->user->name }}</h4>
+                            <p class="text-[11px] font-medium text-slate-400 tracking-wide mt-0.5">{{ $member->title }}</p>
                         </div>
                     </div>
                     @endforeach
                 </div>
                 {{-- See all link --}}
                 <div class="mt-8 pt-6 border-t border-slate-50">
-                    <button class="w-full py-3 bg-slate-50 text-slate-500 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all border border-slate-100">Tüm Üyeleri Görüntüle</button>
+                    <button class="w-full py-3.5 bg-white text-slate-500 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all border border-slate-100">Tüm Üyeleri Görüntüle</button>
                 </div>
             </div>
             @endif
@@ -295,15 +310,15 @@
             {{-- Social & Actions --}}
             <div class="flex justify-center gap-4">
                 @if($club->website_url)
-                    <a href="{{ $club->website_url }}" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
-                        <span class="material-symbols-outlined text-[22px]">language</span>
+                    <a href="{{ $club->website_url }}" target="_blank" class="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-[24px]">public</span>
                     </a>
                 @endif
-                <button class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-[22px]">share</span>
+                <button class="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[24px]">share</span>
                 </button>
-                <a href="mailto:{{ $club->president->email ?? '' }}" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-[22px]">alternate_email</span>
+                <a href="mailto:{{ $club->president->email ?? '' }}" class="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-[24px]">alternate_email</span>
                 </a>
             </div>
 

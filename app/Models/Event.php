@@ -41,7 +41,7 @@ class Event extends Model
     public function setTitleAttribute($value)
     {
         $this->attributes['title'] = $value;
-        $this->attributes['slug'] = Str::slug($value);
+        $this->attributes['slug'] = Str::slug($value) . '-' . substr(md5(Str::uuid()), 0, 8);
     }
 
     /**

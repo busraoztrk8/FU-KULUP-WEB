@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Announcement;
 use App\Models\Club;
+use Str;
 
 class DuyuruController extends Controller
 {
@@ -16,46 +17,45 @@ class DuyuruController extends Controller
                 $query = Announcement::query();
 
                 if (auth()->user()->isEditor()) {
-                    $query->where(function($q) {
+                    $query->where(function ($q) {
                         $q->where('club_id', auth()->user()->club_id)
-                          ->orWhereNull('club_id');
+                            ->orWhereNull('club_id');
                     });
                 }
 
-                $data = $query->latest()->get();
+                $data = $query->oldest()->get();
                 return \Yajra\DataTables\Facades\DataTables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('announcement_info', function($row) {
-                        $url = $row->image_path ? asset('storage/'.$row->image_path) : asset('images/logo_orj.png');
+                    ->addColumn('announcement_info', function ($row) {
+                        $url = $row->image_path ? asset('storage/' . $row->image_path) : asset('images/logo_orj.png');
                         return '<div class="flex items-center gap-3">
                             <div class="w-12 h-10 bg-white border border-slate-100 p-1 flex items-center justify-center rounded-lg shadow-sm shrink-0">
-                                <img src="'.$url.'" class="max-w-full max-h-full object-contain" alt="Görsel">
+                                <img src="' . $url . '" class="max-w-full max-h-full object-contain" alt="Görsel">
                             </div>
-                            <span class="font-bold text-slate-700">'.e($row->title).'</span>
+                            <span class="font-bold text-slate-700">' . e($row->title) . '</span>
                         </div>';
                     })
-                    ->addColumn('club_name', function($row) {
-                        return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
+                    ->addColumn('club_name', function ($row) {
+                        return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">' . e($row->club->name) . '</span>' : '<span class="text-slate-400 text-xs">—</span>';
                     })
-                    ->addColumn('status', function($row) {
-                        $checked = $row->is_published ? 'checked' : '';
+                    ->addColumn('status', function ($row) {
                         $bgToggle = $row->is_published ? 'bg-green-600' : 'bg-slate-200';
                         $lbl = $row->is_published ? 'Aktif' : 'Pasif';
                         $lblColor = $row->is_published ? 'text-slate-700' : 'text-slate-500';
-                        
+
                         return '<div class="flex items-center gap-3">
-                            <label class="relative inline-flex items-center cursor-pointer m-0" onclick="event.preventDefault(); toggleStatus(\'announcement\', '.$row->id.')">
-                                <div class="w-11 h-6 rounded-full relative transition-colors '.$bgToggle.'">
-                                    <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform '.($row->is_published ? 'translate-x-5' : '').'"></span>
+                            <label class="relative inline-flex items-center cursor-pointer m-0" onclick="event.preventDefault(); toggleStatus(\'announcement\', ' . $row->id . ')">
+                                <div class="w-11 h-6 rounded-full relative transition-colors ' . $bgToggle . '">
+                                    <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ' . ($row->is_published ? 'translate-x-5' : '') . '"></span>
                                 </div>
                             </label>
-                            <span class="text-sm font-semibold '.$lblColor.'">'.$lbl.'</span>
+                            <span class="text-sm font-semibold ' . $lblColor . '">' . $lbl . '</span>
                         </div>';
                     })
-                    ->addColumn('action', function($row) {
+                    ->addColumn('action', function ($row) {
                         $btn = '<div class="flex items-center justify-start gap-2">';
-                        $btn .= '<button onclick="showDuyuruDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
-                        $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.addslashes($row->title).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
+                        $btn .= '<button onclick="showDuyuruDuzenle(' . $row->id . ')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
+                        $btn .= '<button onclick="showDeleteModal(' . $row->id . ', \'' . e(addslashes($row->title)) . '\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
                     })
@@ -67,23 +67,23 @@ class DuyuruController extends Controller
             }
         }
 
-        $clubs = auth()->user()->isEditor() 
-            ? Club::where('id', auth()->user()->club_id)->get() 
+        $clubs = auth()->user()->isEditor()
+            ? Club::where('id', auth()->user()->club_id)->get()
             : Club::where('is_active', true)->get();
 
         // İstatistikler
         $statsQuery = Announcement::query();
         if (auth()->user()->isEditor()) {
-            $statsQuery->where(function($q) {
+            $statsQuery->where(function ($q) {
                 $q->where('club_id', auth()->user()->club_id)
-                  ->orWhereNull('club_id');
+                    ->orWhereNull('club_id');
             });
         }
 
         $stats = [
-            'total'     => (clone $statsQuery)->count(),
+            'total' => (clone $statsQuery)->count(),
             'published' => (clone $statsQuery)->where('is_published', true)->count(),
-            'draft'     => (clone $statsQuery)->where('is_published', false)->count(),
+            'draft' => (clone $statsQuery)->where('is_published', false)->count(),
         ];
 
         return view('admin.duyurular', compact('clubs', 'stats'));
@@ -92,9 +92,10 @@ class DuyuruController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => 'required|string|max:100',
+            'content' => 'required|string|max:5000',
             'is_published' => 'required|in:1,0,published,draft',
+            'club_id' => auth()->user()->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
             'image' => 'nullable|image|max:10240',
         ]);
 
@@ -102,9 +103,10 @@ class DuyuruController extends Controller
             $validated['image_path'] = $request->file('image')->store('announcements', 'public');
         }
 
-        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
+
         $validated['is_published'] = ($validated['is_published'] === '1' || $validated['is_published'] === 'published');
-        
+
         if ($validated['is_published']) {
             $validated['published_at'] = now();
         }
@@ -121,7 +123,7 @@ class DuyuruController extends Controller
     public function show($id)
     {
         $announcement = Announcement::findOrFail($id);
-        
+
         if (auth()->user()->isEditor() && $announcement->club_id !== auth()->user()->club_id) {
             return response()->json(['error' => 'Bu duyuruyu görme yetkiniz yok.'], 403);
         }
@@ -136,9 +138,10 @@ class DuyuruController extends Controller
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => 'required|string|max:100',
+            'content' => 'required|string|max:5000',
             'is_published' => 'required|in:1,0,published,draft',
+            'club_id' => auth()->user()->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
             'image' => 'nullable|image|max:10240',
         ]);
 
@@ -146,9 +149,9 @@ class DuyuruController extends Controller
             $validated['image_path'] = $request->file('image')->store('announcements', 'public');
         }
 
-        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
         $validated['is_published'] = ($validated['is_published'] === '1' || $validated['is_published'] === 'published');
-        
+
         if ($validated['is_published'] && !$announcement->is_published) {
             $validated['published_at'] = now();
         }

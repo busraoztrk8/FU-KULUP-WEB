@@ -22,7 +22,7 @@ class HaberController extends Controller
                     });
                 }
 
-                $data = $query->latest()->get();
+                $data = $query->oldest()->get();
                 return \Yajra\DataTables\Facades\DataTables::of($data)
                     ->addIndexColumn()
                     ->addColumn('news_info', function($row) {
@@ -38,8 +38,6 @@ class HaberController extends Controller
                         return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
                     })
                     ->addColumn('status', function($row) {
-                        $checked = $row->is_published ? 'checked' : '';
-                        // matches typical green toggle color (like Tailwind's green-600 or emerald-600)
                         $bgToggle = $row->is_published ? 'bg-green-600' : 'bg-slate-200';
                         $lbl = $row->is_published ? 'Aktif' : 'Pasif';
                         $lblColor = $row->is_published ? 'text-slate-700' : 'text-slate-500';
@@ -55,13 +53,8 @@ class HaberController extends Controller
                     })
                     ->addColumn('action', function($row) {
                         $btn = '<div class="flex items-center justify-start gap-2">';
-                        
-                        // Edit button exactly like image
                         $btn .= '<button onclick="showHaberDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
-                        
-                        // Delete button exactly like image
-                        $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.addslashes($row->title).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
-                        
+                        $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->title)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
                     })
@@ -98,9 +91,10 @@ class HaberController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => 'required|string|max:100',
+            'content' => 'required|string|max:5000',
             'is_published' => 'required|in:1,0,published,draft',
+            'club_id' => auth()->user()->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
             'image' => 'nullable|image|max:10240',
         ]);
 
@@ -108,7 +102,7 @@ class HaberController extends Controller
             $validated['image_path'] = $request->file('image')->store('news', 'public');
         }
 
-        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
         $validated['is_published'] = ($validated['is_published'] === '1' || $validated['is_published'] === 'published');
         
         if ($validated['is_published']) {
@@ -135,16 +129,17 @@ class HaberController extends Controller
         return response()->json($haber);
     }
 
-    public function update(Request $request, News $haber)
+    public function update(Request $request, News $news)
     {
-        if (auth()->user()->isEditor() && $haber->club_id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && $news->club_id !== auth()->user()->club_id) {
             abort(403, 'Bu haberi düzenleme yetkiniz yok.');
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => 'required|string|max:100',
+            'content' => 'required|string|max:5000',
             'is_published' => 'required|in:1,0,published,draft',
+            'club_id' => auth()->user()->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
             'image' => 'nullable|image|max:10240',
         ]);
 
@@ -152,25 +147,25 @@ class HaberController extends Controller
             $validated['image_path'] = $request->file('image')->store('news', 'public');
         }
 
-        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
         $validated['is_published'] = ($validated['is_published'] === '1' || $validated['is_published'] === 'published');
         
-        if ($validated['is_published'] && !$haber->is_published) {
-            $validated['published_at'] = now();
+        if (auth()->user()->isEditor()) {
+            $validated['club_id'] = auth()->user()->club_id;
         }
 
-        $haber->update($validated);
+        $news->update($validated);
 
         return redirect()->route('admin.haberler')->with('success', 'Haber başarıyla güncellendi.');
     }
 
-    public function destroy(News $haber)
+    public function destroy(News $news)
     {
-        if (auth()->user()->isEditor() && $haber->club_id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && $news->club_id !== auth()->user()->club_id) {
             abort(403, 'Bu haberi silme yetkiniz yok.');
         }
 
-        $haber->delete();
+        $news->delete();
         return redirect()->route('admin.haberler')->with('success', 'Haber başarıyla silindi.');
     }
 }

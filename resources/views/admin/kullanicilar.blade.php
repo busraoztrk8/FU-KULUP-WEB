@@ -64,7 +64,7 @@
         <button onclick="showToast('Rapor oluşturuluyor...', 'info')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-all active:scale-95">
             <span class="material-symbols-outlined text-[18px]">download</span>Dışa Aktar
         </button>
-        <button onclick="showToast('Yeni kullanıcı formu hazırlanıyor...', 'success')" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm shadow-primary/10 active:scale-95">
+        <button onclick="showKullaniciEkle()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm shadow-primary/10 active:scale-95">
             <span class="material-symbols-outlined text-[18px]">person_add</span>Yeni Kullanıcı
         </button>
     </div>
@@ -140,7 +140,13 @@
                         <label class="block text-sm font-bold text-slate-700 mb-2">Rol <span class="text-red-500">*</span></label>
                         <select id="edit-kullanici-rol" name="role_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                             @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->label }}</option>
+                                @php
+                                    $isDisabled = ($role->name === 'admin' && $adminExists);
+                                @endphp
+                                <option value="{{ $role->id }}" 
+                                    {{ $isDisabled ? 'disabled' : '' }}>
+                                    {{ $role->label }} {{ $isDisabled ? '(Devre Dışı - Sistemde Admin Mevcut)' : '' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -163,6 +169,69 @@
                 <button type="button" onclick="hideKullaniciDuzenle()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
                     <span class="material-symbols-outlined text-[18px]">done</span>Güncelle
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Yeni Kullanıcı Ekle Modal --}}
+<div id="kullanici-ekle-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideKullaniciEkle()"></div>
+    <div class="relative bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <h3 class="text-lg font-bold font-headline text-slate-800">Yeni Kullanıcı Oluştur</h3>
+            <button onclick="hideKullaniciEkle()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+        <form action="{{ route('admin.kullanicilar.store') }}" method="POST">
+            @csrf
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Ad Soyad <span class="text-red-500">*</span></label>
+                        <input name="name" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">E-Posta <span class="text-red-500">*</span></label>
+                        <input name="email" type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Rol <span class="text-red-500">*</span></label>
+                        <select name="role_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                            @foreach($roles as $role)
+                                @php
+                                    $isDisabled = ($role->name === 'admin' && $adminExists);
+                                @endphp
+                                <option value="{{ $role->id }}" 
+                                    {{ $isDisabled ? 'disabled' : '' }}>
+                                    {{ $role->label }} {{ $isDisabled ? '(Devre Dışı)' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp</label>
+                        <select name="club_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                            <option value="">Yok</option>
+                            @foreach($clubs as $club)
+                                <option value="{{ $club->id }}">{{ $club->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Şifre <span class="text-red-500">*</span></label>
+                    <input name="password" type="password" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
+                <button type="button" onclick="hideKullaniciEkle()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">add</span>Kaydet
                 </button>
             </div>
         </form>
@@ -222,13 +291,34 @@ $(document).ready(function() {
 function showKullaniciDuzenle(id, adi, email, rolId, kulupId) {
     document.getElementById('edit-kullanici-adi').value = adi;
     document.getElementById('edit-kullanici-email').value = email;
-    if (rolId) document.getElementById('edit-kullanici-rol').value = rolId;
+    
+    // Admin seçeneğini kontrol et (Eğer düzenlediğimiz kişi adminse seçeneği aktif etmeliyiz)
+    const rolSelect = document.getElementById('edit-kullanici-rol');
+    const adminOption = Array.from(rolSelect.options).find(opt => opt.text.includes('Admin') || opt.text.includes('Yönetici'));
+    
+    if (rolId) {
+        rolSelect.value = rolId;
+        // Eğer düzenlediğimiz kişi zaten adminse, o seçeneği disable'dan çıkar mıyız?
+        // Aslında backend'de check var, ama UX için:
+        if (adminOption) {
+            // Eğer aktif seçili olan zaten adminse disabled'ı kaldır
+            if (rolId == adminOption.value) adminOption.disabled = false;
+        }
+    }
+    
     if (kulupId) document.getElementById('edit-kullanici-kulup').value = kulupId;
     document.getElementById('kullanici-duzenle-form').action = '/admin/kullanicilar/' + id;
     document.getElementById('kullanici-duzenle-modal').classList.remove('hidden');
 }
 function hideKullaniciDuzenle() {
     document.getElementById('kullanici-duzenle-modal').classList.add('hidden');
+}
+
+function showKullaniciEkle() {
+    document.getElementById('kullanici-ekle-modal').classList.remove('hidden');
+}
+function hideKullaniciEkle() {
+    document.getElementById('kullanici-ekle-modal').classList.add('hidden');
 }
 
 function showDeleteModal(id, baslik) {

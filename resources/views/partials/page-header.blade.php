@@ -3,10 +3,10 @@
         <div class="flex items-center gap-1.5 md:gap-2 text-slate-400 text-[10px] md:text-xs font-bold tracking-widest uppercase">
             <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Ana Sayfa</a>
             <span class="material-symbols-outlined text-[12px] md:text-[14px]">chevron_right</span>
-            <span class="text-primary truncate max-w-[150px] sm:max-w-none">@yield('page-title', 'Sayfa')</span>
+            <span class="text-primary truncate max-w-[150px] sm:max-w-none">{{ View::getSection('page-title', 'Sayfa') }}</span>
         </div>
         <h1 class="text-xs md:text-sm font-bold font-headline text-slate-800 tracking-tight uppercase hidden sm:block">
-            @yield('page-title')
+            {{ View::getSection('page-title') }}
         </h1>
     </div>
 </div>

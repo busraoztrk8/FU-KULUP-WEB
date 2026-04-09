@@ -123,7 +123,8 @@
 
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Adı <span class="text-red-500">*</span></label>
-                            <input type="text" name="title" required placeholder="Örn: Kariyer Zirvesi 2024" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            <input type="text" name="title" required maxlength="100" placeholder="Örn: Kariyer Zirvesi 2024" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all has-char-counter"/>
+                            <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/100</span></div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -139,7 +140,8 @@
 
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Kısa Açıklama</label>
-                            <textarea name="short_description" rows="2" placeholder="Liste sayfalarında görünecek kısa özet..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                            <textarea name="short_description" rows="2" maxlength="150" placeholder="Liste sayfalarında görünecek kısa özet..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                            <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/150</span></div>
                         </div>
                     </div>
 
@@ -185,7 +187,7 @@
 
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Konum / Salon</label>
-                            <input type="text" name="location" placeholder="Örn: Konferans Salonu" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            <input type="text" name="location" maxlength="100" placeholder="Örn: Konferans Salonu" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                         </div>
 
                         <div>
@@ -205,7 +207,8 @@
 
                 <div class="mt-6">
                     <label class="block text-sm font-bold text-slate-700 mb-2">Detaylı Açıklama <span class="text-red-500">*</span></label>
-                    <textarea name="description" rows="4" required placeholder="Etkinlik detayları..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                    <textarea name="description" rows="4" required maxlength="800" placeholder="Etkinlik detayları..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/800</span></div>
                 </div>
             </form>
         </div>
@@ -281,7 +284,8 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Adı <span class="text-red-500">*</span></label>
-                            <input id="edit-etkinlik-adi" name="title" type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                            <input id="edit-etkinlik-adi" name="title" type="text" maxlength="100" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all has-char-counter"/>
+                            <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/100</span></div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -297,7 +301,8 @@
 
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Kısa Açıklama</label>
-                            <textarea name="short_description" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                            <textarea name="short_description" rows="2" maxlength="150" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                            <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/150</span></div>
                         </div>
 
                         <div>
@@ -362,7 +367,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Konum</label>
-                                <input name="location" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                                <input name="location" type="text" maxlength="100" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                             </div>
                         </div>
 
@@ -383,7 +388,8 @@
 
                 <div class="mt-4">
                     <label class="block text-sm font-bold text-slate-700 mb-2">Detaylı Açıklama <span class="text-red-500">*</span></label>
-                    <textarea name="description" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                    <textarea name="description" rows="3" required maxlength="800" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
+                    <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/800</span></div>
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
@@ -413,7 +419,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
+            {data: 'id', name: 'id', className: 'text-center text-slate-600 font-medium'},
             {data: 'event_info', name: 'title', orderable: false, searchable: false},
             {data: 'club_name', name: 'club.name', orderable: false},
             {data: 'category_name', name: 'category.name', orderable: false},
@@ -422,6 +428,7 @@ $(document).ready(function() {
             {data: 'status', name: 'status', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
+        order: [[0, 'asc']],
         language: {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
@@ -478,10 +485,27 @@ function showEtkinlikDuzenle(id) {
             form.querySelector('input[name="location"]').value = data.location || '';
             form.querySelector('input[name="location_url"]').value = data.location_url || '';
             form.querySelector('input[name="max_participants"]').value = data.max_participants || '';
-            form.querySelector('select[name="category_id"]').value = data.category_id || '';
-            form.querySelector('select[name="club_id"]').value = data.club_id || '';
+            const categorySelect = form.querySelector('select[name="category_id"]');
+            categorySelect.value = data.category_id || '';
+            categorySelect.dispatchEvent(new Event('change'));
+
+            const clubSelect = form.querySelector('select[name="club_id"]');
+            clubSelect.value = data.club_id || '';
+            clubSelect.dispatchEvent(new Event('change'));
+
             form.querySelector('textarea[name="short_description"]').value = data.short_description || '';
             form.querySelector('textarea[name="description"]').value = data.description || '';
+            
+            // Sayaçları güncelle
+            setTimeout(() => {
+                form.querySelectorAll('.has-char-counter').forEach(el => {
+                    const counter = el.parentElement.querySelector('.char-counter');
+                    if (counter) {
+                        const max = el.getAttribute('maxlength');
+                        counter.textContent = `${el.value.length}/${max}`;
+                    }
+                });
+            }, 100);
             
             // Checkbox/Toggle
             document.getElementById('edit-etkinlik-featured').checked = (data.is_featured == 1);
@@ -516,6 +540,18 @@ function previewImage(input, previewId, placeholderId) {
         reader.readAsDataURL(file);
     }
 }
+
+$(document).on('input', '.has-char-counter', function() {
+    const counter = $(this).parent().find('.char-counter');
+    const max = $(this).attr('maxlength');
+    const len = $(this).val().length;
+    counter.text(len + '/' + max);
+    if (len >= max) {
+        counter.addClass('text-red-500').removeClass('text-slate-400');
+    } else {
+        counter.addClass('text-slate-400').removeClass('text-red-500');
+    }
+});
 function hideEtkinlikDuzenle() {
     document.getElementById('etkinlik-duzenle-modal').classList.add('hidden');
 }

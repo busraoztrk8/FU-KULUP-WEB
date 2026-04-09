@@ -32,23 +32,23 @@ class ClubController extends Controller
                     $query->where('category_id', $request->category_id);
                 }
 
-                $data = $query->latest()->get();
+                $data = $query->oldest()->get();
 
                 return \Yajra\DataTables\Facades\DataTables::of($data)
                     ->addIndexColumn()
                     ->addColumn('club_info', function($row) {
                         $img = $row->logo ? asset('storage/' . $row->logo) : null;
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">groups</span></div>';
-                        return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . htmlspecialchars($row->name) . '</span></div>';
+                        return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . e($row->name) . '</span></div>';
                     })
                     ->addColumn('category_name', function($row) {
-                        return $row->category ? '<span class="badge badge-primary">'.htmlspecialchars($row->category->name).'</span>' : '<span class="text-slate-400 text-sm">—</span>';
+                        return $row->category ? '<span class="badge badge-primary">'.e($row->category->name).'</span>' : '<span class="text-slate-400 text-sm">—</span>';
                     })
                     ->addColumn('president_name', function($row) {
-                        return $row->president ? htmlspecialchars($row->president->name) : '<span class="text-slate-400">Atanmadı</span>';
+                        return $row->president ? e($row->president->name) : '<span class="text-slate-400">Atanmadı</span>';
                     })
                     ->addColumn('members_count', function($row) {
-                        return '<span class="font-semibold">' . $row->member_count . '</span>';
+                        return '<span class="font-semibold">' . (int)$row->member_count . '</span>';
                     })
                     ->addColumn('status', function($row) {
                         $bgToggle = $row->is_active ? 'bg-green-600' : 'bg-slate-200';
@@ -56,7 +56,7 @@ class ClubController extends Controller
                         $lblColor = $row->is_active ? 'text-slate-700' : 'text-slate-500';
 
                         if (!auth()->user()->isAdmin()) {
-                            return '<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full '.($row->is_active ? 'bg-green-500' : 'bg-slate-300').'"></span><span class="text-sm font-semibold '.$lblColor.'">'.$lbl.'</span></div>';
+                            return '<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full '.($row->is_active ? 'bg-green-500' : 'bg-slate-300').'"></span><span class="text-sm font-semibold '.$lblColor.'">'.e($lbl).'</span></div>';
                         }
 
                         return '<div class="flex items-center gap-3">
@@ -65,7 +65,7 @@ class ClubController extends Controller
                                     <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform '.($row->is_active ? 'translate-x-[20px]' : '').'"></span>
                                 </div>
                             </label>
-                            <span class="text-sm font-semibold '.$lblColor.'">'.$lbl.'</span>
+                            <span class="text-sm font-semibold '.$lblColor.'">'.e($lbl).'</span>
                         </div>';
                     })
                     ->addColumn('action', function($row) {
@@ -74,7 +74,7 @@ class ClubController extends Controller
                         $btn .= '<button onclick="showKulupDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         
                         if (auth()->user()->isAdmin()) {
-                            $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.addslashes($row->name).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
+                            $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->name)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         }
                         
                         $btn .= '</div>';
@@ -107,6 +107,16 @@ class ClubController extends Controller
         return response()->json($club->load(['images', 'president']));
     }
 
+    public function checkPresident(User $user)
+    {
+        $club = Club::where('president_id', $user->id)->first();
+        return response()->json([
+            'is_president' => !!$club,
+            'club_id' => $club?->id,
+            'club_name' => $club?->name
+        ]);
+    }
+
     public function store(Request $request)
     {
         if (!auth()->user()->isAdmin()) {
@@ -114,23 +124,23 @@ class ClubController extends Controller
         }
 
         $validated = $request->validate([
-            'name'              => 'required|string|max:255|unique:clubs',
-            'description'       => 'nullable|string',
-            'short_description' => 'nullable|string|max:500',
+            'name'              => 'required|string|max:100|unique:clubs',
+            'description'       => 'nullable|string|max:800',
+            'short_description' => 'nullable|string|max:150',
             'category_id'       => 'nullable|exists:categories,id',
             'president_id'      => 'nullable|exists:users,id',
             'is_active'         => 'boolean',
             'logo'              => 'nullable|image|max:10240',
             'cover_image'       => 'nullable|image|max:10240',
-            'website_url'       => 'nullable|url',
-            'instagram_url'     => 'nullable|url',
-            'youtube_url'       => 'nullable|url',
-            'twitter_url'       => 'nullable|url',
-            'facebook_url'      => 'nullable|url',
-            'mission'           => 'nullable|string',
-            'vision'            => 'nullable|string',
-            'founder_name'      => 'nullable|string|max:255',
-            'established_year'  => 'nullable|string|max:20',
+            'website_url'       => 'nullable|url|max:255',
+            'instagram_url'     => 'nullable|url|max:255',
+            'youtube_url'       => 'nullable|url|max:255',
+            'twitter_url'       => 'nullable|url|max:255',
+            'facebook_url'      => 'nullable|url|max:255',
+            'mission'           => 'nullable|string|max:300',
+            'vision'            => 'nullable|string|max:300',
+            'founder_name'      => 'nullable|string|max:100',
+            'established_year'  => 'nullable|string|max:10',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -143,6 +153,12 @@ class ClubController extends Controller
         try {
             return DB::transaction(function() use ($validated, $request) {
                 \Log::info("Club Store Started", ['name' => $validated['name'], 'president_id' => $validated['president_id'] ?? 'none']);
+                
+                // Bir kullanıcı sadece bir kulübün başkanı olabilir mantığı
+                if (!empty($validated['president_id'])) {
+                    Club::where('president_id', $validated['president_id'])->update(['president_id' => null]);
+                }
+
                 $club = Club::create($validated);
 
                 if ($club->president_id) {
@@ -165,23 +181,23 @@ class ClubController extends Controller
         }
 
         $validated = $request->validate([
-            'name'              => 'required|string|max:255|unique:clubs,name,' . $club->id,
-            'description'       => 'nullable|string',
-            'short_description' => 'nullable|string|max:500',
+            'name'              => 'required|string|max:100|unique:clubs,name,' . $club->id,
+            'description'       => 'nullable|string|max:800',
+            'short_description' => 'nullable|string|max:150',
             'category_id'       => 'nullable|exists:categories,id',
             'president_id'      => 'nullable|exists:users,id',
             'is_active'         => 'boolean',
             'logo'              => 'nullable|image|max:10240',
             'cover_image'       => 'nullable|image|max:10240',
-            'website_url'       => 'nullable|url',
-            'instagram_url'     => 'nullable|url',
-            'youtube_url'       => 'nullable|url',
-            'twitter_url'       => 'nullable|url',
-            'facebook_url'      => 'nullable|url',
-            'mission'           => 'nullable|string',
-            'vision'            => 'nullable|string',
-            'founder_name'      => 'nullable|string|max:255',
-            'established_year'  => 'nullable|string|max:20',
+            'website_url'       => 'nullable|url|max:255',
+            'instagram_url'     => 'nullable|url|max:255',
+            'youtube_url'       => 'nullable|url|max:255',
+            'twitter_url'       => 'nullable|url|max:255',
+            'facebook_url'      => 'nullable|url|max:255',
+            'mission'           => 'nullable|string|max:300',
+            'vision'            => 'nullable|string|max:300',
+            'founder_name'      => 'nullable|string|max:100',
+            'established_year'  => 'nullable|string|max:10',
             'gallery'           => 'nullable|array',
             'gallery.*'         => 'image|max:10240',
         ]);
@@ -202,6 +218,13 @@ class ClubController extends Controller
             return DB::transaction(function() use ($validated, $club, $request) {
                 $oldPresidentId = $club->getOriginal('president_id');
                 \Log::info("Club Update Started", ['club_id' => $club->id, 'old_pres' => $oldPresidentId, 'new_pres' => $validated['president_id'] ?? 'none']);
+
+                // Bir kullanıcı sadece bir kulübün başkanı olabilir mantığı (Veri temizliği sağlar)
+                if (!empty($validated['president_id'])) {
+                    Club::where('president_id', $validated['president_id'])
+                        ->where('id', '!=', $club->id)
+                        ->update(['president_id' => null]);
+                }
 
                 $club->update($validated);
 
