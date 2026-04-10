@@ -139,6 +139,7 @@ class ClubController extends Controller
             'facebook_url'      => 'nullable|url|max:255',
             'mission'           => 'nullable|string|max:300',
             'vision'            => 'nullable|string|max:300',
+            'activities'        => 'nullable|string',
             'founder_name'      => 'nullable|string|max:100',
             'established_year'  => 'nullable|string|max:10',
         ]);
@@ -196,6 +197,7 @@ class ClubController extends Controller
             'facebook_url'      => 'nullable|url|max:255',
             'mission'           => 'nullable|string|max:300',
             'vision'            => 'nullable|string|max:300',
+            'activities'        => 'nullable|string',
             'founder_name'      => 'nullable|string|max:100',
             'established_year'  => 'nullable|string|max:10',
             'gallery'           => 'nullable|array',

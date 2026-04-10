@@ -210,6 +210,38 @@
                     <textarea name="description" rows="4" required maxlength="800" placeholder="Etkinlik detayları..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
                     <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/800</span></div>
                 </div>
+
+                <!-- Program Akışı Section -->
+                <div class="mt-8 border-t border-slate-100 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
+                            Program Akışı
+                        </h4>
+                        <button type="button" onclick="addProgramRow('add')" class="text-primary text-xs font-bold hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">add_circle</span> Satır Ekle
+                        </button>
+                    </div>
+                    <div id="add-program-container" class="space-y-3">
+                        <!-- Dynamic rows will be added here -->
+                    </div>
+                </div>
+
+                <!-- Konuşmacılar Section -->
+                <div class="mt-8 border-t border-slate-100 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
+                            Konuşmacılar
+                        </h4>
+                        <button type="button" onclick="addSpeakerRow('add')" class="text-primary text-xs font-bold hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">person_add</span> Konuşmacı Ekle
+                        </button>
+                    </div>
+                    <div id="add-speakers-container" class="space-y-4">
+                        <!-- Dynamic rows will be added here -->
+                    </div>
+                </div>
             </form>
         </div>
         <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
@@ -391,6 +423,34 @@
                     <textarea name="description" rows="3" required maxlength="800" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none has-char-counter"></textarea>
                     <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/800</span></div>
                 </div>
+
+                <!-- Program Akışı Section (Edit) -->
+                <div class="mt-8 border-t border-slate-100 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
+                            Program Akışı
+                        </h4>
+                        <button type="button" onclick="addProgramRow('edit')" class="text-primary text-xs font-bold hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">add_circle</span> Satır Ekle
+                        </button>
+                    </div>
+                    <div id="edit-program-container" class="space-y-3"></div>
+                </div>
+
+                <!-- Konuşmacılar Section (Edit) -->
+                <div class="mt-8 border-t border-slate-100 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
+                            Konuşmacılar
+                        </h4>
+                        <button type="button" onclick="addSpeakerRow('edit')" class="text-primary text-xs font-bold hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[16px]">person_add</span> Konuşmacı Ekle
+                        </button>
+                    </div>
+                    <div id="edit-speakers-container" class="space-y-4"></div>
+                </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
                 <button type="button" onclick="hideEtkinlikDuzenle()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all">İptal</button>
@@ -454,6 +514,31 @@ $(document).ready(function() {
     });
 });
 
+function showEventModal() {
+    // Reset form and clear containers
+    document.getElementById('event-form').reset();
+    document.getElementById('add-program-container').innerHTML = '';
+    document.getElementById('add-speakers-container').innerHTML = '';
+    document.getElementById('event-image-preview').classList.add('hidden');
+    document.getElementById('event-upload-placeholder').classList.remove('hidden');
+
+    document.getElementById('event-modal').classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('event-modal-overlay').classList.add('opacity-100');
+        document.getElementById('event-modal-content').classList.remove('scale-95', 'opacity-0');
+        document.getElementById('event-modal-content').classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function hideEventModal() {
+    document.getElementById('event-modal-overlay').classList.remove('opacity-100');
+    document.getElementById('event-modal-content').classList.remove('scale-100', 'opacity-100');
+    document.getElementById('event-modal-content').classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        document.getElementById('event-modal').classList.add('hidden');
+    }, 300);
+}
+
 function showEtkinlikDetay(id, adi) {
     document.getElementById('detay-etkinlik-adi').textContent = adi;
     document.getElementById('detay-etkinlik-id').textContent = '#' + id;
@@ -489,13 +574,12 @@ function showEtkinlikDuzenle(id) {
             categorySelect.value = data.category_id || '';
             categorySelect.dispatchEvent(new Event('change'));
 
-            const clubSelect = form.querySelector('select[name="club_id"]');
-            clubSelect.value = data.club_id || '';
-            clubSelect.dispatchEvent(new Event('change'));
-
             form.querySelector('textarea[name="short_description"]').value = data.short_description || '';
             form.querySelector('textarea[name="description"]').value = data.description || '';
             
+            // Programs & Speakers Populate
+            populateEventDetails(data);
+
             // Sayaçları güncelle
             setTimeout(() => {
                 form.querySelectorAll('.has-char-counter').forEach(el => {
@@ -523,6 +607,90 @@ function showEtkinlikDuzenle(id) {
             console.error('Hata:', error);
             alert('Veriler yüklenirken bir hata oluştu.');
         });
+}
+
+function addProgramRow(context, data = null) {
+    const container = document.getElementById(`${context}-program-container`);
+    const index = container.children.length;
+    const html = `
+        <div class="flex gap-3 items-start animate-fade-in group">
+            <div class="w-24 shrink-0">
+                <input type="text" name="program[${index}][time]" value="${data?.time || ''}" placeholder="09:00" class="w-full bg-slate-50 border border-slate-200 rounded-lg text-xs px-3 py-2 focus:bg-white transition-all"/>
+            </div>
+            <div class="flex-1">
+                <input type="text" name="program[${index}][title]" value="${data?.title || ''}" placeholder="Açılış Konuşması" class="w-full bg-slate-50 border border-slate-200 rounded-lg text-xs px-3 py-2 focus:bg-white transition-all"/>
+            </div>
+            <div class="w-32">
+                <input type="text" name="program[${index}][location]" value="${data?.location || ''}" placeholder="Salon A" class="w-full bg-slate-50 border border-slate-200 rounded-lg text-xs px-3 py-2 focus:bg-white transition-all"/>
+            </div>
+            <button type="button" onclick="this.closest('.flex').remove()" class="mt-2 text-slate-300 hover:text-red-500 transition-colors">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function addSpeakerRow(context, data = null) {
+    const container = document.getElementById(`${context}-speakers-container`);
+    const index = container.children.length;
+    
+    const previewSrc = data?.image ? `/storage/${data.image}` : '';
+    const hasImage = data?.image ? '' : 'hidden';
+    const noImage = data?.image ? 'hidden' : '';
+
+    const html = `
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 relative group animate-fade-in">
+            <button type="button" onclick="this.closest('.bg-slate-50').remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 shadow-sm z-10">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+            </button>
+            <div class="flex gap-4">
+                <div class="w-16 h-16 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 relative cursor-pointer group/img" onclick="$(this).find('input').click()">
+                    <img src="${previewSrc}" class="w-full h-full object-cover ${hasImage} speaker-preview"/>
+                    <div class="absolute inset-0 flex items-center justify-center text-slate-300 ${noImage} speaker-placeholder">
+                        <span class="material-symbols-outlined text-[20px]">add_a_photo</span>
+                    </div>
+                    <input type="file" name="speakers[${index}][image]" class="hidden" accept="image/*" onchange="previewSpeakerImage(this)"/>
+                    ${data?.image ? `<input type="hidden" name="speakers[${index}][existing_image]" value="${data.image}"/>` : ''}
+                </div>
+                <div class="flex-1 space-y-3">
+                    <input type="text" name="speakers[${index}][name]" value="${data?.name || ''}" placeholder="Konuşmacı Adı" class="w-full bg-white border border-slate-200 rounded-lg text-xs px-3 py-2 focus:ring-1 focus:ring-primary/20 transition-all"/>
+                    <input type="text" name="speakers[${index}][title]" value="${data?.title || ''}" placeholder="Ünvan (Örn: CEO, Akademisyen)" class="w-full bg-white border border-slate-200 rounded-lg text-[10px] px-3 py-1.5 focus:ring-1 focus:ring-primary/20 transition-all text-slate-500 font-medium"/>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function previewSpeakerImage(input) {
+    const file = input.files[0];
+    const parent = $(input).closest('.relative');
+    const preview = parent.find('.speaker-preview');
+    const placeholder = parent.find('.speaker-placeholder');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.attr('src', e.target.result).removeClass('hidden');
+            placeholder.addClass('hidden');
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function populateEventDetails(data) {
+    const progContainer = document.getElementById('edit-program-container');
+    const speakContainer = document.getElementById('edit-speakers-container');
+    progContainer.innerHTML = '';
+    speakContainer.innerHTML = '';
+
+    if (data.program && data.program.length > 0) {
+        data.program.forEach(p => addProgramRow('edit', p));
+    }
+    if (data.speakers && data.speakers.length > 0) {
+        data.speakers.forEach(s => addSpeakerRow('edit', s));
+    }
 }
 
 function previewImage(input, previewId, placeholderId) {

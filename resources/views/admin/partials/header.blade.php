@@ -13,10 +13,7 @@
         </a>
 
 
-        <button onclick="showToast('Şu an için yeni bildiriminiz yok.', 'info')" class="relative text-slate-500 hover:text-primary transition-colors p-2">
-            <span class="material-symbols-outlined">notifications</span>
-            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+
 
         <!-- Admin Profile Dropdown -->
         <div class="relative group">

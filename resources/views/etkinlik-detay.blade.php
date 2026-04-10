@@ -61,6 +61,70 @@
                 </div>
             </div>
 
+            {{-- Konuşmacılar --}}
+            @if($event->speakers->count() > 0)
+            <div data-animate>
+                <h2 class="text-2xl font-headline font-bold text-on-surface flex items-center mb-8 text-[#5d1021]">
+                    <span class="w-1.5 h-8 bg-primary rounded-full mr-4"></span>
+                    Konuşmacılar
+                </h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                    @foreach($event->speakers as $speaker)
+                    <div class="flex flex-col items-center text-center group">
+                        <div class="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-slate-100 mb-4 transition-transform group-hover:scale-105 group-hover:border-primary shadow-sm">
+                            @if($speaker->image)
+                                <img src="{{ asset('storage/' . $speaker->image) }}" alt="{{ $speaker->name }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
+                                    <span class="material-symbols-outlined text-[32px]">person</span>
+                                </div>
+                            @endif
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm mb-1 leading-tight">{{ $speaker->name }}</h4>
+                        <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{{ $speaker->title }}</p>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            {{-- Program Akışı --}}
+            @if($event->program->count() > 0)
+            <div data-animate>
+                <h2 class="text-2xl font-headline font-bold text-on-surface flex items-center mb-10 text-[#5d1021]">
+                    <span class="w-1.5 h-8 bg-primary rounded-full mr-4"></span>
+                    Program Akışı
+                </h2>
+                <div class="space-y-0 relative">
+                    <!-- Timeline Line -->
+                    <div class="absolute left-10 top-2 bottom-2 w-0.5 bg-slate-100 hidden sm:block"></div>
+                    
+                    @foreach($event->program as $item)
+                    <div class="relative flex flex-col sm:flex-row gap-4 sm:gap-14 pb-12 last:pb-0 group">
+                        <!-- Time -->
+                        <div class="sm:w-20 shrink-0">
+                            <div class="bg-[#5d1021]/5 text-[#5d1021] text-xs font-bold px-3 py-1.5 rounded-lg text-center inline-block sm:block">
+                                {{ $item->time }}
+                            </div>
+                        </div>
+                        <!-- Dot -->
+                        <div class="absolute left-10 top-2.5 -translate-x-1/2 w-4 h-4 bg-white border-2 border-primary rounded-full z-10 hidden sm:block shadow-sm group-hover:scale-125 transition-transform"></div>
+                        <!-- Content -->
+                        <div class="flex-1 -mt-1">
+                            <h4 class="font-bold text-slate-800 text-base mb-1">{{ $item->title }}</h4>
+                            @if($item->location)
+                                <div class="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
+                                    <span class="material-symbols-outlined text-[14px]">location_on</span>
+                                    {{ $item->location }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             {{-- Kulüp Bilgisi --}}
             @if($event->club)
             <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center gap-5">

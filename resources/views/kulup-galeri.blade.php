@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Kampüs Galerisi - Fırat Üniversitesi')
-@section('data-page', 'gallery')
+@section('title', $club->name . ' Galerisi - Fırat Üniversitesi')
+@section('data-page', 'club-gallery')
 
 @push('styles')
 <style>
@@ -47,17 +47,6 @@
         opacity: 1;
     }
 
-    .gallery-title {
-        color: white;
-        font-weight: 700;
-        transform: translateY(10px);
-        transition: transform 0.3s ease;
-    }
-
-    .gallery-item:hover .gallery-title {
-        transform: translateY(0);
-    }
-    
     #lightbox-modal {
         transition: opacity 0.3s ease-out;
     }
@@ -71,27 +60,31 @@
 @section('content')
 <div class="pt-8 pb-16 md:pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
     
+    {{-- Breadcrumb / Back --}}
+    <div class="mb-8">
+        <a href="{{ route('kulup.detay', $club->slug) }}" class="inline-flex items-center gap-2 text-slate-500 hover:text-primary transition-colors font-medium">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            Kulübe Dön
+        </a>
+    </div>
+
     {{-- Header --}}
     <div class="mb-12 md:mb-16 text-center">
-        <h1 class="text-3xl md:text-5xl font-headline font-extrabold text-slate-800 mb-4 tracking-tight">Kampüs Galerisi</h1>
+        <h1 class="text-3xl md:text-5xl font-headline font-extrabold text-slate-800 mb-4 tracking-tight">
+            {{ $club->name }}<br><span class="text-primary text-2xl md:text-4xl">Galeri</span>
+        </h1>
         <div class="h-1.5 w-24 bg-primary mx-auto rounded-full mb-6"></div>
-        <p class="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed">
-            Fırat Üniversitesi kampüs yaşamından, etkinliklerden ve öğrenci kulüplerinden en güzel kareler.
-        </p>
     </div>
 
     {{-- Grid --}}
-    @if($galleryImages->count() > 0)
+    @if($club->images->count() > 0)
         <div class="gallery-grid">
-            @foreach($galleryImages as $index => $image)
+            @foreach($club->images as $index => $image)
                 <div class="gallery-item shadow-sm hover:shadow-2xl border border-slate-100" onclick="openLightbox({{ $index }})">
                     <img src="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}" 
                          data-full="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}"
-                         class="gallery-thumb" alt="{{ $image->title ?? 'Galeri Görseli' }}">
+                         class="gallery-thumb" alt="Galeri Görseli">
                     <div class="gallery-overlay">
-                        @if($image->title)
-                            <h3 class="gallery-title text-base">{{ $image->title }}</h3>
-                        @endif
                         <div class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <span class="material-symbols-outlined text-white text-xl">zoom_in</span>
                         </div>
@@ -102,7 +95,7 @@
     @else
         <div class="py-20 text-center bg-slate-50 rounded-3xl border border-slate-100">
             <span class="material-symbols-outlined text-6xl text-slate-300 mb-4 block">photo_library</span>
-            <p class="text-slate-500 font-medium text-lg">Henüz galeriye görsel eklenmemiş.</p>
+            <p class="text-slate-500 font-medium text-lg">Bu kulübün galerisinde henüz görsel bulunmuyor.</p>
         </div>
     @endif
 </div>
@@ -152,7 +145,6 @@
         updateLightbox();
         const modal = document.getElementById('lightbox-modal');
         modal.classList.remove('hidden');
-        // Force reflow
         void modal.offsetWidth;
         modal.classList.remove('opacity-0');
         document.getElementById('lightbox-img').classList.remove('scale-95');

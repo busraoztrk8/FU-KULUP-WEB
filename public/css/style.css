@@ -680,8 +680,27 @@ div.dataTables_wrapper div.dataTables_paginate .paginate_button.disabled:hover {
     color: #fff !important;
 }
 
-.select2-container--default .select2-results__option[aria-selected="true"] {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-    font-weight: 600 !important;
+
+/* ---------- Club Swiper (Events Page) ---------- */
+.club-swiper {
+    padding-bottom: 2.5rem !important;
 }
+
+.club-swiper .swiper-pagination-bullet {
+    background: #cbd5e1;
+    opacity: 1;
+    width: 8px;
+    height: 8px;
+    transition: all 0.3s ease;
+}
+
+.club-swiper .swiper-pagination-bullet-active {
+    background: #5d1021;
+    width: 24px;
+    border-radius: 4px;
+}
+
+.club-swiper .swiper-slide {
+    height: auto !important;
+}
+

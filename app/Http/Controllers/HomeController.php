@@ -57,7 +57,12 @@ class HomeController extends Controller
                 });
                 $selectedEvents = $eventsByDate->get($date, collect());
                 
-                return view('partials.event-list-items', compact('selectedEvents'))->render();
+                $clubs = $selectedEvents->pluck('club')->unique('id')->filter();
+                
+                return response()->json([
+                    'html' => view('partials.event-list-items', compact('selectedEvents', 'date'))->render(),
+                    'club_html' => $clubs->isNotEmpty() ? view('partials.club-mini-profile', compact('clubs'))->render() : ''
+                ]);
             }
             
             if ($viewType === 'grid') {
@@ -65,15 +70,26 @@ class HomeController extends Controller
             }
         }
 
-        return view('etkinlikler', compact('events'));
+        // For initial load, find the clubs for the default date
+        $eventsByDate = $events->groupBy(function($e) {
+            return \Carbon\Carbon::parse($e->start_time)->format('Y-m-d');
+        });
+        $selectedEvents = $eventsByDate->get($date, collect());
+        $initialClubs = $selectedEvents->pluck('club')->unique('id')->filter();
+
+        return view('etkinlikler', compact('events', 'initialClubs', 'date'));
     }
 
-    public function galeri()
+    public function dailyEvents($date)
     {
-        $galleryImages = \App\Models\GalleryImage::where('is_active', true)
-            ->orderBy('order')
+        $events = Event::with(['category', 'club'])
+            ->where('status', 'published')
+            ->whereDate('start_time', $date)
+            ->orderBy('start_time', 'asc')
             ->get();
             
-        return view('galeri', compact('galleryImages'));
+        $date = \Carbon\Carbon::parse($date);
+        
+        return view('daily-events', compact('events', 'date'));
     }
 }

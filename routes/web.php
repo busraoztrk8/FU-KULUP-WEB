@@ -27,7 +27,7 @@ Route::get('lang/{locale}', function ($locale) {
 // Public routes
 Route::get('/etkinlikler', [HomeController::class, 'etkinlikler'])->name('etkinlikler');
 Route::get('/tum-etkinlikler', [HomeController::class, 'etkinlikler'])->name('tum-etkinlikler');
-Route::get('/galeri', [HomeController::class, 'galeri'])->name('galeri');
+Route::get('/etkinlikler/tarih/{date}', [HomeController::class, 'dailyEvents'])->name('etkinlikler.daily');
 
 Route::get('/kulupler', function () {
     $clubs = \App\Models\Club::with('category')
@@ -69,6 +69,15 @@ Route::get('/kulupler/{slug}', function ($slug) {
 
     return view('kulup-detay', compact('club'));
 })->name('kulup.detay');
+
+Route::get('/kulupler/{slug}/galeri', function ($slug) {
+    $club = \App\Models\Club::with('images')
+        ->where('slug', $slug)
+        ->where('is_active', true)
+        ->firstOrFail();
+
+    return view('kulup-galeri', compact('club'));
+})->name('kulup.galeri');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

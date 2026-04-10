@@ -113,7 +113,7 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
-        return response()->json($event);
+        return response()->json($event->load(['speakers', 'program']));
     }
 
     public function store(Request $request)
@@ -144,9 +144,9 @@ class EventController extends Controller
             $validated['image'] = $request->file('image')->store('events', 'public');
         }
 
-        $validated['slug'] = Str::slug($validated['title']);
+        $event = Event::create($validated);
 
-        Event::create($validated);
+        $this->syncEventDetails($event, $request);
 
         return redirect()->route('admin.etkinlikler')->with('success', 'Etkinlik başarıyla oluşturuldu.');
     }
@@ -185,6 +185,8 @@ class EventController extends Controller
 
         $event->update($validated);
 
+        $this->syncEventDetails($event, $request);
+
         return redirect()->route('admin.etkinlikler')->with('success', 'Etkinlik güncellendi.');
     }
 
@@ -209,5 +211,50 @@ class EventController extends Controller
             ->latest()
             ->paginate(20);
         return view('admin.etkinlik-kayitlari', compact('event', 'registrations'));
+    }
+
+    private function syncEventDetails(Event $event, Request $request)
+    {
+        // Speakers
+        if ($request->has('speakers')) {
+            // If it's an update, we might want to handle existing vs new. 
+            // Simplified: Clear and Re-add (or keep if IDs provided). 
+            // For now, let's clear and re-add for simplicity in this admin UI context, 
+            // but handle images carefully.
+            
+            $existing_speaker_images = $event->speakers()->pluck('image', 'id')->toArray();
+            $event->speakers()->delete();
+            
+            foreach ($request->speakers as $index => $speakerData) {
+                if (empty($speakerData['name'])) continue;
+
+                $imagePath = $speakerData['existing_image'] ?? null;
+                if ($request->hasFile("speakers.{$index}.image")) {
+                    $imagePath = $request->file("speakers.{$index}.image")->store('speakers', 'public');
+                }
+
+                $event->speakers()->create([
+                    'name' => $speakerData['name'],
+                    'title' => $speakerData['title'] ?? null,
+                    'image' => $imagePath,
+                    'order' => $index
+                ]);
+            }
+        }
+
+        // Program
+        if ($request->has('program')) {
+            $event->program()->delete();
+            foreach ($request->program as $index => $programData) {
+                if (empty($programData['title'])) continue;
+
+                $event->program()->create([
+                    'time' => $programData['time'] ?? null,
+                    'title' => $programData['title'],
+                    'location' => $programData['location'] ?? null,
+                    'order' => $index
+                ]);
+            }
+        }
     }
 }

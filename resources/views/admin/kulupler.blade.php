@@ -299,6 +299,11 @@
                         <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/300</span></div>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp Faaliyetleri</label>
+                    <textarea id="edit-activities" name="activities" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"></textarea>
+                    <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold italic">Kulübün düzenli olarak gerçekleştirdiği faaliyetleri buraya yazabilirsiniz.</p>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Logo</label>
@@ -456,6 +461,12 @@
                     <textarea name="vision" rows="2" maxlength="300" placeholder="Kulübün vizyonu..."
                         class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm has-char-counter"></textarea>
                     <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/300</span></div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp Faaliyetleri</label>
+                    <textarea name="activities" rows="3" placeholder="Kulübün düzenli faaliyetleri..."
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm resize-none"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -729,6 +740,7 @@ function showKulupDuzenle(id) {
             // Yeni alanlar
             if(document.getElementById('edit-mission')) document.getElementById('edit-mission').value = data.mission || '';
             if(document.getElementById('edit-vision')) document.getElementById('edit-vision').value = data.vision || '';
+            if(document.getElementById('edit-activities')) document.getElementById('edit-activities').value = data.activities || '';
             if(document.getElementById('edit-founder-name')) document.getElementById('edit-founder-name').value = data.founder_name || '';
             if(document.getElementById('edit-established-year')) document.getElementById('edit-established-year').value = data.established_year || '';
 

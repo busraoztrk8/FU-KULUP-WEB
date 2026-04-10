@@ -18,35 +18,49 @@
             @foreach($mainMenus as $menu)
                 @if($menu->children->count() > 0)
                     <div class="relative group">
-                        <button class="flex items-center gap-1 nav-link text-on-surface opacity-70 group-hover:text-primary transition-all">
+                        <button
+                            class="flex items-center gap-1 nav-link text-on-surface opacity-70 group-hover:text-primary transition-all">
                             {{ $menu->label }}
-                            <span class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
+                            <span
+                                class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
                         </button>
-                        <div class="absolute top-[calc(100%-10px)] left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 z-50">
-                            <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 p-2 min-w-[240px] overflow-hidden">
+                        <div
+                            class="absolute top-[calc(100%-10px)] left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 z-50">
+                            <div
+                                class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 p-2 min-w-[240px] overflow-hidden">
                                 {{-- Ana menü linkini alt menülerin başına ekle --}}
-                                <a href="{{ $menu->url }}" target="{{ $menu->target }}" class="flex items-center justify-between px-4 py-3 mb-1 rounded-xl bg-gradient-to-r from-primary/5 to-transparent hover:from-primary/10 transition-all group/parent">
+                                <a href="{{ $menu->url }}" target="{{ $menu->target }}"
+                                    class="flex items-center justify-between px-4 py-3 mb-1 rounded-xl bg-gradient-to-r from-primary/5 to-transparent hover:from-primary/10 transition-all group/parent">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover/parent:scale-110 transition-transform">
+                                        <div
+                                            class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover/parent:scale-110 transition-transform">
                                             <span class="material-symbols-outlined text-[20px]">grid_view</span>
                                         </div>
                                         <div class="flex flex-col text-left">
-                                            <span class="text-sm font-bold text-slate-800 leading-none">Tüm {{ $menu->label }}</span>
-                                            <span class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Genel Bakış</span>
+                                            <span class="text-sm font-bold text-slate-800 leading-none">Tüm
+                                                {{ $menu->label }}</span>
+                                            <span
+                                                class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Genel
+                                                Bakış</span>
                                         </div>
                                     </div>
-                                    <span class="material-symbols-outlined text-slate-300 group-hover/parent:text-primary transition-colors text-[20px]">arrow_forward</span>
+                                    <span
+                                        class="material-symbols-outlined text-slate-300 group-hover/parent:text-primary transition-colors text-[20px]">arrow_forward</span>
                                 </a>
 
                                 <div class="px-2 py-1 flex items-center gap-2 mb-1">
                                     <div class="h-px bg-slate-100 flex-1"></div>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alt Sayfalar</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alt
+                                        Sayfalar</span>
                                     <div class="h-px bg-slate-100 flex-1"></div>
                                 </div>
 
                                 @foreach($menu->children as $child)
-                                    <a href="{{ $child->url }}" target="{{ $child->target }}" class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-all group/item">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover/item:bg-primary group-hover/item:scale-125 transition-all"></div>
+                                    <a href="{{ $child->url }}" target="{{ $child->target }}"
+                                        class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-all group/item">
+                                        <div
+                                            class="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover/item:bg-primary group-hover/item:scale-125 transition-all">
+                                        </div>
                                         {{ $child->label }}
                                     </a>
                                 @endforeach
@@ -99,7 +113,8 @@
                                 @if(auth()->user()->isAdmin() || auth()->user()->isEditor())
                                     <a href="/admin"
                                         class="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-white bg-primary rounded-xl hover:bg-primary-dim transition-all shadow-sm shadow-primary/20">
-                                        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> Yönetim Paneli
+                                        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> Yönetim
+                                        Paneli
                                     </a>
                                 @endif
                             </div>
@@ -156,18 +171,23 @@
             @foreach($mainMenus as $menu)
                 @if($menu->children->count() > 0)
                     <div x-data="{ open: false }">
-                        <button @click="open = !open" class="w-full flex items-center justify-between p-4 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <button @click="open = !open"
+                            class="w-full flex items-center justify-between p-4 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-colors">
                             <div class="flex items-center gap-3">
                                 <span class="material-symbols-outlined">menu_open</span> {{ $menu->label }}
                             </div>
-                            <span class="material-symbols-outlined transition-transform" :class="open ? 'rotate-180' : ''">expand_more</span>
+                            <span class="material-symbols-outlined transition-transform"
+                                :class="open ? 'rotate-180' : ''">expand_more</span>
                         </button>
-                        <div x-show="open" class="pl-6 pr-2 py-2 space-y-1 mt-1 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                        <div x-show="open"
+                            class="pl-6 pr-2 py-2 space-y-1 mt-1 bg-slate-50/50 rounded-2xl border border-slate-100/50">
                             {{-- Ana menü linkini mobil alt menülerin başına ekle --}}
-                            <a href="{{ $menu->url }}" target="{{ $menu->target }}" class="block p-3 rounded-xl bg-white shadow-sm border border-slate-100 group">
+                            <a href="{{ $menu->url }}" target="{{ $menu->target }}"
+                                class="block p-3 rounded-xl bg-white shadow-sm border border-slate-100 group">
                                 <span class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                        <div
+                                            class="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                                             <span class="material-symbols-outlined text-[18px]">grid_view</span>
                                         </div>
                                         <span class="text-sm font-bold text-slate-700">Tüm {{ $menu->label }}</span>
@@ -175,14 +195,15 @@
                                     <span class="material-symbols-outlined text-slate-300 text-[18px]">chevron_right</span>
                                 </span>
                             </a>
-                            
+
                             <div class="flex items-center gap-2 py-2 px-1">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Alt Sayfalar</span>
                                 <div class="h-px bg-slate-200 flex-1"></div>
                             </div>
 
                             @foreach($menu->children as $child)
-                                <a href="{{ $child->url }}" target="{{ $child->target }}" class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-white hover:text-primary hover:shadow-sm border border-transparent hover:border-slate-100 transition-all">
+                                <a href="{{ $child->url }}" target="{{ $child->target }}"
+                                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-white hover:text-primary hover:shadow-sm border border-transparent hover:border-slate-100 transition-all">
                                     <div class="w-1 h-1 rounded-full bg-slate-300"></div>
                                     {{ $child->label }}
                                 </a>

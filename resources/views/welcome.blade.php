@@ -38,7 +38,7 @@
     </section>
 
     <!-- Stats Section -->
-    <section class="py-10 md:py-16 border-b border-black/5 bg-white">
+    <section class="py-10 md:py-12 border-b border-black/5 bg-white">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-12 text-center">
                 <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors flex flex-col items-center justify-center h-full" data-animate>
@@ -67,7 +67,7 @@
     </section>
 
     <!-- Trending Events Section -->
-    <section class="py-16 md:py-24 px-4 sm:px-6 bg-surface-bright">
+    <section class="py-12 md:py-16 px-4 sm:px-6 bg-slate-50">
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 md:mb-12 gap-4">
                 <div>
@@ -82,7 +82,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 @forelse($trendingEvents as $event)
                 <a href="{{ route('etkinlik.detay', ['slug' => $event->slug]) }}"
-                    class="bg-white rounded-2xl overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border border-black/5 block">
+                    class="bg-white rounded-2xl overflow-hidden group hover:shadow-2xl transition-all duration-300 cursor-pointer border border-black/5 block h-full flex flex-col">
                     <div class="p-4 md:p-6">
                         <div class="flex gap-3 md:gap-4 mb-3 md:mb-4">
                             <div
@@ -126,7 +126,7 @@
     </section>
 
     <!-- Active Clubs Section -->
-    <section class="py-16 md:py-24 bg-white">
+    <section class="py-12 md:py-16 bg-white">
         <div class="container mx-auto px-4 sm:px-6 max-w-7xl">
             <div class="mb-10 md:mb-16">
                 <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Aktif Kulüpler</h2>
@@ -136,7 +136,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 @forelse($activeClubs as $club)
                 <a href="{{ route('kulup.detay', ['slug' => $club->slug]) }}"
-                    class="group bg-surface-container-high rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col lg:flex-row hover:shadow-xl transition-all duration-500 block text-left">
+                    class="group bg-surface-container-high rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col lg:flex-row hover:shadow-xl transition-all duration-500 block text-left h-full">
                     <div class="lg:w-1/2 relative overflow-hidden h-48 sm:h-64 lg:h-auto">
                         @if($club->logo)
                             <img src="{{ str_starts_with($club->logo, 'http') ? $club->logo : asset('storage/' . $club->logo) }}" alt="{{ $club->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
@@ -178,17 +178,12 @@
     </section>
 
     <!-- Campus Life Gallery Section -->
-    <section class="py-16 md:py-24 px-4 sm:px-6 bg-white overflow-hidden">
+    <section class="py-12 md:py-16 px-4 sm:px-6 bg-slate-50 overflow-hidden">
         <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-10 md:mb-16 gap-4">
-                <div class="w-full sm:w-auto text-center sm:text-left">
-                    <h2 class="text-2xl md:text-4xl font-headline font-bold mb-4 text-on-surface">Kampüs Yaşamından Kareler</h2>
-                    <div class="h-1 w-20 bg-primary mx-auto sm:mx-0 rounded-full"></div>
-                </div>
-                <a class="text-primary font-bold flex items-center hover:underline transition-all text-sm md:text-base shrink-0"
-                    href="{{ route('galeri') }}">
-                    Tümünü Görüntüle <span class="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
-                </a>
+            <div class="mb-10 md:mb-16">
+                <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Kampüs Yaşamından
+                    Kareler</h2>
+                <div class="h-1 w-20 bg-primary mx-auto rounded-full"></div>
             </div>
             <div class="swiper gallery-swiper overflow-hidden rounded-2xl md:rounded-3xl pb-12">
                 <div class="swiper-wrapper flex items-start">
@@ -205,7 +200,7 @@
                                             ? ($imgIndex % 2 == 0 ? 'h-60 md:h-80' : 'h-48 md:h-64') 
                                             : ($imgIndex % 2 == 0 ? 'h-48 md:h-64' : 'h-60 md:h-80');
                                     @endphp
-                                    <div class="relative group cursor-pointer {{ $heightClass }} overflow-hidden rounded-2xl md:rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500">
+                                    <div class="relative group cursor-pointer {{ $heightClass }} overflow-hidden rounded-2xl md:rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 bg-slate-100">
                                         <img alt="{{ $image->title ?? 'Kampüs Yaşamı' }}"
                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                             src="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}" />
@@ -232,7 +227,7 @@
     </section>
 
     <!-- Success Stories Section -->
-    <section class="py-16 md:py-24 px-4 sm:px-6 bg-surface-bright">
+    <section class="py-12 md:py-16 px-4 sm:px-6 bg-white">
         <div class="max-w-7xl mx-auto">
             <div class="mb-10 md:mb-16">
                 <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Başarı Hikayeleri</h2>

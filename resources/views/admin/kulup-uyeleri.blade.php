@@ -293,6 +293,31 @@
     </div>
 </div>
 
+{{-- Unvan Atama Modalı --}}
+<div id="title-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideTitleModal()"></div>
+    <div class="relative bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+        <h3 class="text-lg font-bold font-headline text-slate-800 mb-2 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[20px]">badge</span>
+            </span>
+            Unvan Belirle
+        </h3>
+        <p class="text-sm text-slate-500 mb-6">"<span id="title-member-name" class="font-semibold text-slate-700"></span>" adlı üyeye kulüp içinde bir görev/unvan (Örn: Yönetim Kurulu Başkanı, Ekip Lideri) atayabilirsiniz.</p>
+        <form id="title-form" method="POST">
+            @csrf
+            <div class="mb-6">
+                <label for="title-input" class="block text-sm font-bold text-slate-700 mb-2">Üyenin Unvanı</label>
+                <input type="text" id="title-input" name="title" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Boş bırakarak unvanı silebilirsiniz...">
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="hideTitleModal()" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-all active:scale-95">İptal</button>
+                <button type="submit" class="flex-1 py-3 rounded-xl bg-primary hover:bg-primary-dim text-white font-semibold text-sm transition-all shadow-sm active:scale-95">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -304,6 +329,16 @@ function showDeleteMemberModal(id, name) {
 }
 function hideDeleteMemberModal() {
     document.getElementById('delete-member-modal').classList.add('hidden');
+}
+
+function showTitleModal(id, name, currentTitle) {
+    document.getElementById('title-member-name').textContent = name;
+    document.getElementById('title-input').value = currentTitle;
+    document.getElementById('title-form').action = "/admin/kulup-uyelik/" + id + "/update-title";
+    document.getElementById('title-modal').classList.remove('hidden');
+}
+function hideTitleModal() {
+    document.getElementById('title-modal').classList.add('hidden');
 }
 </script>
 @endpush

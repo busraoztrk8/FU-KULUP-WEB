@@ -168,8 +168,14 @@
                     </span>
                 </div>
                 
+                <div id="club-profile-container" class="transition-all duration-500">
+                    @if(isset($initialClubs) && $initialClubs->isNotEmpty())
+                        @include('partials.club-mini-profile', ['clubs' => $initialClubs])
+                    @endif
+                </div>
+
                 <div id="event-list-container" class="space-y-4 md:space-y-6 transition-all duration-300">
-                    @include('partials.event-list-items')
+                    @include('partials.event-list-items', ['date' => $currentDateStr])
                 </div>
             </div>
         </div>
@@ -181,7 +187,7 @@
         </div>
 
         <!-- More Load Button (Common) -->
-        <div class="mt-10 md:mt-16 flex justify-center">
+        <div id="load-more-container" class="mt-10 md:mt-16 flex justify-center" style="display: none;">
             <button
                 class="bg-slate-50 hover:bg-slate-100 text-on-surface-variant px-8 md:px-10 py-3 rounded-full font-bold transition-all border border-slate-100 flex items-center gap-2 shadow-sm text-sm md:text-base">
                 Daha Fazla Yükle
@@ -241,7 +247,54 @@
             </div>
         </div>
     </section>
-    <script>
+<script>
+        function toggleAdditionalEvents(btn) {
+            const container = btn.parentElement.querySelector('.additional-events');
+            if (container.style.display === 'none' || container.style.display === '') {
+                container.style.display = 'flex';
+                btn.innerHTML = 'Daha Az Gör <span class="material-symbols-outlined text-sm">expand_less</span>';
+            } else {
+                container.style.display = 'none';
+                btn.innerHTML = 'Diğer Etkinlikleri Gör <span class="material-symbols-outlined text-sm">expand_more</span>';
+                btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        let clubSwiper;
+
+        function initClubSwiper() {
+            if (document.querySelector('.club-swiper')) {
+                // Destroy existing swiper if it exists
+                if (clubSwiper) clubSwiper.destroy(true, true);
+
+                clubSwiper = new Swiper('.club-swiper', {
+                    slidesPerView: 1,
+                    spaceBetween: 24,
+                    loop: true,
+                    grabCursor: true,
+                    autoplay: {
+                        delay: 5000,
+                        disableOnInteraction: false,
+                    },
+                    pagination: {
+                        el: '.swiper-pagination',
+                        clickable: true,
+                        dynamicBullets: true,
+                    },
+                    breakpoints: {
+                        640: {
+                            slidesPerView: 2,
+                            spaceBetween: 24,
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initClubSwiper();
+        });
+
         function filterByDate(date, element) {
             // UI Update
             document.querySelectorAll('.calendar-day').forEach(el => {
@@ -261,24 +314,41 @@
             document.getElementById('selected-date-title').innerText = dateObj.toLocaleDateString('tr-TR', options);
 
             const container = document.getElementById('event-list-container');
+            const clubContainer = document.getElementById('club-profile-container');
             container.style.opacity = '0.5';
+            clubContainer.style.opacity = '0.5';
 
             fetch(`/etkinlikler?date=${date}&view_type=calendar_list`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(response => response.text())
-            .then(html => {
-                container.innerHTML = html;
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = data.html;
+                clubContainer.innerHTML = data.club_html;
+                
                 container.style.opacity = '1';
+                clubContainer.style.opacity = '1';
                 
                 const count = container.querySelectorAll('.group').length;
                 document.getElementById('event-count-badge').innerText = `${count} Etkinlik Bulundu`;
+                
+                // Re-initialize swiper for new content
+                setTimeout(initClubSwiper, 100);
             });
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const target = btn.getAttribute('data-tab-btn');
+                
+                // Hide/Show Load More button
+                const loadMore = document.getElementById('load-more-container');
+                if (target === 'calendar') {
+                    loadMore.style.display = 'none';
+                } else {
+                    loadMore.style.display = 'flex';
+                }
+
                 document.querySelectorAll('.tab-btn').forEach(b => {
                     b.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
                     b.classList.add('text-slate-600', 'font-medium');

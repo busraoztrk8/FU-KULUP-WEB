@@ -119,19 +119,30 @@
                 </div>
             </div>
 
+            {{-- Kulüp Faaliyetleri --}}
+            @if($club->activities)
+            <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-4 mb-6">
+                    <span class="w-1.5 h-10 bg-primary rounded-full"></span>
+                    <h2 class="font-headline text-2xl font-bold text-slate-800 uppercase tracking-tight">Kulüp Faaliyetleri</h2>
+                </div>
+                <div class="prose prose-slate max-w-none text-slate-600 leading-relaxed break-words">
+                    {!! nl2br(e($club->activities)) !!}
+                </div>
+            </div>
+            @endif
+
             {{-- Club Gallery --}}
             @if($club->images->count() > 0)
             <div class="gallery-wrapper">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <h2 class="font-headline text-2xl font-bold text-slate-800 flex items-center gap-3">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
                         <span class="material-symbols-outlined text-primary">photo_library</span>
                         Kulüp Galerisi
                     </h2>
-                    <div class="flex items-center gap-4 hidden sm:flex">
-                        <a href="{{ route('galeri') }}" class="text-primary font-bold flex items-center hover:underline transition-all text-sm md:text-base border-r border-slate-200 pr-4">
-                            Genel Galeri <span class="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
-                        </a>
-                        <div class="flex gap-2">
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        {{-- Slider Nav --}}
+                        <div class="hidden sm:flex gap-2">
                             <button class="gallery-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
                                 <span class="material-symbols-outlined text-[20px]">chevron_left</span>
                             </button>
@@ -139,20 +150,8 @@
                                 <span class="material-symbols-outlined text-[20px]">chevron_right</span>
                             </button>
                         </div>
-                    </div>
-                    <!-- Mobile view all -->
-                    <div class="sm:hidden flex items-center justify-between w-full">
-                        <div class="flex gap-2">
-                            <button class="gallery-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
-                                <span class="material-symbols-outlined text-[20px]">chevron_left</span>
-                            </button>
-                            <button class="gallery-next w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
-                                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
-                            </button>
-                        </div>
-                        <a href="{{ route('galeri') }}" class="text-primary font-bold flex items-center hover:underline transition-all text-sm">
-                            Tümü <span class="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
-                        </a>
+                        <div class="hidden sm:block w-px h-6 bg-slate-200"></div>
+                        <a href="{{ route('kulup.galeri', $club->slug) }}" class="text-primary text-sm font-bold hover:underline whitespace-nowrap">Tümünü Gör</a>
                     </div>
                 </div>
                 
@@ -326,18 +325,40 @@
             @endif
 
             {{-- Social & Actions --}}
-            <div class="flex justify-center gap-4">
+            <div class="flex flex-wrap justify-center gap-3">
                 @if($club->website_url)
-                    <a href="{{ $club->website_url }}" target="_blank" class="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
-                        <span class="material-symbols-outlined text-[24px]">public</span>
+                    <a href="{{ $club->website_url }}" target="_blank" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm" title="Web Sitesi">
+                        <span class="material-symbols-outlined text-[20px]">public</span>
                     </a>
                 @endif
-                <button class="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-[24px]">share</span>
+                
+                @if($club->instagram_url)
+                    <a href="{{ $club->instagram_url }}" target="_blank" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-gradient-to-tr hover:from-orange-500 hover:to-purple-600 hover:text-white hover:border-transparent transition-all shadow-sm" title="Instagram">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.332 3.608 1.308.975.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.332 2.633-1.308 3.608-.975.975-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.332-3.608-1.308-.975-.975-1.246-2.242-1.308-3.608-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.332-2.633 1.308-3.608.975-.975 2.242-1.246 3.608-1.308 1.266-.058 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-1.277.059-2.148.262-2.911.558-.788.306-1.457.715-2.123 1.381s-1.075 1.335-1.381 2.123c-.296.763-.499 1.634-.558 2.911-.058 1.28-.072 1.688-.072 4.947s.014 3.667.072 4.947c.059 1.277.262 2.148.558 2.911.306.788.715 1.457 1.381 2.123s1.335 1.075 2.123 1.381c.763.296 1.634.499 2.911.558 1.28.058 1.688.072 4.947.072s3.667-.014 4.947-.072c1.277-.059 2.148-.262 2.911-.558.788-.306 1.457-.715 2.123-1.381s1.075-1.335 1.381-2.123c.296-.763.499-1.634.558-2.911.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.059-1.277-.262-2.148-.558-2.911-.306-.788-.715-1.457-1.381-2.123s-1.335-1.075-2.123-1.381c-.763-.296-1.634-.499-2.911-.558-1.28-.058-1.688-.072-4.947-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.209-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                @endif
+
+                @if($club->twitter_url)
+                    <a href="{{ $club->twitter_url }}" target="_blank" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-black hover:text-white hover:border-black transition-all shadow-sm" title="X (Twitter)">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                @endif
+
+                @if($club->youtube_url)
+                    <a href="{{ $club->youtube_url }}" target="_blank" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-sm" title="YouTube">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </a>
+                @endif
+
+                @if($club->facebook_url)
+                    <a href="{{ $club->facebook_url }}" target="_blank" class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm" title="Facebook">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.791-4.667 4.53-4.667 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                @endif
+
+                <button class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm" title="Paylaş">
+                    <span class="material-symbols-outlined text-[20px]">share</span>
                 </button>
-                <a href="mailto:{{ $club->president->email ?? '' }}" class="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-[24px]">alternate_email</span>
-                </a>
             </div>
 
         </aside>

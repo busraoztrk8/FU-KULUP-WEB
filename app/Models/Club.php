@@ -30,6 +30,7 @@ class Club extends Model
         'facebook_url',
         'mission',
         'vision',
+        'activities',
         'founder_name',
         'established_year',
     ];

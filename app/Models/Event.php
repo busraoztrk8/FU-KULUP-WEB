@@ -60,6 +60,16 @@ class Event extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function speakers()
+    {
+        return $this->hasMany(EventSpeaker::class)->orderBy('order');
+    }
+
+    public function program()
+    {
+        return $this->hasMany(EventProgram::class)->orderBy('order');
+    }
+
     public function registrations()
     {
         return $this->hasMany(EventRegistration::class);
