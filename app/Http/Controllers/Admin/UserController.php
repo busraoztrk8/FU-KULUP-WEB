@@ -107,6 +107,7 @@ class UserController extends Controller
 
         $roles = Role::all();
         $clubs = Club::where('is_active', true)->get();
+        $adminExists = User::whereHas('role', fn($q) => $q->where('name', 'admin'))->exists();
 
         $stats = [
             'total'   => User::count(),
@@ -115,7 +116,7 @@ class UserController extends Controller
             'passive' => User::whereNull('email_verified_at')->count(),
         ];
 
-        return view('admin.kullanicilar', compact('roles', 'clubs', 'stats'));
+        return view('admin.kullanicilar', compact('roles', 'clubs', 'stats', 'adminExists'));
     }
 
     public function store(Request $request)
@@ -129,6 +130,14 @@ class UserController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+
+        // Tek Admin Kontrolü
+        $adminRole = Role::where('name', 'admin')->first();
+        if ($validated['role_id'] == $adminRole->id) {
+            if (User::where('role_id', $adminRole->id)->exists()) {
+                return back()->withInput()->with('error', 'Sistemde zaten bir yönetici mevcut. Sadece bir yönetici olabilir.');
+            }
+        }
 
         User::create($validated);
 
@@ -147,6 +156,14 @@ class UserController extends Controller
         if ($request->filled('password')) {
             $request->validate(['password' => 'string|min:8']);
             $validated['password'] = Hash::make($request->password);
+        }
+
+        // Tek Admin Kontrolü
+        $adminRole = Role::where('name', 'admin')->first();
+        if ($validated['role_id'] == $adminRole->id) {
+            if (User::where('role_id', $adminRole->id)->where('id', '!=', $user->id)->exists()) {
+                return back()->withInput()->with('error', 'Sistemde zaten başka bir yönetici mevcut.');
+            }
         }
 
         $user->update($validated);

@@ -28,7 +28,7 @@ class EventController extends Controller
                     $query->where('status', $request->status);
                 }
 
-                $data = $query->latest()->get();
+                $data = $query->oldest()->get();
 
                 return \Yajra\DataTables\Facades\DataTables::of($data)
                     ->addIndexColumn()
@@ -36,20 +36,20 @@ class EventController extends Controller
                         // Title and Image combo for DataTables
                         $img = $row->image ? asset('storage/' . $row->image) : null;
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">event</span></div>';
-                        return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . htmlspecialchars($row->title) . '</span></div>';
+                        return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . e($row->title) . '</span></div>';
                     })
                     ->addColumn('club_name', function($row) {
                         return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
                     })
                     ->addColumn('category_name', function($row) {
-                        return $row->category ? '<span class="badge badge-primary">'.htmlspecialchars($row->category->name).'</span>' : '<span class="text-slate-400 text-sm">—</span>';
+                        return $row->category ? '<span class="badge badge-primary">'.e($row->category->name).'</span>' : '<span class="text-slate-400 text-sm">—</span>';
                     })
                     ->addColumn('date', function($row) {
                         return '<span class="text-slate-500">' . ($row->start_time ? $row->start_time->format('d M Y') : '-') . '</span>';
                     })
                     ->addColumn('participants', function($row) {
                         $max = $row->max_participants ? '/'.$row->max_participants : ' / ∞';
-                        return '<span class="font-semibold">'.$row->current_participants.'</span><span class="text-slate-400">'.$max.'</span>';
+                        return '<span class="font-semibold">'.(int)$row->current_participants.'</span><span class="text-slate-400">'.e($max).'</span>';
                     })
                     ->editColumn('status', function($row) {
                         $published = ($row->status === 'published');
@@ -69,13 +69,13 @@ class EventController extends Controller
                                     <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform '.($published ? 'translate-x-[20px]' : '').'"></span>
                                 </div>
                               </label>
-			      <span class="text-sm font-semibold '.$lblColor.'">'.$label.'</span>
+			      <span class="text-sm font-semibold '.$lblColor.'">'.e($label).'</span>
 			    </div>';
                     })
                     ->addColumn('action', function($row) {
                         $btn = '<div class="flex items-center justify-start gap-2">';
                         $btn .= '<button onclick="showEtkinlikDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
-                        $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.addslashes($row->title).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
+                        $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->title)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
                     })
@@ -119,13 +119,13 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'description'      => 'required|string',
-            'short_description'=> 'nullable|string|max:500',
+            'title'            => 'required|string|max:100',
+            'description'      => 'required|string|max:800',
+            'short_description'=> 'nullable|string|max:150',
             'start_time'       => 'required|date',
             'end_time'         => 'nullable|date|after:start_time',
-            'location'         => 'nullable|string|max:255',
-            'location_url'     => 'nullable|url',
+            'location'         => 'nullable|string|max:100',
+            'location_url'     => 'nullable|url|max:255',
             'club_id'          => 'required|exists:clubs,id',
             'category_id'      => 'nullable|exists:categories,id',
             'max_participants'  => 'nullable|integer|min:1',
@@ -158,13 +158,13 @@ class EventController extends Controller
         }
 
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'description'      => 'required|string',
-            'short_description'=> 'nullable|string|max:500',
+            'title'            => 'required|string|max:100',
+            'description'      => 'required|string|max:800',
+            'short_description'=> 'nullable|string|max:150',
             'start_time'       => 'required|date',
             'end_time'         => 'nullable|date|after:start_time',
-            'location'         => 'nullable|string|max:255',
-            'location_url'     => 'nullable|url',
+            'location'         => 'nullable|string|max:100',
+            'location_url'     => 'nullable|url|max:255',
             'club_id'          => 'required|exists:clubs,id',
             'category_id'      => 'nullable|exists:categories,id',
             'max_participants'  => 'nullable|integer|min:1',

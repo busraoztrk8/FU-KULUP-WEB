@@ -73,6 +73,13 @@
                         </div>
                     </div>
                     <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5 pl-1">GitHub (Kullanıcı Adı)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-xs">@</span>
+                            <input type="text" name="social_github" value="{{ \App\Models\SiteSetting::getVal('social_github', '') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+                        </div>
+                    </div>
+                    <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1.5 pl-1">Facebook (Link)</label>
                         <input type="text" name="social_facebook" value="{{ \App\Models\SiteSetting::getVal('social_facebook', '') }}" placeholder="facebook.com/kullaniciadi" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
                     </div>

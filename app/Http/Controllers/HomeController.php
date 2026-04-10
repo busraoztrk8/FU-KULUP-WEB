@@ -67,4 +67,13 @@ class HomeController extends Controller
 
         return view('etkinlikler', compact('events'));
     }
+
+    public function galeri()
+    {
+        $galleryImages = \App\Models\GalleryImage::where('is_active', true)
+            ->orderBy('order')
+            ->get();
+            
+        return view('galeri', compact('galleryImages'));
+    }
 }

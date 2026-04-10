@@ -106,48 +106,57 @@
     }
 
     // ── TOAST NOTIFICATIONS ─────────────────────────────────
-    window.showToast = function (message, type) {
-        type = type || 'success';
-        var container = document.getElementById('toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'toast-container';
-            container.className = 'fixed bottom-4 right-4 z-50 flex flex-col gap-2';
-            document.body.appendChild(container);
-        }
-
-        var icons = {
-            'success': 'check_circle',
-            'info': 'info',
-            'warning': 'warning',
-            'error': 'error'
-        };
-        var colors = {
-            'success': 'bg-green-600',
-            'info': 'bg-blue-600',
-            'warning': 'bg-amber-600',
-            'error': 'bg-red-600'
-        };
-
-        var toast = document.createElement('div');
-        toast.className = 'flex items-center gap-3 px-5 py-3.5 rounded-2xl text-white shadow-xl transform translate-y-4 opacity-0 transition-all duration-300 ' + colors[type];
-        toast.innerHTML = 
-            '<span class="material-symbols-outlined text-[22px]">' + icons[type] + '</span>' +
-            '<span class="text-sm font-bold">' + message + '</span>' +
-            '<button onclick="this.parentElement.remove()" class="ml-2 opacity-70 hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-[18px]">close</span></button>';
+    window.showToast = function(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-6 right-6 z-[9999] min-w-[320px] bg-white rounded-2xl shadow-2xl border-l-4 p-4 flex items-center gap-4 animate-fade-in-right transition-all duration-300 transform translate-x-0`;
         
-        container.appendChild(toast);
+        const colors = {
+            success: 'border-green-500 text-green-700',
+            error: 'border-red-500 text-red-700',
+            info: 'border-blue-500 text-blue-700',
+            warning: 'border-amber-500 text-amber-700'
+        };
 
-        requestAnimationFrame(function() {
-            toast.classList.remove('translate-y-4', 'opacity-0');
-        });
+        const icons = {
+            success: 'check_circle',
+            error: 'error',
+            info: 'info',
+            warning: 'warning'
+        };
 
-        setTimeout(function () {
-            toast.classList.add('opacity-0', 'translate-y-4');
-            setTimeout(function () {
-                if (toast.parentElement) toast.remove();
-            }, 300);
-        }, 3000);
+        toast.className += ` ${colors[type] || colors.success}`;
+
+        // Create icon element
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0';
+        iconDiv.innerHTML = `<span class="material-symbols-outlined text-[24px]">${icons[type] || 'check_circle'}</span>`;
+        
+        // Create message element (SAFE: textContent)
+        const msgSpan = document.createElement('span');
+        msgSpan.className = 'text-sm font-bold flex-1';
+        msgSpan.textContent = message;
+
+        // Close button (SAFE: static HTML)
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'text-slate-400 hover:text-slate-600 transition-colors';
+        closeBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">close</span>';
+        closeBtn.onclick = () => {
+            toast.classList.replace('translate-x-0', 'translate-x-[120%]');
+            setTimeout(() => toast.remove(), 300);
+        };
+
+        toast.appendChild(iconDiv);
+        toast.appendChild(msgSpan);
+        toast.appendChild(closeBtn);
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.classList.replace('translate-x-0', 'translate-x-[120%]');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 5000);
     };
 
     // ── INIT ────────────────────────────────────────────────

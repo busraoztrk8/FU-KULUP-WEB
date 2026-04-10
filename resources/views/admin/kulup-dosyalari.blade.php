@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Kulüp Dosyaları')
-@section('page_title', isset($club) ? $club->name . ' - Dosyalar' : 'Kulüp Dosyaları')
+@section('title', e($club->name) . ' - Dosyalar')
+@section('page_title', isset($club) ? e($club->name) . ' - Dosyalar' : 'Kulüp Dosyaları')
 
 @section('content')
 <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">

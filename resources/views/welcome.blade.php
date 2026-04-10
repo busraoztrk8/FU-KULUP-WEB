@@ -180,10 +180,15 @@
     <!-- Campus Life Gallery Section -->
     <section class="py-16 md:py-24 px-4 sm:px-6 bg-white overflow-hidden">
         <div class="max-w-7xl mx-auto">
-            <div class="mb-10 md:mb-16">
-                <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Kampüs Yaşamından
-                    Kareler</h2>
-                <div class="h-1 w-20 bg-primary mx-auto rounded-full"></div>
+            <div class="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-10 md:mb-16 gap-4">
+                <div class="w-full sm:w-auto text-center sm:text-left">
+                    <h2 class="text-2xl md:text-4xl font-headline font-bold mb-4 text-on-surface">Kampüs Yaşamından Kareler</h2>
+                    <div class="h-1 w-20 bg-primary mx-auto sm:mx-0 rounded-full"></div>
+                </div>
+                <a class="text-primary font-bold flex items-center hover:underline transition-all text-sm md:text-base shrink-0"
+                    href="{{ route('galeri') }}">
+                    Tümünü Görüntüle <span class="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
+                </a>
             </div>
             <div class="swiper gallery-swiper overflow-hidden rounded-2xl md:rounded-3xl pb-12">
                 <div class="swiper-wrapper flex items-start">

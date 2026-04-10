@@ -40,7 +40,7 @@
         </div>
         <div class="p-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <button onclick="showSliderDuzenle({{ $slider->id }}, '{{ addslashes($slider->title ?? '') }}', '{{ addslashes($slider->subtitle ?? '') }}', '{{ addslashes($slider->button_text ?? '') }}', '{{ addslashes($slider->button_url ?? '') }}', {{ $slider->order }}, {{ $slider->is_active ? 'true' : 'false' }})"
+                <button onclick="showSliderDuzenle({{ $slider->id }}, '{{ e(addslashes($slider->title ?? '')) }}', '{{ e(addslashes($slider->subtitle ?? '')) }}', '{{ e(addslashes($slider->button_text ?? '')) }}', '{{ e(addslashes($slider->button_url ?? '')) }}', {{ $slider->order }}, {{ $slider->is_active ? 'true' : 'false' }})"
                     class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle">
                     <span class="material-symbols-outlined text-[18px]">edit</span>
                 </button>
