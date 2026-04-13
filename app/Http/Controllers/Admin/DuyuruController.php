@@ -23,8 +23,7 @@ class DuyuruController extends Controller
                     });
                 }
 
-                $data = $query->oldest()->get();
-                return \Yajra\DataTables\Facades\DataTables::of($data)
+                return \Yajra\DataTables\Facades\DataTables::of($query->oldest())
                     ->addIndexColumn()
                     ->addColumn('announcement_info', function ($row) {
                         $url = $row->image_path ? asset('storage/' . $row->image_path) : asset('images/logo_orj.png');
@@ -58,6 +57,14 @@ class DuyuruController extends Controller
                         $btn .= '<button onclick="showDeleteModal(' . $row->id . ', \'' . e(addslashes($row->title)) . '\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
+                    })
+                    ->filterColumn('announcement_info', function($query, $keyword) {
+                        $query->where('title', 'like', "%{$keyword}%");
+                    })
+                    ->filterColumn('club_name', function($query, $keyword) {
+                        $query->whereHas('club', function($q) use ($keyword) {
+                            $q->where('name', 'like', "%{$keyword}%");
+                        });
                     })
                     ->rawColumns(['announcement_info', 'club_name', 'status', 'action'])
                     ->make(true);

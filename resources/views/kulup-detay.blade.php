@@ -172,39 +172,54 @@
             </div>
             @endif
 
-            {{-- Upcoming Events --}}
+            {{-- Upcoming Events - Single Row Carousel --}}
             @php
                 $upcomingEvents = $club->events()->where('start_time', '>=', now())->orderBy('start_time')->get();
             @endphp
             @if($upcomingEvents->count() > 0)
             <div>
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="font-headline text-2xl font-bold text-slate-800">Yaklaşan Kulüp Etkinlikleri</h2>
-                    <a href="{{ route('etkinlikler') }}" class="text-primary text-sm font-bold hover:underline">Tümünü Gör</a>
+                    <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800">Yaklaşan Kulüp Etkinlikleri</h2>
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        <div class="hidden sm:flex gap-2">
+                            <button class="club-events-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                            </button>
+                            <button class="club-events-next w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                            </button>
+                        </div>
+                        <div class="hidden sm:block w-px h-6 bg-slate-200"></div>
+                        <a href="{{ route('etkinlikler') }}" class="text-primary text-sm font-bold hover:underline whitespace-nowrap">Tümünü Gör</a>
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    @foreach($upcomingEvents as $event)
-                    <a href="{{ route('etkinlik.detay', $event->slug) }}" class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-slate-100">
-                        <div class="aspect-[16/9] relative overflow-hidden">
-                            @if($event->image)
-                                <img src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
-                            @else
-                                <div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary-dark"></div>
-                            @endif
-                            <div class="absolute bottom-4 left-4">
-                                <span class="bg-red-600 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded shadow-lg">
-                                    {{ $event->start_time->format('d M') }}
-                                </span>
-                            </div>
+                <div class="swiper club-events-swiper overflow-hidden">
+                    <div class="swiper-wrapper">
+                        @foreach($upcomingEvents as $event)
+                        <div class="swiper-slide !h-auto">
+                            <a href="{{ route('etkinlik.detay', $event->slug) }}" class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-slate-100 block h-full">
+                                <div class="aspect-[16/9] relative overflow-hidden">
+                                    @if($event->image)
+                                        <img src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                                    @else
+                                        <div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary-dark"></div>
+                                    @endif
+                                    <div class="absolute bottom-4 left-4">
+                                        <span class="bg-red-600 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded shadow-lg">
+                                            {{ $event->start_time->format('d M') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors line-clamp-2">{{ $event->title }}</h3>
+                                    <div class="flex items-center gap-4 text-slate-400 text-[11px] font-medium italic">
+                                        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">location_on</span>{{ $event->location ?? 'Belirtilmedi' }}</span>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
-                        <div class="p-6">
-                            <h3 class="font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors line-clamp-2">{{ $event->title }}</h3>
-                            <div class="flex items-center gap-4 text-slate-400 text-[11px] font-medium italic">
-                                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">location_on</span>{{ $event->location ?? 'Belirtilmedi' }}</span>
-                            </div>
-                        </div>
-                    </a>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
             @endif
@@ -416,6 +431,25 @@
                 768: { spaceBetween: 20 }
             }
         });
+
+        // Initialize Swiper for upcoming club events
+        if (document.querySelector('.club-events-swiper')) {
+            new Swiper('.club-events-swiper', {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                grabCursor: true,
+                navigation: {
+                    nextEl: '.club-events-next',
+                    prevEl: '.club-events-prev',
+                },
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2,
+                        spaceBetween: 20,
+                    },
+                },
+            });
+        }
     });
 
     function openLightbox(index) {

@@ -26,7 +26,7 @@ Route::get('lang/{locale}', function ($locale) {
 
 // Public routes
 Route::get('/etkinlikler', [HomeController::class, 'etkinlikler'])->name('etkinlikler');
-Route::get('/tum-etkinlikler', [HomeController::class, 'etkinlikler'])->name('tum-etkinlikler');
+Route::get('/tum-etkinlikler', [HomeController::class, 'tumEtkinlikler'])->name('tum-etkinlikler');
 Route::get('/etkinlikler/tarih/{date}', [HomeController::class, 'dailyEvents'])->name('etkinlikler.daily');
 
 Route::get('/kulupler', function () {

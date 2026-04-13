@@ -15,11 +15,10 @@ class HomeController extends Controller
             ->orderBy('order')
             ->get();
 
-        $trendingEvents = Event::where('is_featured', true)
-            ->with(['category', 'club'])
+        $trendingEvents = Event::with(['category', 'club'])
             ->where('status', 'published')
-            ->latest()
-            ->limit(3)
+            ->orderBy('start_time', 'asc')
+            ->limit(6)
             ->get();
 
         $activeClubs = Club::where('is_active', true)
@@ -43,6 +42,21 @@ class HomeController extends Controller
     {
         $query = Event::with(['category', 'club'])->where('status', 'published');
         
+        // Handle AJAX Load More
+        if ($request->ajax() && $request->has('offset')) {
+            $offset = $request->get('offset', 0);
+            $limit = $request->get('limit', 15);
+            $events = $query->orderBy('start_time', 'asc')
+                ->offset($offset)
+                ->limit($limit)
+                ->get();
+
+            return response()->json([
+                'html' => view('partials.event-grid-list', compact('events'))->render(),
+                'has_more' => $events->count() >= $limit
+            ]);
+        }
+
         // Date filtering for calendar
         $date = $request->get('date', now()->format('Y-m-d'));
         
@@ -77,7 +91,10 @@ class HomeController extends Controller
         $selectedEvents = $eventsByDate->get($date, collect());
         $initialClubs = $selectedEvents->pluck('club')->unique('id')->filter();
 
-        return view('etkinlikler', compact('events', 'initialClubs', 'date'));
+        // Initial grid events should be limited for Load More functionality
+        $gridEvents = $query->orderBy('start_time', 'asc')->limit(15)->get();
+
+        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date'));
     }
 
     public function dailyEvents($date)
@@ -91,5 +108,32 @@ class HomeController extends Controller
         $date = \Carbon\Carbon::parse($date);
         
         return view('daily-events', compact('events', 'date'));
+    }
+
+    public function tumEtkinlikler(Request $request)
+    {
+        $query = Event::with(['category', 'club'])->where('status', 'published');
+
+        // Handle AJAX Load More
+        if ($request->ajax() && $request->has('offset')) {
+            $offset = $request->get('offset', 0);
+            $limit = $request->get('limit', 15);
+            $events = $query->orderBy('start_time', 'asc')
+                ->offset($offset)
+                ->limit($limit)
+                ->get();
+
+            return response()->json([
+                'html' => view('partials.event-grid-list', compact('events'))->render(),
+                'has_more' => $events->count() >= $limit,
+                'count' => $events->count()
+            ]);
+        }
+
+        // Initial page load: first 15 events
+        $events = $query->orderBy('start_time', 'asc')->limit(15)->get();
+        $totalEvents = Event::where('status', 'published')->count();
+
+        return view('tum-etkinlikler', compact('events', 'totalEvents'));
     }
 }

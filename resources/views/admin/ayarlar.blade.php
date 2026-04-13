@@ -7,14 +7,6 @@
 @section('content')
 
 <div class="max-w-4xl">
-    <!-- Tabs -->
-    <div class="flex border-b border-slate-200 mb-8 space-x-6 overflow-x-auto custom-scrollbar">
-        <button class="pb-3 border-b-2 border-primary text-primary font-bold text-sm whitespace-nowrap">Genel Ayarlar</button>
-        <button onclick="showToast('Görünüm ayarları yakında...', 'info')" class="pb-3 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-800 transition-colors whitespace-nowrap">Görünüm</button>
-        <button onclick="showToast('Güvenlik ayarları yakında...', 'info')" class="pb-3 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-800 transition-colors whitespace-nowrap">Güvenlik</button>
-        <button onclick="showToast('SMTP ayarları yakında...', 'info')" class="pb-3 border-b-2 border-transparent text-slate-500 font-medium text-sm hover:text-slate-800 transition-colors whitespace-nowrap">E-Posta (SMTP)</button>
-    </div>
-
     @if(session('success'))
         <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-6 flex items-center gap-3">
             <span class="material-symbols-outlined text-[20px]">check_circle</span>
@@ -26,7 +18,7 @@
         @csrf
         <div class="space-y-8">
             <!-- Site Bilgileri -->
-            <div class="admin-card shadow-sm">
+            <div class="admin-card shadow-sm bg-white p-6 rounded-2xl">
                 <h3 class="font-headline font-bold text-slate-800 mb-6 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-[20px]">info</span>
                     Site Bilgileri
@@ -44,7 +36,7 @@
             </div>
 
             <!-- İletişim & Sosyal Medya -->
-            <div class="admin-card shadow-sm">
+            <div class="admin-card shadow-sm bg-white p-6 rounded-2xl">
                 <h3 class="font-headline font-bold text-slate-800 mb-6 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-[20px]">share</span>
                     İletişim & Sosyal Medya

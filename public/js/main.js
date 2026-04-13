@@ -288,6 +288,28 @@
         });
     }
     
+    // ── ACTIVE CLUBS SWIPER (HOMEPAGE) ──────────────────────
+    function initActiveClubsSwiper() {
+        if (!document.querySelector('.active-clubs-swiper')) return;
+        
+        new Swiper('.active-clubs-swiper', {
+            slidesPerView: 1,
+            spaceBetween: 24,
+            grabCursor: true,
+            pagination: {
+                el: '.active-clubs-pagination',
+                clickable: true,
+                dynamicBullets: true,
+            },
+            breakpoints: {
+                768: {
+                    slidesPerView: 2,
+                    spaceBetween: 32,
+                }
+            }
+        });
+    }
+    
     // ── INIT ────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function () {
         initNavbarBehavior();
@@ -295,6 +317,7 @@
         initAnimations();
         initStatsCounter();
         initGallerySwiper();
+        initActiveClubsSwiper();
         initGalleryLightbox();
 
         var page = getPage();

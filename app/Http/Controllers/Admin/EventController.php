@@ -28,9 +28,7 @@ class EventController extends Controller
                     $query->where('status', $request->status);
                 }
 
-                $data = $query->oldest()->get();
-
-                return \Yajra\DataTables\Facades\DataTables::of($data)
+                return \Yajra\DataTables\Facades\DataTables::of($query->oldest())
                     ->addIndexColumn()
                     ->addColumn('event_info', function($row) {
                         // Title and Image combo for DataTables
@@ -78,6 +76,19 @@ class EventController extends Controller
                         $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->title)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
+                    })
+                    ->filterColumn('event_info', function($query, $keyword) {
+                        $query->where('title', 'like', "%{$keyword}%");
+                    })
+                    ->filterColumn('club_name', function($query, $keyword) {
+                        $query->whereHas('club', function($q) use ($keyword) {
+                            $q->where('name', 'like', "%{$keyword}%");
+                        });
+                    })
+                    ->filterColumn('category_name', function($query, $keyword) {
+                        $query->whereHas('category', function($q) use ($keyword) {
+                            $q->where('name', 'like', "%{$keyword}%");
+                        });
                     })
                     ->rawColumns(['event_info', 'club_name', 'category_name', 'date', 'participants', 'status', 'action'])
                     ->make(true);

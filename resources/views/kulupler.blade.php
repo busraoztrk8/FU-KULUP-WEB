@@ -8,7 +8,7 @@
     {{-- Hero: İlk aktif kulüp --}}
     @php $featured = $clubs->first(); @endphp
     @if($featured)
-    <section class="mb-8 md:mb-16">
+    <section class="mb-4 md:mb-16">
         <div class="relative overflow-hidden rounded-2xl md:rounded-3xl min-h-[280px] md:h-[400px] flex items-center group shadow-2xl">
             <div class="absolute inset-0 z-0">
                 @if($featured->cover_image)
@@ -24,16 +24,16 @@
                     <span class="material-symbols-outlined text-sm mr-1.5" style="font-variation-settings:'FILL' 1;">star</span>
                     <span class="text-[10px] font-bold uppercase tracking-wider">Öne Çıkan Kulüp</span>
                 </div>
-                <h1 class="text-2xl sm:text-3xl md:text-5xl font-bold font-headline leading-tight mb-3 tracking-tight">
+                <h1 class="text-lg sm:text-3xl md:text-5xl font-bold font-headline leading-tight mb-2 tracking-tight">
                     {{ $featured->name }}
                 </h1>
                 @if($featured->short_description)
                 <p class="text-white/80 text-sm md:text-lg mb-6 line-clamp-2">{{ $featured->short_description }}</p>
                 @endif
                 <a href="{{ route('kulup.detay', $featured->slug) }}"
-                    class="inline-flex items-center gap-2 bg-white text-primary px-6 py-3 rounded-full font-bold hover:bg-slate-100 transition-all shadow-lg active:scale-95 text-sm md:text-base">
+                    class="inline-flex items-center gap-2 bg-white text-primary px-4 py-2 md:px-6 md:py-3 rounded-full font-bold hover:bg-slate-100 transition-all shadow-lg active:scale-95 text-[11px] md:text-base">
                     Kulübü Görüntüle
-                    <span class="material-symbols-outlined">arrow_forward</span>
+                    <span class="material-symbols-outlined text-xs md:text-base">arrow_forward</span>
                 </a>
             </div>
         </div>
@@ -41,21 +41,21 @@
     @endif
 
     {{-- Arama & Filtre --}}
-    <section class="mb-8 md:mb-12">
+    <section class="mb-6 md:mb-12">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
             <div class="relative flex-1 max-w-xl">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">search</span>
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[20px] md:text-[24px]">search</span>
                 <input id="club-search" type="text" placeholder="Kulüp ara..."
-                    class="w-full bg-white border border-black/5 rounded-2xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary text-slate-900 placeholder:text-slate-400 transition-all shadow-sm"/>
+                    class="w-full bg-white border border-black/5 rounded-xl md:rounded-2xl py-2 md:py-3.5 pl-10 md:pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary text-xs md:text-base text-slate-900 placeholder:text-slate-400 transition-all shadow-sm"/>
             </div>
             <div class="flex flex-wrap gap-2">
                 <button data-filter="all"
-                    class="px-4 py-2 rounded-full bg-primary text-white font-bold text-sm transition-all shadow-lg shadow-primary/20 active">
+                    class="px-3 py-1 md:px-4 md:py-2 rounded-full bg-primary text-white font-bold text-[10px] md:text-sm transition-all shadow-lg shadow-primary/20 active">
                     Hepsi
                 </button>
                 @foreach($categories as $cat)
                 <button data-filter="{{ $cat->slug }}"
-                    class="px-4 py-2 rounded-full bg-white hover:bg-primary hover:text-white text-slate-600 font-bold text-sm transition-all border border-black/5 shadow-sm">
+                    class="px-3 py-1 md:px-4 md:py-2 rounded-full bg-white hover:bg-primary hover:text-white text-slate-600 font-bold text-[10px] md:text-sm transition-all border border-black/5 shadow-sm">
                     {{ $cat->name }}
                 </button>
                 @endforeach
@@ -87,9 +87,9 @@
                 </div>
                 @endif
             </div>
-            <div class="p-6 md:p-8 flex flex-col flex-1">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-xl md:text-2xl font-bold font-headline text-white group-hover:text-white/90 transition-colors leading-snug">
+            <div class="p-4 md:p-8 flex flex-col flex-1">
+                <div class="flex justify-between items-start mb-2 md:mb-3">
+                    <h3 class="text-sm md:text-2xl font-bold font-headline text-white group-hover:text-white/90 transition-colors leading-snug">
                         {{ $club->name }}
                     </h3>
                     <div class="flex items-center text-white/70 text-xs font-bold shrink-0 ml-2">
@@ -98,12 +98,12 @@
                     </div>
                 </div>
                 @if($club->short_description)
-                <p class="text-white/80 text-sm mb-6 leading-relaxed line-clamp-3">{{ $club->short_description }}</p>
+                <p class="text-white/80 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed line-clamp-3">{{ $club->short_description }}</p>
                 @else
-                <p class="text-white/50 text-sm mb-6 italic">Açıklama eklenmemiş.</p>
+                <p class="text-white/50 text-xs md:text-sm mb-4 md:mb-6 italic">Açıklama eklenmemiş.</p>
                 @endif
                 <a href="{{ route('kulup.detay', $club->slug) }}"
-                    class="mt-auto w-full py-3.5 rounded-xl md:rounded-2xl bg-white text-primary font-bold hover:bg-slate-100 transition-all flex justify-center items-center active:scale-95 shadow-lg text-sm">
+                    class="mt-auto w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl bg-white text-primary font-bold hover:bg-slate-100 transition-all flex justify-center items-center active:scale-95 shadow-lg text-xs md:text-sm">
                     Kulübü Görüntüle
                 </a>
             </div>

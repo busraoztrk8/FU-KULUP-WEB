@@ -480,7 +480,7 @@ $(document).ready(function() {
         },
         columns: [
             {data: 'id', name: 'id', className: 'text-center text-slate-600 font-medium'},
-            {data: 'event_info', name: 'title', orderable: false, searchable: false},
+            {data: 'event_info', name: 'title', orderable: false, searchable: true},
             {data: 'club_name', name: 'club.name', orderable: false},
             {data: 'category_name', name: 'category.name', orderable: false},
             {data: 'date', name: 'start_time'},

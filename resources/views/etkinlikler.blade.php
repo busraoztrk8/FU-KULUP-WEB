@@ -7,7 +7,7 @@
 @php $featured = $events->where('is_featured', true)->first() ?? $events->first(); @endphp
 
     <!-- Hero Section -->
-    <section class="relative h-[350px] sm:h-[420px] md:h-[500px] lg:h-[600px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-xl">
+    <section class="relative h-[280px] sm:h-[420px] md:h-[500px] lg:h-[600px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-xl">
         @if($featured && $featured->image)
             <img alt="{{ $featured->title }}" class="absolute inset-0 w-full h-full object-cover"
                 src="{{ str_starts_with($featured->image, 'http') ? $featured->image : asset('storage/' . $featured->image) }}" />
@@ -16,26 +16,26 @@
         @endif
         <div class="absolute inset-0 bg-gradient-to-r from-black/90 md:from-black/80 via-black/40 to-transparent"></div>
         <div class="relative z-10 max-w-3xl px-4 sm:px-6 md:px-20 text-center md:text-left">
-            <span class="bg-primary text-white px-3 md:px-4 py-1 rounded-full text-[10px] font-bold mb-3 md:mb-4 inline-block uppercase tracking-widest">
+            <span class="bg-primary text-white px-2.5 md:px-4 py-0.5 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold mb-2 md:mb-4 inline-block uppercase tracking-widest">
                 Ana Etkinlik
             </span>
             @if($featured)
-            <h1 class="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-bold font-headline text-white mb-4 md:mb-6 leading-tight tracking-tight uppercase">
+            <h1 class="text-lg sm:text-3xl md:text-5xl lg:text-7xl font-bold font-headline text-white mb-2 md:mb-6 leading-tight tracking-tight uppercase">
                 {{ $featured->title }}
             </h1>
             @if($featured->short_description)
-            <p class="text-sm sm:text-base md:text-xl text-slate-200 mb-6 md:mb-10 max-w-xl font-body leading-relaxed mx-auto md:mx-0">
+            <p class="text-xs sm:text-base md:text-xl text-slate-200 mb-4 md:mb-10 max-w-xl font-body leading-relaxed mx-auto md:mx-0">
                 {{ $featured->short_description }}
             </p>
             @endif
-            <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-3 md:gap-4">
+            <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-2 md:gap-4">
                 <a href="{{ route('etkinlik.detay', $featured->slug) }}"
-                    class="bg-primary hover:bg-primary-dark text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold transition-all flex justify-center items-center gap-2 group text-sm md:text-base">
+                    class="bg-primary hover:bg-primary-dark text-white px-4 md:px-8 py-2 md:py-4 rounded-full font-bold transition-all flex justify-center items-center gap-2 group text-[11px] md:text-base">
                     Kayıt Ol
-                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <span class="material-symbols-outlined text-sm md:text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </a>
                 <a href="{{ route('etkinlik.detay', $featured->slug) }}"
-                    class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-6 md:px-8 py-3 md:py-4 rounded-full font-bold transition-all text-sm md:text-base text-center">
+                    class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-4 md:px-8 py-2 md:py-4 rounded-full font-bold transition-all text-[11px] md:text-base text-center">
                     Detayları Gör
                 </a>
             </div>
@@ -46,21 +46,21 @@
     </section>
 
     <!-- Main Content Area -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-4 md:gap-6">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-12 md:py-16">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 md:mb-12 gap-3 md:gap-6">
             <div>
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold font-headline text-on-background mb-2">Yaklaşan Etkinlikler</h2>
-                <p class="text-on-surface-variant text-sm md:text-base">Kampüs hayatındaki en güncel akademik ve sosyal etkinlikleri
+                <h2 class="text-base sm:text-2xl md:text-3xl font-bold font-headline text-on-background mb-1 md:mb-2">Yaklaşan Etkinlikler</h2>
+                <p class="text-on-surface-variant text-xs md:text-base">Kampüs hayatındaki en güncel akademik ve sosyal etkinlikleri
                     takip edin.</p>
             </div>
 
             <!-- Tab Toggle -->
             <div class="bg-slate-100 p-1 rounded-full flex gap-1 shadow-sm w-full md:w-auto">
                 <button
-                    class="flex-1 md:flex-none px-6 md:px-8 py-2.5 rounded-full bg-primary text-white font-bold text-sm transition-all shadow-md tab-btn active"
+                    class="flex-1 md:flex-none px-4 md:px-8 py-1.5 md:py-2.5 rounded-full bg-primary text-white font-bold text-[11px] md:text-sm transition-all shadow-md tab-btn active"
                     data-tab-btn="calendar">Takvim</button>
                 <button
-                    class="flex-1 md:flex-none px-6 md:px-8 py-2.5 rounded-full text-slate-600 hover:text-on-background font-medium text-sm transition-all tab-btn"
+                    class="flex-1 md:flex-none px-4 md:px-8 py-1.5 md:py-2.5 rounded-full text-slate-600 hover:text-on-background font-medium text-[11px] md:text-sm transition-all tab-btn"
                     data-tab-btn="all">Tümü</button>
             </div>
         </div>
@@ -87,9 +87,9 @@
     $selectedEvents = $eventsByDate->get($currentDateStr, collect());
 @endphp
             <!-- Calendar Side -->
-            <div class="lg:col-span-1 bg-slate-50 rounded-2xl md:rounded-[2rem] p-4 sm:p-6 md:p-8 border border-slate-100 h-fit">
-                <div class="flex justify-between items-center mb-6 md:mb-8">
-                    <h3 class="font-headline font-bold text-lg md:text-xl text-on-background capitalize">{{ $startOfMonth->translatedFormat('F Y') }}</h3>
+            <div class="lg:col-span-1 bg-slate-50 rounded-2xl md:rounded-[2rem] p-3 sm:p-6 md:p-8 border border-slate-100 h-fit">
+                <div class="flex justify-between items-center mb-4 md:mb-8">
+                    <h3 class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">{{ $startOfMonth->translatedFormat('F Y') }}</h3>
                     <div class="flex gap-2">
                         <a href="?date={{ $startOfMonth->copy()->subMonth()->format('Y-m-d') }}#calendar-view" class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
                                 class="material-symbols-outlined">chevron_left</span></a>
@@ -140,16 +140,16 @@
                         @endfor
                     @endif
                 </div>
-                <div class="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-slate-200">
-                    <h4 class="text-sm font-bold mb-3 md:mb-4 flex items-center gap-2 text-on-background">
-                        <span class="material-symbols-outlined text-primary text-sm"
+                <div class="mt-4 md:mt-8 pt-4 md:pt-8 border-t border-slate-200">
+                    <h4 class="text-xs md:text-sm font-bold mb-2 md:mb-4 flex items-center gap-2 text-on-background">
+                        <span class="material-symbols-outlined text-primary text-xs md:text-sm"
                             style="font-variation-settings: 'FILL' 1;">category</span>
                         Kategoriler
                     </h4>
-                    <ul class="space-y-2 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-2">
+                    <ul class="space-y-1.5 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-2">
                         @foreach(\App\Models\Category::take(6)->get() as $cat)
-                        <li class="flex items-center text-sm gap-2">
-                            <span class="w-2 h-2 rounded-full bg-primary/80"></span>
+                        <li class="flex items-center text-xs md:text-sm gap-2">
+                            <span class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-primary/80"></span>
                             <span class="text-on-surface-variant truncate" title="{{ $cat->name }}">{{ $cat->name }}</span>
                         </li>
                         @endforeach
@@ -158,12 +158,12 @@
             </div>
 
             <!-- Event List Side -->
-            <div class="lg:col-span-1 space-y-4 md:space-y-6">
-                <div class="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 id="selected-date-title" class="font-headline font-bold text-lg md:text-xl text-on-background capitalize">
+            <div class="lg:col-span-1 space-y-4 md:space-y-6 mt-12 md:mt-0">
+                <div class="flex items-center justify-between mb-2 md:mb-4">
+                    <h3 id="selected-date-title" class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">
                         {{ $currentDate->translatedFormat('j F, l') }}
                     </h3>
-                    <span id="event-count-badge" class="text-on-surface-variant text-xs md:text-sm">
+                    <span id="event-count-badge" class="text-on-surface-variant text-[10px] md:text-sm">
                         {{ $selectedEvents->count() }} Etkinlik Bulundu
                     </span>
                 </div>
@@ -174,7 +174,7 @@
                     @endif
                 </div>
 
-                <div id="event-list-container" class="space-y-4 md:space-y-6 transition-all duration-300">
+                <div id="event-list-container" class="space-y-4 md:space-y-6 mb-10 md:mb-0 transition-all duration-300">
                     @include('partials.event-list-items', ['date' => $currentDateStr])
                 </div>
             </div>
@@ -183,29 +183,31 @@
         <!-- Tab Content 2: Grid View -->
         <div id="grid-view" class="tab-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[400px]"
             data-tab-content="all">
-            @include('partials.event-grid-items')
+            <div id="events-grid-container" class="contents">
+                @include('partials.event-grid-items', ['events' => $gridEvents])
+            </div>
         </div>
 
-        <!-- More Load Button (Common) -->
-        <div id="load-more-container" class="mt-10 md:mt-16 flex justify-center" style="display: none;">
-            <button
-                class="bg-slate-50 hover:bg-slate-100 text-on-surface-variant px-8 md:px-10 py-3 rounded-full font-bold transition-all border border-slate-100 flex items-center gap-2 shadow-sm text-sm md:text-base">
-                Daha Fazla Yükle
-                <span class="material-symbols-outlined text-sm">expand_more</span>
-            </button>
+        <!-- More Button - Goes to Tüm Etkinlikler page -->
+        <div id="load-more-container" class="mt-6 md:mt-16 flex justify-center" style="display: none;">
+            <a href="{{ route('tum-etkinlikler') }}"
+                class="bg-white hover:bg-slate-50 text-primary px-6 md:px-10 py-2 md:py-4 rounded-full font-bold transition-all border border-primary/20 flex items-center gap-2 shadow-lg hover:shadow-xl text-xs md:text-base group">
+                <span>Daha Fazla Yükle</span>
+                <span class="material-symbols-outlined text-xs md:text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </a>
         </div>
     </section>
 
     <!-- Categories / Filter Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-16 md:pb-24 border-t border-slate-100 pt-10 md:pt-16">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 md:mb-12 gap-4 md:gap-8">
-            <h3 class="text-2xl md:text-3xl font-bold font-headline text-on-background">Tüm Etkinlik Kategorileri</h3>
-            <div class="flex flex-wrap gap-3 md:gap-4 items-center w-full md:w-auto">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 md:pb-24 border-t border-slate-100 pt-16 md:pt-16 mt-16 md:mt-0">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-12 gap-3 md:gap-8">
+            <h3 class="text-base md:text-3xl font-bold font-headline text-on-background">Tüm Etkinlik Kategorileri</h3>
+            <div class="flex flex-wrap gap-2 md:gap-4 items-center w-full md:w-auto">
                 <div class="relative flex-1 md:w-80">
                     <span
-                        class="material-symbols-outlined absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg md:text-xl">search</span>
+                        class="material-symbols-outlined absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-base md:text-xl">search</span>
                     <input type="text" placeholder="Hızlı ara..."
-                        class="w-full pl-10 md:pl-12 pr-4 py-3 bg-surface-container border-none rounded-xl md:rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium text-sm md:text-base">
+                        class="w-full pl-9 md:pl-12 pr-4 py-2 md:py-3 bg-surface-container border-none rounded-xl md:rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium text-xs md:text-base">
                 </div>
                 <button
                     class="p-3 bg-surface-container rounded-xl md:rounded-2xl text-on-surface-variant hover:text-primary transition-all">
@@ -364,5 +366,6 @@
                 });
             });
         });
+
     </script>
 @endsection

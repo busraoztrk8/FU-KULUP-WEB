@@ -79,8 +79,7 @@
         <!-- Right Actions -->
         <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6">
             <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
-                <span
-                    class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors hidden sm:inline">notifications</span>
+
                 <span
                     class="text-xs font-bold cursor-pointer hover:text-primary transition-colors border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2 hidden sm:inline">TR/EN</span>
 
@@ -134,7 +133,6 @@
                     <span
                         class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors hidden sm:inline">account_circle</span>
                 @endauth
-            </div>
 
             @guest
                 <a href="{{ route('register') }}"
@@ -158,53 +156,54 @@
 </div>
 
 <!-- Mobile Menu Side Panel -->
-<div id="mob-menu" class="mobile-menu md:hidden flex flex-col bg-white shadow-2xl transition-all duration-300 ease-out">
-    <div class="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
-        <span class="text-lg font-bold font-headline text-slate-800">Menü</span>
+<div id="mob-menu" class="mobile-menu md:hidden flex flex-col">
+    <!-- Header Area -->
+    <div class="p-6 flex items-center justify-between shrink-0 bg-white/40 border-b border-black/5">
+        <div class="flex items-center gap-3">
+            <div class="w-1.5 h-6 bg-primary rounded-full"></div>
+            <span class="text-xl font-bold font-headline tracking-tight text-slate-800">Menü</span>
+        </div>
         <button id="mob-close"
-            class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors">
+            class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100/50 hover:text-primary transition-all">
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
-    <div class="flex-1 overflow-y-auto p-6 flex flex-col">
-        <nav class="space-y-2 mb-8">
+
+    <!-- Navigation Area -->
+    <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+        <nav class="space-y-1.5">
             @foreach($mainMenus as $menu)
+                @php
+                    $label = mb_strtolower($menu->label, 'UTF-8');
+                    $icon = 'link';
+                    if (str_contains($label, 'ana')) $icon = 'home';
+                    elseif (str_contains($label, 'kulüp')) $icon = 'groups';
+                    elseif (str_contains($label, 'etkinlik')) $icon = 'event_note';
+                    elseif (str_contains($label, 'haber')) $icon = 'newspaper';
+                    elseif (str_contains($label, 'duyuru')) $icon = 'campaign';
+                    elseif (str_contains($label, 'galeri')) $icon = 'photo_library';
+                    elseif (str_contains($label, 'hakkımızda')) $icon = 'info';
+                    elseif (str_contains($label, 'iletişim')) $icon = 'alternate_email';
+                @endphp
+
                 @if($menu->children->count() > 0)
-                    <div x-data="{ open: false }">
+                    <div x-data="{ open: false }" class="mb-2">
                         <button @click="open = !open"
-                            class="w-full flex items-center justify-between p-4 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                            class="w-full flex items-center justify-between p-3.5 rounded-2xl font-bold text-slate-600 hover:bg-primary/5 hover:text-primary transition-all group">
                             <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined">menu_open</span> {{ $menu->label }}
+                                <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                                    <span class="material-symbols-outlined text-[22px]">{{ $icon }}</span>
+                                </div>
+                                <span class="text-sm font-headline lowercase first-letter:uppercase">{{ $menu->label }}</span>
                             </div>
-                            <span class="material-symbols-outlined transition-transform"
+                            <span class="material-symbols-outlined text-[18px] opacity-40 transition-transform"
                                 :class="open ? 'rotate-180' : ''">expand_more</span>
                         </button>
-                        <div x-show="open"
-                            class="pl-6 pr-2 py-2 space-y-1 mt-1 bg-slate-50/50 rounded-2xl border border-slate-100/50">
-                            {{-- Ana menü linkini mobil alt menülerin başına ekle --}}
-                            <a href="{{ $menu->url }}" target="{{ $menu->target }}"
-                                class="block p-3 rounded-xl bg-white shadow-sm border border-slate-100 group">
-                                <span class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                            <span class="material-symbols-outlined text-[18px]">grid_view</span>
-                                        </div>
-                                        <span class="text-sm font-bold text-slate-700">Tüm {{ $menu->label }}</span>
-                                    </div>
-                                    <span class="material-symbols-outlined text-slate-300 text-[18px]">chevron_right</span>
-                                </span>
-                            </a>
-
-                            <div class="flex items-center gap-2 py-2 px-1">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Alt Sayfalar</span>
-                                <div class="h-px bg-slate-200 flex-1"></div>
-                            </div>
-
+                        <div x-show="open" x-collapse
+                            class="ml-5 mt-1 pb-2 space-y-1.5 border-l-2 border-slate-100 pl-4">
                             @foreach($menu->children as $child)
                                 <a href="{{ $child->url }}" target="{{ $child->target }}"
-                                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-white hover:text-primary hover:shadow-sm border border-transparent hover:border-slate-100 transition-all">
-                                    <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+                                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-[13px] text-slate-500 hover:text-primary hover:bg-primary/5 transition-all">
                                     {{ $child->label }}
                                 </a>
                             @endforeach
@@ -212,53 +211,66 @@
                     </div>
                 @else
                     <a href="{{ $menu->url }}" target="{{ $menu->target }}"
-                        class="flex items-center gap-3 p-4 rounded-2xl font-bold {{ request()->url() == url($menu->url) ? 'bg-primary/5 text-primary' : 'text-slate-600 hover:bg-slate-50' }} transition-colors">
-                        <span class="material-symbols-outlined">link</span> {{ $menu->label }}
+                        class="mobile-nav-link flex items-center gap-3 p-3.5 rounded-2xl font-bold {{ request()->url() == url($menu->url) ? 'active' : 'text-slate-600 hover:bg-primary/5 hover:text-primary' }} transition-all group">
+                        <div class="w-10 h-10 rounded-xl {{ request()->url() == url($menu->url) ? 'bg-primary/10 text-primary' : 'bg-slate-50 text-slate-400' }} flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                            <span class="material-symbols-outlined text-[20px]">{{ $icon }}</span>
+                        </div>
+                        <span class="text-sm font-headline lowercase first-letter:uppercase">{{ $menu->label }}</span>
                     </a>
                 @endif
             @endforeach
         </nav>
+    </div>
 
-        <div class="mt-auto space-y-3">
-            @auth
-                <div class="bg-slate-50 rounded-2xl p-4 mb-4">
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Profil</p>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div
-                            class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-primary overflow-hidden">
+    <!-- Footer / Profile Area -->
+    <div class="p-6 bg-white/40 border-t border-black/5 mt-auto">
+        @auth
+            <div class="glass-card rounded-2xl p-4 border border-white/50 mb-4 shadow-sm">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-full border-2 border-primary/20 p-0.5">
+                        <div class="w-full h-full rounded-full bg-slate-100 overflow-hidden shadow-inner">
                             @if(auth()->user()->profile_photo)
                                 <img src="{{ asset('uploads/' . auth()->user()->profile_photo) }}"
                                     class="w-full h-full object-cover">
                             @else
-                                <span class="material-symbols-outlined">person</span>
+                                <div class="w-full h-full flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined">person</span>
+                                </div>
                             @endif
                         </div>
-                        <div class="overflow-hidden">
-                            <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user()->name }}</p>
-                        </div>
                     </div>
-                    @if(auth()->user()->isAdmin() || auth()->user()->isEditor())
-                        <a href="/admin"
-                            class="flex items-center gap-3 w-full px-4 py-3 mb-2 text-sm font-bold text-white bg-primary rounded-xl shadow-md shadow-primary/20">
-                            <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> Yönetim Paneli
-                        </a>
-                    @endif
+                    <div class="overflow-hidden">
+                        <p class="text-[10px] font-bold text-primary/60 uppercase tracking-widest leading-none mb-1">Hesabım</p>
+                        <p class="text-sm font-bold text-slate-800 truncate font-headline">{{ auth()->user()->name }}</p>
+                    </div>
                 </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                        class="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-colors">
-                        <span class="material-symbols-outlined">logout</span> Çıkış Yap
-                    </button>
-                </form>
-            @else
+                
+                @if(auth()->user()->isAdmin() || auth()->user()->isEditor())
+                    <a href="/admin"
+                        class="flex items-center justify-center gap-2 w-full py-3 bg-gradient-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                        <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Yönetim Paneli
+                    </a>
+                @endif
+            </div>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"
+                    class="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-red-50 text-red-600 text-xs font-black uppercase tracking-widest hover:bg-red-100 transition-all">
+                    <span class="material-symbols-outlined text-[20px]">logout</span> Çıkış Yap
+                </button>
+            </form>
+        @else
+            <div class="grid grid-cols-2 gap-3">
                 <a href="{{ route('login') }}"
-                    class="flex items-center justify-center p-4 rounded-2xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors">Giriş
-                    Yap</a>
+                    class="flex items-center justify-center py-4 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors uppercase tracking-widest">
+                    Giriş
+                </a>
                 <a href="{{ route('register') }}"
-                    class="flex items-center justify-center p-4 rounded-2xl bg-gradient-primary text-white font-bold hover:opacity-90 transition-all shadow-lg shadow-red-900/10">Kayıt
-                    Ol</a>
-            @endauth
-        </div>
+                    class="flex items-center justify-center py-4 rounded-2xl bg-gradient-primary text-white text-xs font-bold hover:shadow-xl hover:shadow-primary/30 transition-all uppercase tracking-widest">
+                    Kayıt
+                </a>
+            </div>
+        @endauth
     </div>
 </div>
