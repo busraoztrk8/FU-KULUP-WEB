@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\ClubMember;
 use App\Models\ClubImage;
 use App\Models\ClubDocument;
+use App\Models\ClubFormField;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -71,6 +72,7 @@ class ClubController extends Controller
                     ->addColumn('action', function($row) {
                         $btn = '<div class="flex items-center justify-start gap-2">';
                         $btn .= '<a href="/admin/kulupler/'.$row->id.'/uyeler" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Üyeler"><span class="material-symbols-outlined text-[16px]">group</span></a>';
+                        $btn .= '<a href="/admin/kulupler/'.$row->id.'/form-alanlari" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Kayıt Formu"><span class="material-symbols-outlined text-[16px]">dynamic_form</span></a>';
                         $btn .= '<button onclick="showKulupDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         
                         if (auth()->user()->isAdmin()) {
@@ -134,9 +136,11 @@ class ClubController extends Controller
             'cover_image'       => 'nullable|image|max:10240',
             'website_url'       => 'nullable|url|max:255',
             'instagram_url'     => 'nullable|url|max:255',
-            'youtube_url'       => 'nullable|url|max:255',
-            'twitter_url'       => 'nullable|url|max:255',
-            'facebook_url'      => 'nullable|url|max:255',
+            'youtube_url'       => 'nullable|url|max:500',
+            'twitter_url'       => 'nullable|url|max:500',
+            'facebook_url'      => 'nullable|url|max:500',
+            'whatsapp_url'      => 'nullable|url|max:500',
+            'channel_url'       => 'nullable|url|max:500',
             'mission'           => 'nullable|string|max:300',
             'vision'            => 'nullable|string|max:300',
             'activities'        => 'nullable|string',
@@ -162,6 +166,9 @@ class ClubController extends Controller
 
                 $club = Club::create($validated);
 
+                // Varsayılan form alanlarını oluştur
+                ClubFormField::createDefaultFields($club->id);
+
                 if ($club->president_id) {
                     $this->syncPresidentRole($club);
                 }
@@ -177,9 +184,12 @@ class ClubController extends Controller
 
     public function update(Request $request, Club $club)
     {
-        if (auth()->user()->isEditor() && $club->id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && (int)$club->id !== (int)auth()->user()->club_id) {
             abort(403, 'Bu kulübü düzenleme yetkiniz yok.');
         }
+
+        // Validation hatası olursa editör için modalı tekrar açmak üzere session'a kaydet
+        session()->flash('edit_club_id', $club->id);
 
         $validated = $request->validate([
             'name'              => 'required|string|max:100|unique:clubs,name,' . $club->id,
@@ -192,9 +202,11 @@ class ClubController extends Controller
             'cover_image'       => 'nullable|image|max:10240',
             'website_url'       => 'nullable|url|max:255',
             'instagram_url'     => 'nullable|url|max:255',
-            'youtube_url'       => 'nullable|url|max:255',
-            'twitter_url'       => 'nullable|url|max:255',
-            'facebook_url'      => 'nullable|url|max:255',
+            'youtube_url'       => 'nullable|url|max:500',
+            'twitter_url'       => 'nullable|url|max:500',
+            'facebook_url'      => 'nullable|url|max:500',
+            'whatsapp_url'      => 'nullable|url|max:500',
+            'channel_url'       => 'nullable|url|max:500',
             'mission'           => 'nullable|string|max:300',
             'vision'            => 'nullable|string|max:300',
             'activities'        => 'nullable|string',
@@ -219,7 +231,6 @@ class ClubController extends Controller
         try {
             return DB::transaction(function() use ($validated, $club, $request) {
                 $oldPresidentId = $club->getOriginal('president_id');
-                \Log::info("Club Update Started", ['club_id' => $club->id, 'old_pres' => $oldPresidentId, 'new_pres' => $validated['president_id'] ?? 'none']);
 
                 // Bir kullanıcı sadece bir kulübün başkanı olabilir mantığı (Veri temizliği sağlar)
                 if (!empty($validated['president_id'])) {
@@ -247,7 +258,7 @@ class ClubController extends Controller
             });
         } catch (\Exception $e) {
             \Log::error("Club Update Error: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Kulüp güncellenirken bir hata oluştu: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Kulüp güncellenirken bir hata oluştu: ' . $e->getMessage())->with('edit_club_id', $club->id);
         }
 
     }
@@ -276,20 +287,84 @@ class ClubController extends Controller
 
     public function members(Club $club)
     {
-        if (auth()->user()->isEditor() && $club->id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && $club->id != auth()->user()->club_id) {
             abort(403, 'Bu kulübün üyelerini görme yetkiniz yok.');
         }
 
-        $filter = request('status', 'all');
+        if (request()->ajax()) {
+            $query = ClubMember::with(['user', 'registrationData.formField'])
+                ->where('club_members.club_id', $club->id);
 
-        $query = ClubMember::with('user')
-            ->where('club_id', $club->id);
+            $filter = request('status', 'all');
+            if ($filter !== 'all') {
+                $query->where('club_members.status', $filter);
+            }
 
-        if ($filter !== 'all') {
-            $query->where('status', $filter);
+            return \Yajra\DataTables\Facades\DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('user_info', function ($member) use ($club) {
+                    if (!$member->user) return '<span class="text-slate-400 italic text-sm">Silinmiş Kullanıcı</span>';
+                    $photo = $member->user->profile_photo
+                        ? '<img src="'.asset('storage/'.$member->user->profile_photo).'" class="w-9 h-9 rounded-full object-cover">'
+                        : '<span class="material-symbols-outlined text-primary text-[18px]">person</span>';
+                    $presidentBadge = ($club->president_id && $member->user_id == $club->president_id)
+                        ? '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white ml-1"><span class="material-symbols-outlined text-[11px]">workspace_premium</span>BAŞKAN</span>'
+                        : '';
+                    $title = $member->title ? '<p class="text-[11px] font-bold text-primary uppercase tracking-wider mt-0.5">'.e($member->title).'</p>' : '';
+                    return '<div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">'.$photo.'</div>
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm">'.e($member->user->name).$presidentBadge.'</p>
+                            '.$title.'
+                        </div>
+                    </div>';
+                })
+                ->addColumn('email', fn($m) => '<span class="text-sm text-slate-600">'.e($m->user->email ?? '-').'</span>')
+                ->addColumn('form_data', function ($member) {
+                    if ($member->registrationData && $member->registrationData->count() > 0) {
+                        $json = htmlspecialchars(json_encode(
+                            $member->registrationData->map(fn($d) => [
+                                'label' => $d->formField->label ?? 'Alan',
+                                'value' => $d->value ?? '-',
+                            ])
+                        ), ENT_QUOTES, 'UTF-8');
+                        return '<button onclick=\'showFormData('.$json.', "'.e(addslashes($member->user->name ?? '')).'")\' class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-primary/10 text-primary hover:bg-primary/20 border border-primary/10 transition-colors">
+                            <span class="material-symbols-outlined text-[14px]">description</span>
+                            Görüntüle ('.$member->registrationData->count().')
+                        </button>';
+                    }
+                    return '<span class="text-xs text-slate-400 italic">Yok</span>';
+                })
+                ->addColumn('date', fn($m) => '<span class="text-sm text-slate-500">'.$m->created_at->format('d.m.Y H:i').'</span>')
+                ->addColumn('status_badge', function ($member) {
+                    return match($member->status) {
+                        'pending'  => '<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200"><span class="material-symbols-outlined text-[13px]">schedule</span>Bekliyor</span>',
+                        'approved' => '<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200"><span class="material-symbols-outlined text-[13px]">check_circle</span>Onaylandı</span>',
+                        'rejected' => '<span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200"><span class="material-symbols-outlined text-[13px]">cancel</span>Reddedildi</span>',
+                        default    => '<span class="text-xs text-slate-400">-</span>',
+                    };
+                })
+                ->addColumn('action', function ($member) use ($club) {
+                    $html = '<div class="flex items-center gap-2">';
+                    if ($member->status === 'pending') {
+                        $html .= '<form action="'.route('admin.kulupler.uyeler.onayla', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg hover:bg-green-100 border border-green-100" title="Onayla"><span class="material-symbols-outlined text-[16px]">check</span></button></form>';
+                        $html .= '<form action="'.route('admin.kulupler.uyeler.reddet', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 border border-red-100" title="Reddet"><span class="material-symbols-outlined text-[16px]">close</span></button></form>';
+                    } elseif ($member->status === 'approved') {
+                        if (auth()->user()->isAdmin() && (!$club->president_id || $member->user_id != $club->president_id)) {
+                            $html .= '<form action="'.route('admin.kulupler.set-president', [$club->id, $member->user_id]).'" method="POST" class="inline" onsubmit="return confirm(\'Başkan yapmak istediğinize emin misiniz?\')">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 border border-amber-100" title="Başkan Yap"><span class="material-symbols-outlined text-[16px]">workspace_premium</span></button></form>';
+                        }
+                        $html .= '<button onclick="showTitleModal('.$member->id.', \''.e(addslashes($member->user->name ?? '')).'\', \''.e(addslashes($member->title ?? '')).'\' )" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 border border-indigo-100" title="Unvan"><span class="material-symbols-outlined text-[16px]">badge</span></button>';
+                        $html .= '<form action="'.route('admin.kulupler.uyeler.reddet', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 border border-red-100" title="Üyeliği Kaldır"><span class="material-symbols-outlined text-[16px]">person_remove</span></button></form>';
+                    } elseif ($member->status === 'rejected') {
+                        $html .= '<form action="'.route('admin.kulupler.uyeler.onayla', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg hover:bg-green-100 border border-green-100" title="Tekrar Onayla"><span class="material-symbols-outlined text-[16px]">undo</span></button></form>';
+                    }
+                    $html .= '<button onclick="showDeleteMemberModal('.$member->id.', \''.e(addslashes($member->user->name ?? 'Bilinmiyor')).'\' )" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
+                    $html .= '</div>';
+                    return $html;
+                })
+                ->rawColumns(['user_info', 'email', 'form_data', 'date', 'status_badge', 'action'])
+                ->make(true);
         }
-
-        $members = $query->latest()->paginate(20)->appends(['status' => $filter]);
 
         $stats = [
             'total'    => ClubMember::where('club_id', $club->id)->count(),
@@ -298,12 +373,12 @@ class ClubController extends Controller
             'rejected' => ClubMember::where('club_id', $club->id)->where('status', 'rejected')->count(),
         ];
 
-        return view('admin.kulup-uyeleri', compact('club', 'members', 'stats', 'filter'));
+        return view('admin.kulup-uyeleri', compact('club', 'stats'));
     }
 
     public function approveMember(ClubMember $member)
     {
-        if (auth()->user()->isEditor() && $member->club_id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && $member->club_id != auth()->user()->club_id) {
             abort(403, 'Bu üyeyi onaylama yetkiniz yok.');
         }
 
@@ -315,7 +390,7 @@ class ClubController extends Controller
 
     public function rejectMember(ClubMember $member)
     {
-        if (auth()->user()->isEditor() && $member->club_id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && $member->club_id != auth()->user()->club_id) {
             abort(403, 'Bu üyeyi reddetme yetkiniz yok.');
         }
 
@@ -328,7 +403,7 @@ class ClubController extends Controller
 
     public function removeMember(ClubMember $member)
     {
-        if (auth()->user()->isEditor() && $member->club_id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && $member->club_id != auth()->user()->club_id) {
             abort(403, 'Bu üyeyi silme yetkiniz yok.');
         }
 
@@ -425,7 +500,7 @@ class ClubController extends Controller
 
         $club = Club::findOrFail($request->club_id);
         
-        if (auth()->user()->isEditor() && $club->id !== auth()->user()->club_id) {
+        if (auth()->user()->isEditor() && $club->id != auth()->user()->club_id) {
             abort(403, 'Bu kulübe dosya yükleme yetkiniz yok.');
         }
 
@@ -522,5 +597,137 @@ class ClubController extends Controller
             }
         }
     }
-}
 
+    // ══════════════════════════════════════════════════════════
+    // KULÜP KAYIT FORMU ALANLARI YÖNETİMİ
+    // ══════════════════════════════════════════════════════════
+
+    /**
+     * Kulübün form alanlarını listele
+     */
+    public function formFields(Club $club)
+    {
+        if (auth()->user()->isEditor() && $club->id != auth()->user()->club_id) {
+            abort(403, 'Bu kulübün form alanlarını görme yetkiniz yok.');
+        }
+
+        $fields = $club->allFormFields()->get();
+        return view('admin.kulup-form-alanlari', compact('club', 'fields'));
+    }
+
+    /**
+     * Yeni form alanı ekle
+     */
+    public function storeFormField(Request $request, Club $club)
+    {
+        if (auth()->user()->isEditor() && $club->id != auth()->user()->club_id) {
+            abort(403, 'Bu kulübe form alanı ekleme yetkiniz yok.');
+        }
+
+        $validated = $request->validate([
+            'label'       => 'required|string|max:255',
+            'type'        => 'required|in:text,email,tel,textarea,checkbox,select',
+            'placeholder' => 'nullable|string|max:255',
+            'options'     => 'nullable|string', // virgülle ayrılmış select seçenekleri
+            'is_required' => 'boolean',
+        ]);
+
+        // Sort order: en sondaki alanın +1'i
+        $maxOrder = $club->allFormFields()->max('sort_order') ?? 0;
+        $validated['sort_order'] = $maxOrder + 1;
+        $validated['club_id'] = $club->id;
+        $validated['is_required'] = $request->boolean('is_required');
+
+        // Options'ı JSON array'e çevir
+        if (!empty($validated['options'])) {
+            $validated['options'] = array_map('trim', explode(',', $validated['options']));
+        } else {
+            $validated['options'] = null;
+        }
+
+        ClubFormField::create($validated);
+
+        return back()->with('success', 'Form alanı başarıyla eklendi.');
+    }
+
+    /**
+     * Form alanını güncelle
+     */
+    public function updateFormField(Request $request, ClubFormField $field)
+    {
+        if (auth()->user()->isEditor() && $field->club_id != auth()->user()->club_id) {
+            abort(403, 'Bu form alanını düzenleme yetkiniz yok.');
+        }
+
+        $validated = $request->validate([
+            'label'       => 'required|string|max:255',
+            'type'        => 'required|in:text,email,tel,textarea,checkbox,select',
+            'placeholder' => 'nullable|string|max:255',
+            'options'     => 'nullable|string',
+            'is_required' => 'boolean',
+            'is_active'   => 'boolean',
+        ]);
+
+        $validated['is_required'] = $request->boolean('is_required');
+        $validated['is_active'] = $request->boolean('is_active');
+
+        if (!empty($validated['options'])) {
+            $validated['options'] = array_map('trim', explode(',', $validated['options']));
+        } else {
+            $validated['options'] = null;
+        }
+
+        $field->update($validated);
+
+        return back()->with('success', 'Form alanı güncellendi.');
+    }
+
+    /**
+     * Form alanını sil
+     */
+    public function destroyFormField(ClubFormField $field)
+    {
+        if (auth()->user()->isEditor() && $field->club_id != auth()->user()->club_id) {
+            abort(403, 'Bu form alanını silme yetkiniz yok.');
+        }
+
+        $field->delete();
+        return back()->with('success', 'Form alanı silindi.');
+    }
+
+    /**
+     * Form alanlarını yeniden sırala
+     */
+    public function reorderFormFields(Request $request, Club $club)
+    {
+        if (auth()->user()->isEditor() && $club->id != auth()->user()->club_id) {
+            abort(403, 'Bu form alanlarını sıralama yetkiniz yok.');
+        }
+
+        $request->validate([
+            'order'   => 'required|array',
+            'order.*' => 'integer|exists:club_form_fields,id',
+        ]);
+
+        foreach ($request->order as $index => $fieldId) {
+            ClubFormField::where('id', $fieldId)
+                ->where('club_id', $club->id)
+                ->update(['sort_order' => $index + 1]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Varsayılan form alanlarını oluştur
+     */
+    public function createDefaultFormFields(Club $club)
+    {
+        if (auth()->user()->isEditor() && $club->id != auth()->user()->club_id) {
+            abort(403, 'Bu kulübe varsayılan alanları ekleme yetkiniz yok.');
+        }
+
+        ClubFormField::createDefaultFields($club->id);
+        return back()->with('success', 'Varsayılan form alanları oluşturuldu.');
+    }
+}

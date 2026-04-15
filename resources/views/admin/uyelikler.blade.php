@@ -155,5 +155,74 @@
             document.getElementById('assignment-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
+
+        // Form Data Modal Functions
+        function showFormDataModal(memberId, studentName, jsonData) {
+            document.getElementById('form-data-student-name').textContent = studentName;
+            
+            const container = document.getElementById('form-data-container');
+            container.innerHTML = '';
+            
+            try {
+                const data = JSON.parse(jsonData);
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3';
+                        div.innerHTML = `
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">${item.label}</p>
+                            <p class="text-sm font-semibold text-slate-800">${item.value}</p>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-sm text-slate-500 italic">Bu üye için form verisi bulunamadı.</p>';
+                }
+            } catch (e) {
+                container.innerHTML = '<p class="text-sm text-red-500">Veri okunamadı.</p>';
+            }
+            
+            document.getElementById('form-data-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideFormDataModal() {
+            document.getElementById('form-data-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     </script>
 @endpush
+
+{{-- Form Data Modal --}}
+<div id="form-data-modal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="hideFormDataModal()"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                        <span class="material-symbols-outlined rounded">description</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Başvuru Formu</h3>
+                        <p class="text-xs text-slate-500"><span id="form-data-student-name" class="font-semibold text-slate-700"></span> adlı öğrencinin verileri</p>
+                    </div>
+                </div>
+                <button onclick="hideFormDataModal()" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto" id="form-data-container">
+                {{-- Data will be populated here via JS --}}
+            </div>
+            
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 shrink-0 bg-slate-50">
+                <button type="button" onclick="hideFormDataModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-xl transition-colors">
+                    Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

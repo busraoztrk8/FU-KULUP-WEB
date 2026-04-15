@@ -15,4 +15,9 @@ class ClubMember extends Model
 
     public function club() { return $this->belongsTo(Club::class); }
     public function user() { return $this->belongsTo(User::class); }
+
+    public function registrationData()
+    {
+        return $this->hasMany(ClubRegistrationData::class);
+    }
 }

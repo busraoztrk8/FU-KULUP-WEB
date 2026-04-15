@@ -281,6 +281,14 @@
                         <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Twitter (X)</label>
                         <input id="edit-twitter-url" name="twitter_url" type="url" placeholder="https://twitter.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
                     </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">WhatsApp Grup Linki <span class="text-green-500">(Üyelere Özel)</span></label>
+                        <input id="edit-whatsapp-url" name="whatsapp_url" type="url" placeholder="https://chat.whatsapp.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1 text-[11px] uppercase tracking-wider text-slate-400">Kanal / Grup Linki <span class="text-blue-500">(Üyelere Özel)</span></label>
+                        <input id="edit-channel-url" name="channel_url" type="url" placeholder="https://t.me/... veya başka link" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:bg-white transition-all"/>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Açıklama</label>
@@ -545,7 +553,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            {data: 'id', name: 'id', className: 'text-center text-slate-600 font-medium'},
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
             {data: 'club_info', name: 'club_info', orderable: false, searchable: false},
             {data: 'category_name', name: 'category.name'},
             {data: 'president_name', name: 'president.name'},
@@ -645,7 +653,18 @@ function hideKulupEkle() {
 }
 // Hata varsa modalı otomatik aç
 @if($errors->any())
-document.addEventListener('DOMContentLoaded', function() { showKulupEkle(); });
+document.addEventListener('DOMContentLoaded', function() {
+    @if(auth()->user()->isAdmin())
+        showKulupEkle();
+    @else
+        {{-- Editör için: son düzenlenen kulübü aç --}}
+        @if(session('edit_club_id'))
+            showKulupDuzenle({{ session('edit_club_id') }});
+        @elseif(auth()->user()->club_id)
+            showKulupDuzenle({{ auth()->user()->club_id }});
+        @endif
+    @endif
+});
 @endif
 function showKulupDetay(id, adi) {
     document.getElementById('detay-kulup-adi').textContent = adi;
@@ -736,6 +755,8 @@ function showKulupDuzenle(id) {
             document.getElementById('edit-instagram-url').value = data.instagram_url || '';
             document.getElementById('edit-youtube-url').value = data.youtube_url || '';
             document.getElementById('edit-twitter-url').value = data.twitter_url || '';
+            if(document.getElementById('edit-whatsapp-url')) document.getElementById('edit-whatsapp-url').value = data.whatsapp_url || '';
+            if(document.getElementById('edit-channel-url')) document.getElementById('edit-channel-url').value = data.channel_url || '';
 
             // Yeni alanlar
             if(document.getElementById('edit-mission')) document.getElementById('edit-mission').value = data.mission || '';

@@ -19,9 +19,25 @@
             
             <div class="relative z-10">
                 <div class="flex flex-col md:flex-row items-center gap-6 md:gap-10 mb-10">
-                    <div class="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-primary to-[#8b1d35] rounded-[2rem] flex items-center justify-center text-white shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
-                        <span class="material-symbols-outlined text-4xl md:text-5xl">person</span>
+                    {{-- Profil Fotoğrafı --}}
+                    <div class="relative group/photo shrink-0">
+                        <div class="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] overflow-hidden shadow-xl shadow-primary/20">
+                            @if($user->profile_photo)
+                                <img src="{{ asset('storage/' . $user->profile_photo) }}" id="photo-preview"
+                                     class="w-full h-full object-cover" alt="">
+                            @else
+                                <div id="photo-placeholder" class="w-full h-full bg-gradient-to-br from-primary to-[#8b1d35] flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-white text-4xl md:text-5xl">person</span>
+                                </div>
+                                <img src="" id="photo-preview" class="w-full h-full object-cover hidden" alt="">
+                            @endif
+                        </div>
+                        {{-- Fotoğraf değiştir butonu --}}
+                        <label for="photo-input" class="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#8b1d35] transition-colors" title="Fotoğraf Değiştir">
+                            <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                        </label>
                     </div>
+
                     <div class="text-center md:text-left">
                         <div class="inline-block px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tighter rounded-full mb-3">
                             {{ auth()->user()->role ? auth()->user()->role->label : 'Öğrenci' }}
@@ -30,6 +46,17 @@
                         <p class="text-on-surface-variant font-medium opacity-70">{{ $user->email }}</p>
                     </div>
                 </div>
+
+                {{-- Gizli fotoğraf yükleme formu --}}
+                @if(session('photo_success'))
+                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-medium flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ session('photo_success') }}
+                </div>
+                @endif
+                <form id="photo-form" action="{{ route('profile.photo') }}" method="POST" enctype="multipart/form-data" class="hidden">
+                    @csrf
+                    <input type="file" id="photo-input" name="profile_photo" accept="image/*" class="hidden">
+                </form>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-10 border-t border-black/5">
                     <!-- Dynamic Clubs List -->
@@ -120,3 +147,22 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.getElementById('photo-input').addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('photo-preview');
+            const placeholder = document.getElementById('photo-placeholder');
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            if (placeholder) placeholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(this.files[0]);
+        document.getElementById('photo-form').submit();
+    }
+});
+</script>
+@endpush

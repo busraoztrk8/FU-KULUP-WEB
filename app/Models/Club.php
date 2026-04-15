@@ -28,6 +28,8 @@ class Club extends Model
         'youtube_url',
         'twitter_url',
         'facebook_url',
+        'whatsapp_url',
+        'channel_url',
         'mission',
         'vision',
         'activities',
@@ -100,5 +102,21 @@ class Club extends Model
     public function documents()
     {
         return $this->hasMany(ClubDocument::class);
+    }
+
+    /**
+     * Get the form fields for the club.
+     */
+    public function formFields()
+    {
+        return $this->hasMany(ClubFormField::class)->where('is_active', true)->orderBy('sort_order');
+    }
+
+    /**
+     * Get all form fields (including inactive) for admin management.
+     */
+    public function allFormFields()
+    {
+        return $this->hasMany(ClubFormField::class)->orderBy('sort_order');
     }
 }

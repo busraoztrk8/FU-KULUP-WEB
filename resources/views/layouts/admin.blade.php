@@ -22,7 +22,7 @@
 
 <div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
-    <aside id="admin-sidebar" class="admin-sidebar shrink-0 hidden lg:block overflow-y-auto -translate-x-full lg:translate-x-0">
+    <aside id="admin-sidebar" class="admin-sidebar shrink-0 hidden lg:flex flex-col h-full">
         @include('admin.partials.sidebar', ['page' => $page ?? 'dashboard'])
     </aside>
     

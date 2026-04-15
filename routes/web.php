@@ -59,6 +59,8 @@ Route::get('/kulupler/{slug}', function ($slug) {
     $club = \App\Models\Club::with([
         'category',
         'president',
+        'formFields',
+        'images',
         'events' => function ($q) {
             $q->where('status', 'published')->latest()->take(4);
         }
@@ -67,7 +69,13 @@ Route::get('/kulupler/{slug}', function ($slug) {
         ->where('is_active', true)
         ->firstOrFail();
 
-    return view('kulup-detay', compact('club'));
+    $membership = auth()->check()
+        ? \App\Models\ClubMember::where('club_id', $club->id)
+            ->where('user_id', auth()->id())
+            ->first()
+        : null;
+
+    return view('kulup-detay', compact('club', 'membership'));
 })->name('kulup.detay');
 
 Route::get('/kulupler/{slug}/galeri', function ($slug) {
@@ -86,6 +94,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Kulüp kayıt
@@ -131,6 +140,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::post('/kulup-dosyalari', [ClubController::class, 'storeDocument'])->name('kulupler.dosyalar.store');
     Route::delete('/kulup-dosyalari/{document}', [ClubController::class, 'destroyDocument'])->name('kulupler.dosyalar.destroy');
 
+    // Kulüp Kayıt Formu Alanları Yönetimi
+    Route::get('/kulupler/{club}/form-alanlari', [ClubController::class, 'formFields'])->name('kulupler.form-alanlari');
+    Route::post('/kulupler/{club}/form-alanlari', [ClubController::class, 'storeFormField'])->name('kulupler.form-alanlari.store');
+    Route::put('/form-alanlari/{field}', [ClubController::class, 'updateFormField'])->name('kulupler.form-alanlari.update');
+    Route::delete('/form-alanlari/{field}', [ClubController::class, 'destroyFormField'])->name('kulupler.form-alanlari.destroy');
+    Route::post('/kulupler/{club}/form-alanlari/reorder', [ClubController::class, 'reorderFormFields'])->name('kulupler.form-alanlari.reorder');
+    Route::post('/kulupler/{club}/form-alanlari/varsayilan', [ClubController::class, 'createDefaultFormFields'])->name('kulupler.form-alanlari.varsayilan');
+
     // Genel Üyelik Yönetimi (Onarım)
     Route::get('/uyeler', [\App\Http\Controllers\Admin\MembershipController::class, 'index'])->name('members.index');
     Route::post('/uyeler', [\App\Http\Controllers\Admin\MembershipController::class, 'store'])->name('members.store');
@@ -146,6 +163,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
 
     // Users
     Route::get('/kullanicilar/search', [UserController::class, 'search'])->name('kullanicilar.search');
+    Route::get('/kullanicilar/export', [UserController::class, 'export'])->name('kullanicilar.export');
     Route::get('/kullanicilar', [UserController::class, 'index'])->name('kullanicilar');
     Route::post('/kullanicilar', [UserController::class, 'store'])->name('kullanicilar.store');
     Route::put('/kullanicilar/{user}', [UserController::class, 'update'])->name('kullanicilar.update');

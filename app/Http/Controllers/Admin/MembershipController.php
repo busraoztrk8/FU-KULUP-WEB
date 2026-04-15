@@ -14,7 +14,7 @@ class MembershipController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = ClubMember::with(['club', 'user'])->latest();
+            $query = ClubMember::with(['club', 'user', 'registrationData.formField'])->latest();
             
             // Eğer kullanıcı admin değilse (editörse), sadece kendi kulübünün üyelerini görsün
             if (!auth()->user()->isAdmin()) {
@@ -52,14 +52,35 @@ class MembershipController extends Controller
                 })
                 ->addColumn('action', function ($member) {
                     $html = '<div class="flex items-center justify-end gap-2">';
+                    
+                    // Form Verisi Butonu
+                    if ($member->registrationData && $member->registrationData->count() > 0) {
+                        $registrationJson = htmlspecialchars(json_encode(
+                            $member->registrationData->map(function($data) {
+                                return [
+                                    'label' => $data->formField ? $data->formField->label : 'Bilinmeyen Alan',
+                                    'value' => $data->value
+                                ];
+                            })
+                        ), ENT_QUOTES, 'UTF-8');
+                        
+                        $html .= '<button onclick="showFormDataModal('.$member->id.', \''.e(addslashes($member->user->name ?? 'Bilinmiyor')).'\', \''.$registrationJson.'\')" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Form Verisini Gör">
+                                    <span class="material-symbols-outlined text-[16px]">description</span>
+                                  </button>';
+                    }
+
                     if ($member->status == 'pending') {
                         $html .= '<form action="' . route('admin.members.approve', $member) . '" method="POST">
                                     ' . csrf_field() . '
-                                    <button type="submit" class="h-8 px-3 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-all active:scale-95">Onayla</button>
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors border border-green-100" title="Onayla">
+                                        <span class="material-symbols-outlined text-[16px]">check</span>
+                                    </button>
                                   </form>';
                         $html .= '<form action="' . route('admin.members.reject', $member) . '" method="POST">
                                     ' . csrf_field() . '
-                                    <button type="submit" class="h-8 px-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-bold transition-all active:scale-95">Reddet</button>
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Reddet">
+                                        <span class="material-symbols-outlined text-[16px]">close</span>
+                                    </button>
                                   </form>';
                     }
                     $html .= '<form action="' . route('admin.members.destroy', $member) . '" method="POST" onsubmit="return confirm(\'Bu kaydı silmek istediğinize emin misiniz?\')">
@@ -106,15 +127,28 @@ class MembershipController extends Controller
 
     public function approve(ClubMember $member)
     {
-        $member->update([
-            'status' => 'approved',
-            'approved_at' => now()
-        ]);
+        if (auth()->user()->isEditor() && $member->club_id != auth()->user()->club_id) {
+            abort(403, 'Yetkiniz yok.');
+        }
+
+        if ($member->status !== 'approved') {
+            $member->update([
+                'status' => 'approved',
+                'approved_at' => now()
+            ]);
+        }
         return back()->with('success', 'Üyelik onaylandı.');
     }
 
     public function reject(ClubMember $member)
     {
+        if (auth()->user()->isEditor() && $member->club_id != auth()->user()->club_id) {
+            abort(403, 'Yetkiniz yok.');
+        }
+
+        if ($member->status === 'approved') {
+            $member->club->decrement('member_count');
+        }
         $member->update([
             'status' => 'rejected'
         ]);
@@ -123,6 +157,13 @@ class MembershipController extends Controller
 
     public function destroy(ClubMember $member)
     {
+        if (auth()->user()->isEditor() && $member->club_id != auth()->user()->club_id) {
+            abort(403, 'Yetkiniz yok.');
+        }
+
+        if ($member->status === 'approved') {
+            $member->club->decrement('member_count');
+        }
         $member->delete();
         return back()->with('success', 'Kayıt silindi.');
     }

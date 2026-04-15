@@ -12,6 +12,47 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
+    public function export(Request $request)
+    {
+        $query = User::with(['role', 'club'])->orderBy('name');
+
+        if ($request->filled('role_id')) {
+            $query->where('role_id', $request->role_id);
+        }
+
+        $users = $query->get();
+
+        $filename = 'kullanicilar_' . now()->format('Y-m-d_H-i') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($users) {
+            $file = fopen('php://output', 'w');
+            // UTF-8 BOM — Excel'de Türkçe karakter sorunu olmasın
+            fputs($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, ['Ad Soyad', 'E-posta', 'Rol', 'Kulüp', 'Kayıt Tarihi', 'Durum'], ';');
+
+            foreach ($users as $user) {
+                fputcsv($file, [
+                    $user->name,
+                    $user->email,
+                    $user->role?->label ?? '-',
+                    $user->club?->name ?? '-',
+                    $user->created_at->format('d.m.Y H:i'),
+                    $user->email_verified_at ? 'Aktif' : 'Onay Bekliyor',
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function search(Request $request)
     {
         $term = $request->input('q');
@@ -101,6 +142,13 @@ class UserController extends Controller
                     
                     return '<div class="flex items-center justify-end gap-1.5">'.$editBtn.$deleteBtn.'</div>';
                 })
+                ->filterColumn('user_info', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('users.name', 'LIKE', "%{$keyword}%")
+                          ->orWhere('users.email', 'LIKE', "%{$keyword}%")
+                          ->orWhere('users.student_number', 'LIKE', "%{$keyword}%");
+                    });
+                })
                 ->rawColumns(['user_info', 'role_name', 'club_name', 'date', 'status', 'action'])
                 ->make(true);
         }
@@ -130,6 +178,7 @@ class UserController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['email_verified_at'] = now();
 
         // Tek Admin Kontrolü
         $adminRole = Role::where('name', 'admin')->first();
@@ -148,15 +197,11 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
-            'email'   => 'required|email|unique:users,email,' . $user->id,
             'role_id' => 'required|exists:roles,id',
             'club_id' => 'nullable|exists:clubs,id',
         ]);
 
-        if ($request->filled('password')) {
-            $request->validate(['password' => 'string|min:8']);
-            $validated['password'] = Hash::make($request->password);
-        }
+        // E-posta ve şifre admin tarafından değiştirilemez
 
         // Tek Admin Kontrolü
         $adminRole = Role::where('name', 'admin')->first();

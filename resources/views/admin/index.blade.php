@@ -104,7 +104,7 @@
 </div>
 
 <!-- 3 Column Lists -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-stretch">
 
     <!-- Haberler -->
     <div class="admin-card p-0 flex flex-col h-full overflow-hidden">
@@ -141,7 +141,7 @@
                 <span class="material-symbols-outlined text-slate-400">event</span>
                 <h3 class="font-bold font-headline text-slate-800 text-[16px]">Son Etkinlikler</h3>
             </div>
-            <button onclick="window.location.href='{{ route('admin.etkinlikler') }}'" class="bg-tertiary hover:bg-[#0494c7] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm">+ Ekle</button>
+            <a href="{{ route('admin.etkinlikler') }}" class="bg-primary hover:bg-primary-dim text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm">+ Yönet</a>
         </div>
         <div class="p-6 space-y-4 overflow-y-auto flex-1">
             @forelse($recentEvents as $event)
@@ -162,13 +162,13 @@
 
     @if(auth()->user()->isEditor())
     <!-- Son Üyelik Başvuruları (Editor Only) -->
-    <div class="admin-card p-0 flex flex-col h-full overflow-hidden border-primary/20 bg-primary/[0.02]">
+    <div class="admin-card p-0 flex flex-col h-full overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b border-slate-100 shrink-0">
             <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">person_add</span>
+                <span class="material-symbols-outlined text-slate-400">person_add</span>
                 <h3 class="font-bold font-headline text-slate-800 text-[16px]">Son Üyelik Başvuruları</h3>
             </div>
-            <a href="{{ route('admin.members.index') }}" class="text-primary text-xs font-bold hover:underline">Tümünü Gör</a>
+            <a href="{{ route('admin.members.index') }}" class="bg-primary hover:bg-primary-dim text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm">Tümünü Gör</a>
         </div>
         <div class="p-6 space-y-4 overflow-y-auto flex-1">
             @forelse($recentMembers as $member)
@@ -208,7 +208,7 @@
                 <span class="material-symbols-outlined text-slate-400">campaign</span>
                 <h3 class="font-bold font-headline text-slate-800 text-[16px]">Son Duyurular</h3>
             </div>
-            <a href="{{ route('admin.duyurular') }}" class="bg-secondary hover:bg-[#b06cf0] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm">+ Yönet</a>
+            <a href="{{ route('admin.duyurular') }}" class="bg-primary hover:bg-primary-dim text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm">+ Yönet</a>
         </div>
         <div class="p-6 space-y-4 overflow-y-auto flex-1">
             @forelse($recentAnnouncements as $announcement)

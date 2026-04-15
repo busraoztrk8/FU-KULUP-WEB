@@ -16,7 +16,7 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        $user = $request->user();
+        $user = $request->user()->fresh();
 
         if ($user->hasRole('student')) {
             $user->load([
@@ -27,6 +27,30 @@ class ProfileController extends Controller
         }
 
         return view('profile.edit', compact('user'));
+    }
+
+    /**
+     * Update the user's profile photo.
+     */
+    public function updatePhoto(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'profile_photo' => 'required|image|max:2048',
+        ]);
+
+        $user = $request->user();
+
+        if ($user->profile_photo) {
+            \Storage::disk('public')->delete($user->profile_photo);
+        }
+
+        $path = $request->file('profile_photo')->store('profile-photos', 'public');
+        $user->update(['profile_photo' => $path]);
+
+        // Auth cache'ini yenile
+        auth()->setUser($user->fresh());
+
+        return back()->with('photo_success', 'Profil fotoğrafınız güncellendi.');
     }
 
     /**

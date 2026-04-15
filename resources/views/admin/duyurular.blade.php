@@ -181,7 +181,7 @@ $(document).ready(function() {
         serverSide: true,
         ajax: "{{ route('admin.duyurular') }}",
         columns: [
-            {data: 'id', name: 'id', className: 'text-center text-slate-600 font-medium'},
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
             {data: 'announcement_info', name: 'title'},
             {data: 'club_name', name: 'club.name', orderable: false},
             {data: 'status', name: 'status', orderable: false, searchable: false},

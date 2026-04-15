@@ -9,6 +9,10 @@ use App\Models\EventRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\ClubFormField;
+use App\Models\ClubRegistrationData;
+use Illuminate\Support\Facades\DB;
+
 class KayitController extends Controller
 {
     public function __construct()
@@ -31,21 +35,97 @@ class KayitController extends Controller
             return back()->with('info', 'Bu kulübe zaten başvurdunuz. Durum: ' . $this->statusLabel($existing->status));
         }
 
-        $request->validate([
-            'message' => 'nullable|string|max:500',
-        ]);
+        // Dinamik form alanlarını validate et
+        $formFields = $club->formFields;
+        $rules = [];
+        foreach ($formFields as $field) {
+            $key = 'field_' . $field->id;
+            $fieldRules = [];
 
-        ClubMember::create([
-            'club_id' => $club->id,
-            'user_id' => $user->id,
-            'status'  => 'pending',
-            'message' => $request->message,
-        ]);
+            if ($field->is_required) {
+                if ($field->type === 'checkbox') {
+                    $fieldRules[] = 'accepted';
+                } else {
+                    $fieldRules[] = 'required';
+                }
+            } else {
+                $fieldRules[] = 'nullable';
+            }
 
-        // Üye sayısını güncelle (pending dahil)
-        $club->increment('member_count');
+            if ($field->type === 'email') {
+                $fieldRules[] = 'email';
+            }
+            if (in_array($field->type, ['text', 'email'])) {
+                // Sayısal alan değilse string kuralı ekle
+                $isNumericField = str_contains(strtolower($field->label), 'numara') ||
+                                  str_contains(strtolower($field->label), 'no');
+                if (!$isNumericField) {
+                    $fieldRules[] = 'string';
+                    $fieldRules[] = 'max:500';
+                }
+            }
+            if ($field->type === 'tel') {
+                $fieldRules[] = 'digits_between:10,11';
+            }
+            // Öğrenci numarası gibi "numara" içeren text alanları sayısal olmalı
+            if ($field->type === 'text' && (
+                str_contains(strtolower($field->label), 'numara') ||
+                str_contains(strtolower($field->label), 'no')
+            )) {
+                $fieldRules[] = 'numeric';
+            }
+            if ($field->type === 'textarea') {
+                $fieldRules[] = 'string';
+                $fieldRules[] = 'max:2000';
+            }
 
-        return back()->with('success', '"' . $club->name . '" kulübüne başvurunuz alındı! Onay bekleniyor.');
+            $rules[$key] = $fieldRules;
+        }
+
+        // Alan adlarını Türkçe göster (field_X yerine label)
+        $attributes = [];
+        foreach ($formFields as $field) {
+            $attributes['field_' . $field->id] = $field->label;
+        }
+
+        $validated = $request->validate($rules, [], $attributes);
+
+        try {
+            return DB::transaction(function () use ($club, $user, $formFields, $request) {
+                // Üyelik kaydı oluştur
+                $member = ClubMember::create([
+                    'club_id' => $club->id,
+                    'user_id' => $user->id,
+                    'status'  => 'pending',
+                    'message' => 'Form ile başvuru yapıldı.',
+                ]);
+
+                // Form verilerini kaydet
+                foreach ($formFields as $field) {
+                    $key = 'field_' . $field->id;
+                    $value = $request->input($key);
+
+                    // Checkbox ise "Evet" / "Hayır" olarak kaydet
+                    if ($field->type === 'checkbox') {
+                        $value = $value ? 'Evet' : 'Hayır';
+                    }
+
+                    ClubRegistrationData::create([
+                        'club_member_id'      => $member->id,
+                        'club_form_field_id'  => $field->id,
+                        'value'               => $value,
+                    ]);
+                }
+
+                // Üye sayısını güncelle
+                $club->increment('member_count');
+
+                return back()->with('success', '"' . $club->name . '" kulübüne başvurunuz alındı! Onay bekleniyor.');
+            });
+        } catch (\Exception $e) {
+            \Log::error("Club Registration Error: " . $e->getMessage());
+            return back()->withInput()->with('error', 'Başvuru sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+        }
     }
 
     public function kulupAyril(Club $club)

@@ -27,7 +27,7 @@
 
     <nav class="flex-1 py-4 overflow-y-auto overflow-x-hidden">
         <p class="px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">Ana Menü</p>
-        <x-admin-sidebar-link id="dashboard"     icon="dashboard" label="Dashboard"          href="{{ route('admin.index') }}"       :current="$currentPage" />
+        <x-admin-sidebar-link id="dashboard"     icon="dashboard" label="Anasayfa"          href="{{ route('admin.index') }}"       :current="$currentPage" />
 
         <p class="px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-6">İçerik Yönetimi</p>
         <x-admin-sidebar-link id="news"          icon="article"   label="Haberler"           href="{{ route('admin.haberler') }}"    :current="$currentPage" />
@@ -39,7 +39,7 @@
         <x-admin-sidebar-link id="my_club"      icon="edit_square" label="Kulübüm"          href="{{ route('admin.kulupler') }}"    :current="$currentPage" />
         @endif
         
-        <x-admin-sidebar-link id="members"       icon="how_to_reg" label="Üyelik Yönetimi"    href="{{ route('admin.members.index') }}"    :current="$currentPage" />
+        <x-admin-sidebar-link id="members"       icon="how_to_reg" label="Üyelik Yönetimi"    href="{{ auth()->user()->isEditor() && auth()->user()->club_id ? route('admin.kulupler.uyeler', auth()->user()->club_id) : route('admin.members.index') }}"    :current="$currentPage" />
         
         @if(auth()->user()->isAdmin())
         <x-admin-sidebar-link id="slider"        icon="image"     label="Slider Yönetimi"    href="{{ route('admin.slider') }}"      :current="$currentPage" />

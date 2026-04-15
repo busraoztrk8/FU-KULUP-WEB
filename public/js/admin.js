@@ -14,14 +14,14 @@
         if (toggle && sidebar) {
             toggle.addEventListener('click', function () {
                 sidebar.classList.toggle('hidden');
-                sidebar.classList.toggle('-translate-x-full');
+                sidebar.classList.toggle('sidebar-open');
                 if (overlay) overlay.classList.toggle('hidden');
             });
         }
         
         if (overlay) {
             overlay.addEventListener('click', function () {
-                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('hidden');
                 overlay.classList.add('hidden');
             });

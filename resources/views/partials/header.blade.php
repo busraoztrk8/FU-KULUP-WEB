@@ -1,6 +1,6 @@
 <!-- Header -->
 <header id="main-nav"
-    class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5 transition-all duration-300">
+    class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5">
     <nav class="flex justify-between items-center px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto">
 
         <!-- Logo / Branding -->
@@ -19,7 +19,7 @@
                 @if($menu->children->count() > 0)
                     <div class="relative group">
                         <button
-                            class="flex items-center gap-1 nav-link text-on-surface opacity-70 group-hover:text-primary transition-all">
+                            class="flex items-center gap-1 nav-link text-slate-500 hover:text-primary transition-colors">
                             {{ $menu->label }}
                             <span
                                 class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
@@ -69,7 +69,7 @@
                     </div>
                 @else
                     <a href="{{ $menu->url }}" target="{{ $menu->target }}"
-                        class="nav-link {{ request()->url() == url($menu->url) ? 'active text-primary' : 'text-on-surface opacity-70' }}">
+                        class="nav-link {{ request()->url() == url($menu->url) ? 'active text-primary' : 'text-slate-500' }}">
                         {{ $menu->label }}
                     </a>
                 @endif
@@ -133,6 +133,7 @@
                     <span
                         class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors hidden sm:inline">account_circle</span>
                 @endauth
+            </div>
 
             @guest
                 <a href="{{ route('register') }}"

@@ -4,69 +4,116 @@
 @section('page_title', 'Profil Ayarları')
 
 @section('content')
-<div class="max-w-4xl space-y-6">
-    @if(auth()->user()->hasRole('student'))
-    <!-- Student Information View (Read-Only for CAS Integration) -->
-    <div class="p-6 sm:p-10 bg-white border border-slate-100 shadow-sm sm:rounded-3xl">
-        <div class="flex items-center gap-4 mb-8">
-            <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-                <span class="material-symbols-outlined text-3xl">account_circle</span>
+<div class="max-w-2xl space-y-6">
+
+    @if(session('photo_success'))
+    <div class="p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ session('photo_success') }}
+    </div>
+    @endif
+
+    @if(session('status') === 'profile-updated')
+    <div class="p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">check_circle</span>Profil bilgileri güncellendi.
+    </div>
+    @endif
+
+    {{-- Profil Kartı --}}
+    <div class="admin-card shadow-sm">
+
+        {{-- Fotoğraf + İsim --}}
+        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-8 pb-8 border-b border-slate-100">
+            <div class="relative shrink-0">
+                <div class="w-24 h-24 rounded-2xl overflow-hidden bg-primary/10 flex items-center justify-center shadow-sm">
+                    @if($user->profile_photo)
+                        <img src="{{ asset('storage/' . $user->profile_photo) }}"
+                             id="photo-preview" class="w-full h-full object-cover" alt="">
+                    @else
+                        <div id="photo-placeholder" class="w-full h-full bg-primary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-[40px]">account_circle</span>
+                        </div>
+                        <img src="" id="photo-preview" class="w-full h-full object-cover hidden" alt="">
+                    @endif
+                </div>
+                <label for="photo-input" title="Fotoğraf Değiştir"
+                       class="absolute -bottom-2 -right-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-[#8b1d35] transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">photo_camera</span>
+                </label>
+                <form id="photo-form" action="{{ route('profile.photo') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="file" id="photo-input" name="profile_photo" accept="image/*" class="hidden">
+                </form>
             </div>
-            <div>
-                <h2 class="text-2xl font-headline font-bold text-slate-800">Profil Bilgileri</h2>
-                <p class="text-sm text-slate-500">Hesap bilgileriniz üniversite sisteminden otomatik olarak alınmaktadır.</p>
+
+            <div class="text-center sm:text-left">
+                <p class="text-xl font-bold font-headline text-slate-800">{{ $user->name }}</p>
+                <p class="text-sm text-slate-500 mt-0.5">{{ $user->email }}</p>
+                <span class="inline-block mt-2 px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    {{ $user->role?->label ?? 'Kullanıcı' }}
+                </span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="space-y-1">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ad Soyad</label>
-                <p class="text-lg font-medium text-slate-700">{{ auth()->user()->name }}</p>
+        {{-- Ad Güncelleme Formu --}}
+        <form method="POST" action="{{ route('profile.update') }}" class="space-y-5">
+            @csrf @method('PATCH')
+
+            <div>
+                <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Ad Soyad</label>
+                <input id="name" name="name" type="text"
+                       value="{{ old('name', $user->name) }}"
+                       class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                       required>
+                @error('name')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
-            <div class="space-y-1">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">E-posta Adresi</label>
-                <p class="text-lg font-medium text-slate-700">{{ auth()->user()->email }}</p>
-            </div>
-             <div class="space-y-1">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Kayıtlı Kulüp</label>
-                <p class="text-lg font-medium text-slate-700">{{ auth()->user()->club ? auth()->user()->club->name : 'Herhangi bir kulübe üye değilsiniz.' }}</p>
-            </div>
-            <div class="space-y-1">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Hesap Türü</label>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-tighter">
-                        {{ auth()->user()->role ? auth()->user()->role->label : 'Öğrenci' }}
-                    </span>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">E-posta Adresi</label>
+                <div class="w-full bg-slate-100 border border-slate-200 rounded-xl text-sm px-4 py-3 text-slate-500 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-slate-400">lock</span>
+                    {{ $user->email }}
+                    <span class="ml-auto text-[10px] text-slate-400 font-medium">CAS sistemi üzerinden yönetilir</span>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-10 p-4 bg-slate-50 rounded-xl border border-dotted border-slate-200">
-            <p class="text-xs text-slate-500 leading-relaxed flex items-start gap-2">
-                <span class="material-symbols-outlined text-sm mt-0.5">info</span>
-                Bilgilerinizde eksiklik veya hata olduğunu düşünüyorsanız lütfen üniversite öğrenci işleri birimi ile iletişime geçiniz. Bilgileriniz CAS merkezi kimlik doğrulama sistemi üzerinden güncellenmektedir.
+            <div class="pt-2">
+                <button type="submit"
+                        class="px-6 py-2.5 bg-primary hover:bg-[#8b1d35] text-white rounded-xl font-bold text-sm transition-all shadow-sm active:scale-95 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">done</span>
+                    Kaydet
+                </button>
+            </div>
+        </form>
+
+        {{-- CAS Bilgi Notu --}}
+        <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-3">
+            <span class="material-symbols-outlined text-slate-400 text-[18px] shrink-0 mt-0.5">info</span>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                E-posta ve şifre bilgileriniz üniversitenin <strong class="text-slate-600">CAS (Merkezi Kimlik Doğrulama)</strong> sistemi üzerinden yönetilmektedir. Bu bilgileri buradan değiştiremezsiniz.
             </p>
         </div>
     </div>
-    @else
-    <!-- Admin/Editor Form View -->
-    <div class="p-4 sm:p-8 bg-white border border-slate-100 shadow-sm sm:rounded-2xl">
-        <div class="max-w-xl">
-            @include('profile.partials.update-profile-information-form')
-        </div>
-    </div>
 
-    <div class="p-4 sm:p-8 bg-white border border-slate-100 shadow-sm sm:rounded-2xl">
-        <div class="max-w-xl">
-            @include('profile.partials.update-password-form')
-        </div>
-    </div>
-
-    <div class="p-4 sm:p-8 bg-white border border-slate-100 shadow-sm sm:rounded-2xl">
-        <div class="max-w-xl">
-            @include('profile.partials.delete-user-form')
-        </div>
-    </div>
-    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.getElementById('photo-input').addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const preview = document.getElementById('photo-preview');
+            const placeholder = document.getElementById('photo-placeholder');
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            if (placeholder) placeholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(this.files[0]);
+        document.getElementById('photo-form').submit();
+    }
+});
+</script>
+@endpush

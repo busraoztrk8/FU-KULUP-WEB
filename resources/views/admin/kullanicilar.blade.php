@@ -61,8 +61,8 @@
         </select>
     </div>
     <div class="flex items-center gap-3">
-        <button onclick="showToast('Rapor oluşturuluyor...', 'info')" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-all active:scale-95">
-            <span class="material-symbols-outlined text-[18px]">download</span>Dışa Aktar
+        <button id="export-btn" onclick="exportUsers()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-all active:scale-95">
+            <span class="material-symbols-outlined text-[18px]">download</span>Dışa Aktar (CSV)
         </button>
         <button onclick="showKullaniciEkle()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm shadow-primary/10 active:scale-95">
             <span class="material-symbols-outlined text-[18px]">person_add</span>Yeni Kullanıcı
@@ -125,26 +125,29 @@
         <form id="kullanici-duzenle-form" method="POST">
             @csrf @method('PUT')
             <div class="p-6 space-y-4">
+                {{-- Bilgi amaçlı göster, değiştirilemez --}}
+                <div id="edit-kullanici-info-box" class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Hesap Bilgileri</p>
+                    <div class="flex items-center gap-2 text-sm text-slate-700">
+                        <span class="material-symbols-outlined text-[16px] text-slate-400">mail</span>
+                        <span id="edit-kullanici-email-display" class="font-medium"></span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-slate-500">
+                        <span class="material-symbols-outlined text-[16px] text-slate-400">lock</span>
+                        <span class="italic text-xs">Şifre gizli — değiştirilemez</span>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Ad Soyad <span class="text-red-500">*</span></label>
                         <input id="edit-kullanici-adi" name="name" type="text" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">E-Posta <span class="text-red-500">*</span></label>
-                        <input id="edit-kullanici-email" name="email" type="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Rol <span class="text-red-500">*</span></label>
                         <select id="edit-kullanici-rol" name="role_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                             @foreach($roles as $role)
-                                @php
-                                    $isDisabled = ($role->name === 'admin' && $adminExists);
-                                @endphp
-                                <option value="{{ $role->id }}" 
-                                    {{ $isDisabled ? 'disabled' : '' }}>
+                                @php $isDisabled = ($role->name === 'admin' && $adminExists); @endphp
+                                <option value="{{ $role->id }}" {{ $isDisabled ? 'disabled' : '' }}>
                                     {{ $role->label }} {{ $isDisabled ? '(Devre Dışı - Sistemde Admin Mevcut)' : '' }}
                                 </option>
                             @endforeach
@@ -159,10 +162,6 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Yeni Şifre <span class="text-slate-400 font-normal">(boş bırakılırsa değişmez)</span></label>
-                    <input name="password" type="password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
@@ -197,6 +196,10 @@
                         <label class="block text-sm font-bold text-slate-700 mb-2">E-Posta <span class="text-red-500">*</span></label>
                         <input name="email" type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                     </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Öğrenci Numarası</label>
+                    <input name="student_number" type="text" maxlength="20" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Sadece rakam"/>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -290,7 +293,8 @@ $(document).ready(function() {
 
 function showKullaniciDuzenle(id, adi, email, rolId, kulupId) {
     document.getElementById('edit-kullanici-adi').value = adi;
-    document.getElementById('edit-kullanici-email').value = email;
+    document.getElementById('edit-kullanici-email-display').textContent = email;
+    document.getElementById('edit-kullanici-student-number').value = studentNumber || '';
     
     // Admin seçeneğini kontrol et (Eğer düzenlediğimiz kişi adminse seçeneği aktif etmeliyiz)
     const rolSelect = document.getElementById('edit-kullanici-rol');
@@ -316,6 +320,12 @@ function hideKullaniciDuzenle() {
 
 function showKullaniciEkle() {
     document.getElementById('kullanici-ekle-modal').classList.remove('hidden');
+}
+
+function exportUsers() {
+    const roleId = document.getElementById('role-filter')?.value || '';
+    const url = '{{ route("admin.kullanicilar.export") }}' + (roleId ? '?role_id=' + roleId : '');
+    window.location.href = url;
 }
 function hideKullaniciEkle() {
     document.getElementById('kullanici-ekle-modal').classList.add('hidden');
