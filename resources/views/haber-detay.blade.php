@@ -7,7 +7,11 @@
 {{-- Hero --}}
 <section class="relative h-[350px] sm:h-[450px] md:h-[550px] w-full overflow-hidden">
     @if($haber->image_path)
-        <img src="{{ str_starts_with($haber->image_path, 'http') ? $haber->image_path : asset('storage/' . $haber->image_path) }}" alt="{{ $haber->title }}" class="w-full h-full object-cover"/>
+        @php
+            $hPath = $haber->image_path;
+            $hUrl = str_starts_with($hPath, 'http') ? $hPath : (file_exists(public_path('uploads/' . $hPath)) ? asset('uploads/' . $hPath) : asset('storage/' . $hPath));
+        @endphp
+        <img src="{{ $hUrl }}" alt="{{ $haber->title }}" class="w-full h-full object-cover"/>
     @else
         <div class="w-full h-full bg-gradient-to-br from-primary to-primary-dark"></div>
     @endif
@@ -61,7 +65,11 @@
             <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center gap-5">
                 <div class="w-16 h-16 rounded-xl bg-primary flex items-center justify-center shrink-0">
                     @if($haber->club->logo)
-                        <img src="{{ str_starts_with($haber->club->logo, 'http') ? $haber->club->logo : asset('storage/' . $haber->club->logo) }}" class="w-full h-full object-cover rounded-xl" alt="{{ $haber->club->name }}"/>
+                        @php
+                            $cLogo = $haber->club->logo;
+                            $cLogoUrl = str_starts_with($cLogo, 'http') ? $cLogo : (file_exists(public_path('uploads/' . $cLogo)) ? asset('uploads/' . $cLogo) : asset('storage/' . $cLogo));
+                        @endphp
+                        <img src="{{ $cLogoUrl }}" class="w-full h-full object-cover rounded-xl" alt="{{ $haber->club->name }}"/>
                     @else
                         <span class="material-symbols-outlined text-white text-[28px]">groups</span>
                     @endif
@@ -113,7 +121,11 @@
                     <a href="{{ route('haber.detay', $related->slug) }}" class="group flex gap-3 items-start">
                         <div class="w-16 h-12 rounded-lg bg-slate-100 overflow-hidden shrink-0">
                             @if($related->image_path)
-                                <img src="{{ str_starts_with($related->image_path, 'http') ? $related->image_path : asset('storage/' . $related->image_path) }}" class="w-full h-full object-cover" alt=""/>
+                                @php
+                                    $relPath = $related->image_path;
+                                    $relUrl = str_starts_with($relPath, 'http') ? $relPath : (file_exists(public_path('uploads/' . $relPath)) ? asset('uploads/' . $relPath) : asset('storage/' . $relPath));
+                                @endphp
+                                <img src="{{ $relUrl }}" class="w-full h-full object-cover" alt=""/>
                             @else
                                 <div class="w-full h-full flex items-center justify-center">
                                     <span class="material-symbols-outlined text-slate-300 text-[16px]">newspaper</span>
@@ -153,7 +165,11 @@
                 class="group bg-white rounded-2xl overflow-hidden border border-black/5 hover:border-primary/20 hover:shadow-xl transition-all duration-300">
                 <div class="relative h-44 overflow-hidden">
                     @if($s->image_path)
-                        <img src="{{ str_starts_with($s->image_path, 'http') ? $s->image_path : asset('storage/' . $s->image_path) }}" alt="{{ $s->title }}"
+                        @php
+                            $sImgPath = $s->image_path;
+                            $sImgUrl = str_starts_with($sImgPath, 'http') ? $sImgPath : (file_exists(public_path('uploads/' . $sImgPath)) ? asset('uploads/' . $sImgPath) : asset('storage/' . $sImgPath));
+                        @endphp
+                        <img src="{{ $sImgUrl }}" alt="{{ $s->title }}"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
                     @else
                         <div class="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\News;
 use App\Models\Club;
+use Illuminate\Support\Facades\Storage;
 
 class HaberController extends Controller
 {
@@ -13,19 +14,44 @@ class HaberController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $query = News::query();
+                $query = News::leftJoin('clubs', 'news.club_id', '=', 'clubs.id')
+                    ->leftJoin('categories', 'clubs.category_id', '=', 'categories.id')
+                    ->select('news.*')
+                    ->with(['club.category']);
 
                 if (auth()->user()->isEditor()) {
                     $query->where(function($q) {
-                        $q->where('club_id', auth()->user()->club_id)
-                          ->orWhereNull('club_id');
+                        $q->where('news.club_id', auth()->user()->club_id)
+                          ->orWhereNull('news.club_id');
                     });
                 }
 
-                return \Yajra\DataTables\Facades\DataTables::of($query->oldest())
+                // Filter by club
+                if ($request->filled('club_id')) {
+                    $query->where('news.club_id', $request->club_id);
+                }
+
+                // Filter by category (via club)
+                if ($request->filled('category_id')) {
+                    $query->where('clubs.category_id', $request->category_id);
+                }
+
+                return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('news.created_at', 'desc'))
                     ->addIndexColumn()
                     ->addColumn('news_info', function($row) {
-                        $url = $row->image_path ? asset('storage/'.$row->image_path) : asset('images/logo_orj.png');
+                        $url = $row->image_path;
+                        if ($url) {
+                            // Eğer url içinde 'http' yoksa ve 'uploads/' veya 'storage/' ile başlamıyorsa, yeni yapıda olup olmadığını kontrol et
+                            if (!str_starts_with($url, 'http')) {
+                                if (file_exists(public_path('uploads/' . $url))) {
+                                    $url = asset('uploads/' . $url);
+                                } else {
+                                    $url = asset('storage/' . $url);
+                                }
+                            }
+                        } else {
+                            $url = asset('images/logo_orj.png');
+                        }
                         return '<div class="flex items-center gap-3">
                             <div class="w-12 h-10 bg-white border border-slate-100 p-1 flex items-center justify-center rounded-lg shadow-sm shrink-0">
                                 <img src="'.$url.'" class="max-w-full max-h-full object-contain" alt="Görsel">
@@ -35,6 +61,12 @@ class HaberController extends Controller
                     })
                     ->addColumn('club_name', function($row) {
                         return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
+                    })
+                    ->addColumn('category_name', function($row) {
+                        return $row->club && $row->club->category ? '<span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">'.e($row->club->category->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
+                    })
+                    ->addColumn('date', function($row) {
+                        return '<span class="text-slate-500 text-sm">'.$row->created_at->format('d.m.Y').'</span>';
                     })
                     ->addColumn('status', function($row) {
                         $bgToggle = $row->is_published ? 'bg-green-600' : 'bg-slate-200';
@@ -51,21 +83,19 @@ class HaberController extends Controller
                         </div>';
                     })
                     ->addColumn('action', function($row) {
-                        $btn = '<div class="flex items-center justify-start gap-2">';
+                        $btn = '<div class="flex items-center justify-center gap-2">';
                         $btn .= '<button onclick="showHaberDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->title)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
                     })
                     ->filterColumn('news_info', function($query, $keyword) {
-                        $query->where('title', 'like', "%{$keyword}%");
+                        $query->where('news.title', 'like', "%{$keyword}%");
                     })
                     ->filterColumn('club_name', function($query, $keyword) {
-                        $query->whereHas('club', function($q) use ($keyword) {
-                            $q->where('name', 'like', "%{$keyword}%");
-                        });
+                        $query->where('clubs.name', 'like', "%{$keyword}%");
                     })
-                    ->rawColumns(['news_info', 'club_name', 'status', 'action'])
+                    ->rawColumns(['news_info', 'club_name', 'category_name', 'date', 'status', 'action'])
                     ->make(true);
             } catch (\Exception $e) {
                 \Log::error("DataTables Haber Error: " . $e->getMessage());
@@ -92,7 +122,9 @@ class HaberController extends Controller
             'draft' => (clone $statsQuery)->where('is_published', false)->count(),
         ];
 
-        return view('admin.haberler', compact('clubs', 'stats'));
+        $categories = \App\Models\Category::all();
+
+        return view('admin.haberler', compact('clubs', 'stats', 'categories'));
     }
 
     public function store(Request $request)
@@ -106,7 +138,10 @@ class HaberController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('news', 'public');
+            $clubId = auth()->user()->isEditor() ? auth()->user()->club_id : $validated['club_id'];
+            $club = $clubId ? Club::find($clubId) : null;
+            $path = $club ? $club->slug : 'global';
+            $validated['image_path'] = $request->file('image')->store($path . '/news', 'uploads');
         }
 
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
@@ -151,7 +186,19 @@ class HaberController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('news', 'public');
+            // Eski resmi sil
+            if ($news->image_path) {
+                if (Storage::disk('uploads')->exists($news->image_path)) {
+                    Storage::disk('uploads')->delete($news->image_path);
+                } elseif (Storage::disk('public')->exists($news->image_path)) {
+                    Storage::disk('public')->delete($news->image_path);
+                }
+            }
+
+            $clubId = auth()->user()->isEditor() ? auth()->user()->club_id : (isset($validated['club_id']) ? $validated['club_id'] : $news->club_id);
+            $club = $clubId ? Club::find($clubId) : null;
+            $path = $club ? $club->slug : 'global';
+            $validated['image_path'] = $request->file('image')->store($path . '/news', 'uploads');
         }
 
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
@@ -172,6 +219,13 @@ class HaberController extends Controller
             abort(403, 'Bu haberi silme yetkiniz yok.');
         }
 
+        if ($news->image_path) {
+            if (Storage::disk('uploads')->exists($news->image_path)) {
+                Storage::disk('uploads')->delete($news->image_path);
+            } else {
+                Storage::disk('public')->delete($news->image_path);
+            }
+        }
         $news->delete();
         return redirect()->route('admin.haberler')->with('success', 'Haber başarıyla silindi.');
     }

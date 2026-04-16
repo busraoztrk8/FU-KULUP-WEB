@@ -23,22 +23,37 @@ class ClubController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $query = Club::with(['category', 'president']);
+                $query = Club::leftJoin('categories', 'clubs.category_id', '=', 'categories.id')
+                    ->select('clubs.*')
+                    ->with(['category', 'president']);
 
                 if (auth()->user()->isEditor()) {
-                    $query->where('id', auth()->user()->club_id);
+                    $query->where('clubs.id', auth()->user()->club_id);
                 }
 
                 if ($request->filled('category_id') && $request->category_id !== 'all') {
-                    $query->where('category_id', $request->category_id);
+                    $query->where('clubs.category_id', $request->category_id);
                 }
 
-                $data = $query->oldest()->get();
+                if ($request->filled('status') && $request->status !== 'all') {
+                    $query->where('clubs.is_active', $request->status === 'active');
+                }
 
-                return \Yajra\DataTables\Facades\DataTables::of($data)
+                return \Yajra\DataTables\Facades\DataTables::of($query->oldest('clubs.id'))
                     ->addIndexColumn()
                     ->addColumn('club_info', function($row) {
-                        $img = $row->logo ? asset('storage/' . $row->logo) : null;
+                        $img = $row->logo;
+                        if ($img) {
+                            if (!str_starts_with($img, 'http')) {
+                                if (file_exists(public_path('uploads/' . $img))) {
+                                    $img = asset('uploads/' . $img);
+                                } else {
+                                    $img = asset('storage/' . $img);
+                                }
+                            }
+                        } else {
+                            $img = null;
+                        }
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">groups</span></div>';
                         return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . e($row->name) . '</span></div>';
                     })
@@ -70,7 +85,7 @@ class ClubController extends Controller
                         </div>';
                     })
                     ->addColumn('action', function($row) {
-                        $btn = '<div class="flex items-center justify-start gap-2">';
+                        $btn = '<div class="flex items-center justify-center gap-2">';
                         $btn .= '<a href="/admin/kulupler/'.$row->id.'/uyeler" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Üyeler"><span class="material-symbols-outlined text-[16px]">group</span></a>';
                         $btn .= '<a href="/admin/kulupler/'.$row->id.'/form-alanlari" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Kayıt Formu"><span class="material-symbols-outlined text-[16px]">dynamic_form</span></a>';
                         $btn .= '<button onclick="showKulupDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
@@ -81,6 +96,12 @@ class ClubController extends Controller
                         
                         $btn .= '</div>';
                         return $btn;
+                    })
+                    ->filterColumn('club_info', function($query, $keyword) {
+                        $query->where('clubs.name', 'like', "%{$keyword}%");
+                    })
+                    ->filterColumn('category_name', function($query, $keyword) {
+                        $query->where('categories.name', 'like', "%{$keyword}%");
                     })
                     ->rawColumns(['club_info', 'category_name', 'president_name', 'members_count', 'status', 'action'])
                     ->make(true);
@@ -149,10 +170,12 @@ class ClubController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('clubs/logos', 'public');
+            $clubSlug = Str::slug($request->name);
+            $validated['logo'] = $request->file('logo')->store($clubSlug . '/logos', 'uploads');
         }
         if ($request->hasFile('cover_image')) {
-            $validated['cover_image'] = $request->file('cover_image')->store('clubs/covers', 'public');
+            $clubSlug = Str::slug($request->name);
+            $validated['cover_image'] = $request->file('cover_image')->store($clubSlug . '/covers', 'uploads');
         }
 
         try {
@@ -222,10 +245,10 @@ class ClubController extends Controller
         }
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('clubs/logos', 'public');
+            $validated['logo'] = $request->file('logo')->store($club->slug . '/logos', 'uploads');
         }
         if ($request->hasFile('cover_image')) {
-            $validated['cover_image'] = $request->file('cover_image')->store('clubs/covers', 'public');
+            $validated['cover_image'] = $request->file('cover_image')->store($club->slug . '/covers', 'uploads');
         }
 
         try {
@@ -244,7 +267,7 @@ class ClubController extends Controller
                 // Galeri yükleme
                 if ($request->hasFile('gallery')) {
                     foreach ($request->file('gallery') as $image) {
-                        $path = $image->store('clubs/gallery', 'public');
+                        $path = $image->store($club->slug . '/gallery', 'uploads');
                         $club->images()->create(['image_path' => $path]);
                     }
                 }
@@ -458,7 +481,9 @@ class ClubController extends Controller
         }
 
         // Dosyayı sil
-        if (Storage::disk('public')->exists($image->image_path)) {
+        if (Storage::disk('uploads')->exists($image->image_path)) {
+            Storage::disk('uploads')->delete($image->image_path);
+        } elseif (Storage::disk('public')->exists($image->image_path)) {
             Storage::disk('public')->delete($image->image_path);
         }
 
@@ -507,7 +532,7 @@ class ClubController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $fileName = $file->getClientOriginalName();
-            $path = $file->store('clubs/documents/' . $club->id, 'public');
+            $path = $file->store($club->slug . '/documents', 'uploads');
 
             ClubDocument::create([
                 'club_id'   => $club->id,
@@ -533,7 +558,9 @@ class ClubController extends Controller
         }
 
         // Fiziksel dosyayı sil
-        if (Storage::disk('public')->exists($document->file_path)) {
+        if (Storage::disk('uploads')->exists($document->file_path)) {
+            Storage::disk('uploads')->delete($document->file_path);
+        } elseif (Storage::disk('public')->exists($document->file_path)) {
             Storage::disk('public')->delete($document->file_path);
         }
 

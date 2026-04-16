@@ -8,6 +8,7 @@ use App\Models\Club;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
@@ -15,24 +16,47 @@ class EventController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $query = Event::with(['club', 'category']);
+                $query = Event::leftJoin('clubs', 'events.club_id', '=', 'clubs.id')
+                    ->leftJoin('categories', 'events.category_id', '=', 'categories.id')
+                    ->select('events.*')
+                    ->with(['club', 'category']);
 
                 if (auth()->user()->isEditor()) {
                     $query->where(function($q) {
-                        $q->where('club_id', auth()->user()->club_id)
-                          ->orWhereNull('club_id');
+                        $q->where('events.club_id', auth()->user()->club_id)
+                          ->orWhereNull('events.club_id');
                     });
                 }
 
+                // Filter by Status
                 if ($request->filled('status') && $request->status !== 'all') {
-                    $query->where('status', $request->status);
+                    $query->where('events.status', $request->status);
                 }
 
-                return \Yajra\DataTables\Facades\DataTables::of($query->oldest())
+                // Filter by club
+                if ($request->filled('club_id')) {
+                    $query->where('events.club_id', $request->club_id);
+                }
+
+                // Filter by category
+                if ($request->filled('category_id')) {
+                    $query->where('events.category_id', $request->category_id);
+                }
+
+                return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('events.created_at', 'desc'))
                     ->addIndexColumn()
                     ->addColumn('event_info', function($row) {
                         // Title and Image combo for DataTables
-                        $img = $row->image ? asset('storage/' . $row->image) : null;
+                        $img = $row->image;
+                        if ($img) {
+                             if (!str_starts_with($img, 'http')) {
+                                if (file_exists(public_path('uploads/' . $img))) {
+                                    $img = asset('uploads/' . $img);
+                                } else {
+                                    $img = asset('storage/' . $img);
+                                }
+                            }
+                        }
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">event</span></div>';
                         return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . e($row->title) . '</span></div>';
                     })
@@ -71,24 +95,20 @@ class EventController extends Controller
 			    </div>';
                     })
                     ->addColumn('action', function($row) {
-                        $btn = '<div class="flex items-center justify-start gap-2">';
+                        $btn = '<div class="flex items-center justify-center gap-2">';
                         $btn .= '<button onclick="showEtkinlikDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->title)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
                     })
                     ->filterColumn('event_info', function($query, $keyword) {
-                        $query->where('title', 'like', "%{$keyword}%");
+                        $query->where('events.title', 'like', "%{$keyword}%");
                     })
                     ->filterColumn('club_name', function($query, $keyword) {
-                        $query->whereHas('club', function($q) use ($keyword) {
-                            $q->where('name', 'like', "%{$keyword}%");
-                        });
+                        $query->where('clubs.name', 'like', "%{$keyword}%");
                     })
                     ->filterColumn('category_name', function($query, $keyword) {
-                        $query->whereHas('category', function($q) use ($keyword) {
-                            $q->where('name', 'like', "%{$keyword}%");
-                        });
+                        $query->where('categories.name', 'like', "%{$keyword}%");
                     })
                     ->rawColumns(['event_info', 'club_name', 'category_name', 'date', 'participants', 'status', 'action'])
                     ->make(true);
@@ -152,7 +172,8 @@ class EventController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('events', 'public');
+            $club = Club::findOrFail($validated['club_id']);
+            $validated['image'] = $request->file('image')->store($club->slug . '/events', 'uploads');
         }
 
         $event = Event::create($validated);
@@ -191,7 +212,17 @@ class EventController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('events', 'public');
+            // Eski resmi sil
+            if ($event->image) {
+                if (Storage::disk('uploads')->exists($event->image)) {
+                    Storage::disk('uploads')->delete($event->image);
+                } elseif (Storage::disk('public')->exists($event->image)) {
+                    Storage::disk('public')->delete($event->image);
+                }
+            }
+
+            $club = Club::findOrFail($validated['club_id']);
+            $validated['image'] = $request->file('image')->store($club->slug . '/events', 'uploads');
         }
 
         $event->update($validated);
@@ -207,6 +238,13 @@ class EventController extends Controller
             abort(403, 'Bu etkinliği silme yetkiniz yok.');
         }
 
+        if ($event->image) {
+            if (Storage::disk('uploads')->exists($event->image)) {
+                Storage::disk('uploads')->delete($event->image);
+            } else {
+                Storage::disk('public')->delete($event->image);
+            }
+        }
         $event->delete();
         return redirect()->route('admin.etkinlikler')->with('success', 'Etkinlik silindi.');
     }
@@ -241,7 +279,8 @@ class EventController extends Controller
 
                 $imagePath = $speakerData['existing_image'] ?? null;
                 if ($request->hasFile("speakers.{$index}.image")) {
-                    $imagePath = $request->file("speakers.{$index}.image")->store('speakers', 'public');
+                    $clubSlug = $event->club->slug;
+                    $imagePath = $request->file("speakers.{$index}.image")->store($clubSlug . '/speakers', 'uploads');
                 }
 
                 $event->speakers()->create([

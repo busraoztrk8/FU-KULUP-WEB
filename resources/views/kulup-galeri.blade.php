@@ -80,9 +80,13 @@
     @if($club->images->count() > 0)
         <div class="gallery-grid">
             @foreach($club->images as $index => $image)
+                @php
+                    $gPath = $image->image_path;
+                    $gUrl = str_starts_with($gPath, 'http') ? $gPath : (file_exists(public_path('uploads/' . $gPath)) ? asset('uploads/' . $gPath) : asset('storage/' . $gPath));
+                @endphp
                 <div class="gallery-item shadow-sm hover:shadow-2xl border border-slate-100" onclick="openLightbox({{ $index }})">
-                    <img src="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}" 
-                         data-full="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}"
+                    <img src="{{ $gUrl }}" 
+                         data-full="{{ $gUrl }}"
                          class="gallery-thumb" alt="Galeri Görseli">
                     <div class="gallery-overlay">
                         <div class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

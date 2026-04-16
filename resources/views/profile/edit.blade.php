@@ -26,7 +26,11 @@
             <div class="relative shrink-0">
                 <div class="w-24 h-24 rounded-2xl overflow-hidden bg-primary/10 flex items-center justify-center shadow-sm">
                     @if($user->profile_photo)
-                        <img src="{{ asset('storage/' . $user->profile_photo) }}"
+                        @php
+                            $editPhoto = $user->profile_photo;
+                            $editPUrl = str_starts_with($editPhoto, 'http') ? $editPhoto : (file_exists(public_path('uploads/' . $editPhoto)) ? asset('uploads/' . $editPhoto) : asset('storage/' . $editPhoto));
+                        @endphp
+                        <img src="{{ $editPUrl }}"
                              id="photo-preview" class="w-full h-full object-cover" alt="">
                     @else
                         <div id="photo-placeholder" class="w-full h-full bg-primary/10 flex items-center justify-center">

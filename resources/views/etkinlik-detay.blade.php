@@ -7,7 +7,11 @@
 {{-- Hero --}}
 <section class="relative min-h-[380px] sm:min-h-[450px] md:h-[550px] w-full overflow-hidden flex flex-col justify-end">
     @if($event->image)
-        <img src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover"/>
+        @php
+            $ePath = $event->image;
+            $eUrl = str_starts_with($ePath, 'http') ? $ePath : (file_exists(public_path('uploads/' . $ePath)) ? asset('uploads/' . $ePath) : asset('storage/' . $ePath));
+        @endphp
+        <img src="{{ $eUrl }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover"/>
     @else
         <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-primary to-primary-dark"></div>
     @endif
@@ -73,7 +77,11 @@
                     <div class="flex flex-col items-center text-center group">
                         <div class="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-slate-100 mb-2 md:mb-4 transition-transform group-hover:scale-105 group-hover:border-primary shadow-sm">
                             @if($speaker->image)
-                                <img src="{{ asset('storage/' . $speaker->image) }}" alt="{{ $speaker->name }}" class="w-full h-full object-cover">
+                                @php
+                                    $sImg = $speaker->image;
+                                    $sUrl = file_exists(public_path('uploads/' . $sImg)) ? asset('uploads/' . $sImg) : asset('storage/' . $sImg);
+                                @endphp
+                                <img src="{{ $sUrl }}" alt="{{ $speaker->name }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
                                     <span class="material-symbols-outlined text-[32px]">person</span>
@@ -130,7 +138,11 @@
             <div class="bg-slate-50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-5">
                 <div class="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-primary flex items-center justify-center shrink-0">
                     @if($event->club->logo)
-                        <img src="{{ str_starts_with($event->club->logo, 'http') ? $event->club->logo : asset('storage/' . $event->club->logo) }}" class="w-full h-full object-cover rounded-xl" alt="{{ $event->club->name }}"/>
+                        @php
+                            $clbLogo = $event->club->logo;
+                            $clbLogoUrl = str_starts_with($clbLogo, 'http') ? $clbLogo : (file_exists(public_path('uploads/' . $clbLogo)) ? asset('uploads/' . $clbLogo) : asset('storage/' . $clbLogo));
+                        @endphp
+                        <img src="{{ $clbLogoUrl }}" class="w-full h-full object-cover rounded-xl" alt="{{ $event->club->name }}"/>
                     @else
                         <span class="material-symbols-outlined text-white text-[24px] md:text-[28px]">groups</span>
                     @endif
@@ -232,56 +244,11 @@
                 </div>
 
                 @if($event->status === 'published')
-                @auth
-                @php
-                    $registration = \App\Models\EventRegistration::where('event_id', $event->id)
-                        ->where('user_id', auth()->id())
-                        ->first();
-                @endphp
-
-                @if(session('success'))
-                <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">check_circle</span>{{ session('success') }}
-                </div>
-                @endif
-                @if(session('info'))
-                <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 text-sm font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">info</span>{{ session('info') }}
-                </div>
-                @endif
-                @if(session('error'))
-                <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">error</span>{{ session('error') }}
-                </div>
-                @endif
-
-                @if(!$registration || $registration->status === 'cancelled')
-                    <button type="button" onclick="showRegistrationModal()"
+                    <a href="{{ route('kulup.detay', $event->club->slug) }}"
                         class="w-full mt-4 md:mt-6 bg-primary hover:bg-primary-dark text-white py-3 md:py-4 rounded-xl font-bold text-sm md:text-base shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-sm md:text-base">how_to_reg</span>
-                        Kayıt Ol
-                    </button>
-                @elseif($registration->status === 'registered')
-                    <div class="w-full mt-6 bg-green-50 border border-green-200 text-green-700 py-4 rounded-xl font-bold text-sm text-center flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                        Kayıtlısınız
-                    </div>
-                    <form action="{{ route('etkinlik.iptal', $event) }}" method="POST" class="mt-2">
-                        @csrf @method('DELETE')
-                        <button type="submit" onclick="return confirm('Kaydınızı iptal etmek istediğinize emin misiniz?')"
-                            class="w-full py-2.5 border border-red-200 text-red-500 rounded-xl text-sm font-medium hover:bg-red-50 transition-all">
-                            Kaydı İptal Et
-                        </button>
-                    </form>
-                @endif
-
-                @else
-                <a href="{{ route('login') }}"
-                    class="w-full mt-4 md:mt-6 bg-primary hover:bg-primary-dark text-white py-3 md:py-4 rounded-xl font-bold text-sm md:text-base shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-sm md:text-base">login</span>
-                    Giriş Yap ve Kayıt Ol
-                </a>
-                @endauth
+                        <span class="material-symbols-outlined text-sm md:text-base">person_add</span>
+                        Kulübe Üye Ol
+                    </a>
                 @elseif($event->status === 'completed')
                 <div class="w-full mt-6 bg-slate-100 text-slate-500 py-4 rounded-xl font-bold text-base text-center">
                     Etkinlik Tamamlandı
@@ -336,7 +303,11 @@
                 class="group bg-white rounded-2xl overflow-hidden border border-black/5 hover:border-primary/20 hover:shadow-xl transition-all duration-300">
                 <div class="relative h-44 overflow-hidden">
                     @if($s->image)
-                        <img src="{{ asset('storage/' . $s->image) }}" alt="{{ $s->title }}"
+                        @php
+                            $similarImg = $s->image;
+                            $similarUrl = file_exists(public_path('uploads/' . $similarImg)) ? asset('uploads/' . $similarImg) : asset('storage/' . $similarImg);
+                        @endphp
+                        <img src="{{ $similarUrl }}" alt="{{ $s->title }}"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
                     @else
                         <div class="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">

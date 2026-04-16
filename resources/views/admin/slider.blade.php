@@ -23,8 +23,6 @@
     @forelse($sliders as $slider)
     <div class="admin-card p-0 overflow-hidden group">
         <div class="relative h-44 bg-slate-100">
-            <img src="{{ asset('storage/' . $slider->image_path) }}" alt="{{ $slider->title }}"
-                class="w-full h-full object-cover"/>
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             <div class="absolute top-3 right-3">
                 <span class="text-[10px] font-bold px-2 py-1 rounded-full {{ $slider->is_active ? 'bg-green-500 text-white' : 'bg-slate-400 text-white' }}">
@@ -40,7 +38,7 @@
         </div>
         <div class="p-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <button onclick="showSliderDuzenle({{ $slider->id }}, '{{ e(addslashes($slider->title ?? '')) }}', '{{ e(addslashes($slider->subtitle ?? '')) }}', '{{ e(addslashes($slider->button_text ?? '')) }}', '{{ e(addslashes($slider->button_url ?? '')) }}', {{ $slider->order }}, {{ $slider->is_active ? 'true' : 'false' }})"
+                <button onclick="showSliderDuzenle({{ $slider->id }}, '{{ e(addslashes($slider->title ?? '')) }}', '{{ e(addslashes($slider->subtitle ?? '')) }}', '{{ e(addslashes($slider->button_text ?? '')) }}', '{{ e(addslashes($slider->button_url ?? '')) }}', {{ $slider->order }}, {{ $slider->is_active ? 'true' : 'false' }}, '{{ $slider->image_path }}')"
                     class="action-btn text-slate-400 hover:text-primary transition-colors" title="Düzenle">
                     <span class="material-symbols-outlined text-[18px]">edit</span>
                 </button>
@@ -167,6 +165,21 @@
 
 @push('scripts')
 <script>
+/**
+ * Resim yolunu dinamik olarak çözer (uploads veya storage)
+ */
+function resolveImageUrl(path) {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    
+    // Slider resimleri genellikle ana dizinde veya özel klasörde olabilir
+    // Eğer yol '/' içeriyorsa ve bilinen storage klasörleri değilse uploads'tur
+    if (path.includes('/') && !path.startsWith('logos/') && !path.startsWith('covers/') && !path.startsWith('gallery/') && !path.startsWith('profiles/')) {
+        return '/uploads/' + path;
+    }
+    return '/storage/' + path;
+}
+
 function showSliderModal() {
     document.getElementById('slider-modal-title').textContent = 'Yeni Slide Ekle';
     document.getElementById('slider-form').action = '{{ route('admin.slider.store') }}';
@@ -180,7 +193,7 @@ function showSliderModal() {
     document.getElementById('slider-preview').classList.add('hidden');
     document.getElementById('slider-modal').classList.remove('hidden');
 }
-function showSliderDuzenle(id, baslik, altyazi, btnText, btnUrl, sira, aktif) {
+function showSliderDuzenle(id, baslik, altyazi, btnText, btnUrl, sira, aktif, imagePath) {
     document.getElementById('slider-modal-title').textContent = 'Slide Düzenle';
     document.getElementById('slider-form').action = '/admin/slider/' + id;
     document.getElementById('slider-method').value = 'PUT';
@@ -190,6 +203,15 @@ function showSliderDuzenle(id, baslik, altyazi, btnText, btnUrl, sira, aktif) {
     document.getElementById('slider-btn-url').value = btnUrl;
     document.getElementById('slider-sira').value = sira;
     document.getElementById('slider-aktif').checked = aktif;
+
+    if (imagePath) {
+        const preview = document.getElementById('slider-preview');
+        preview.src = resolveImageUrl(imagePath);
+        preview.classList.remove('hidden');
+    } else {
+        document.getElementById('slider-preview').classList.add('hidden');
+    }
+
     document.getElementById('slider-modal').classList.remove('hidden');
 }
 function hideSliderModal() {

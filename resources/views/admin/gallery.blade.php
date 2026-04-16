@@ -41,7 +41,10 @@
     @forelse($images as $image)
     <div class="admin-card p-0 overflow-hidden group border border-slate-100 flex flex-col">
         <div class="relative h-48 bg-slate-100 overflow-hidden">
-            <img src="{{ asset('storage/' . $image->image_path) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="{{ $image->title }}"/>
+            @php
+                $imgUrl = str_starts_with($image->image_path, 'http') ? $image->image_path : (file_exists(public_path('uploads/' . $image->image_path)) ? asset('uploads/' . $image->image_path) : asset('storage/' . $image->image_path));
+            @endphp
+            <img src="{{ $imgUrl }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="{{ $image->title }}"/>
             <div class="absolute top-3 right-3 flex gap-2">
                 @if($image->is_active)
                     <span class="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">Aktif</span>
@@ -102,10 +105,10 @@
                         <div id="upload-placeholder" class="flex flex-col items-center">
                             <span class="material-symbols-outlined text-primary text-[32px] mb-2 group-hover:scale-110 transition-transform">cloud_upload</span>
                             <p class="text-sm font-semibold text-slate-700">Seçmek için tıklayın</p>
-                            <p class="text-xs text-slate-400 mt-1">PNG, JPG — Max 5MB</p>
+                            <p class="text-xs text-slate-400 mt-1">Birden fazla seçebilirsiniz (Max 5MB/dosya)</p>
                         </div>
-                        <p id="filename-display" class="hidden mt-2 text-xs font-bold text-primary italic truncate max-w-xs"></p>
-                        <input id="image-input" name="image" type="file" class="hidden" accept="image/*" required onchange="handleFileSelect(this)"/>
+                        <p id="filename-display" class="hidden mt-2 text-xs font-bold text-primary italic text-center px-4"></p>
+                        <input id="image-input" name="images[]" type="file" class="hidden" accept="image/*" multiple required onchange="handleFileSelect(this)"/>
                     </div>
                 </div>
                 <div>
@@ -176,27 +179,33 @@ function handleFileSelect(input) {
     const filenameDisplay = document.getElementById('filename-display');
     const dropArea = document.getElementById('drop-area');
 
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        
-        // Boyut kontrolü (Max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Dosya boyutu 5MB\'dan küçük olmalıdır.');
-            input.value = '';
-            return;
-        }
+    if (input.files && input.files.length > 0) {
+        const filesCount = input.files.length;
+        const placeholder = document.getElementById('upload-placeholder');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImage = document.getElementById('image-preview');
+        const filenameDisplay = document.getElementById('filename-display');
+        const dropArea = document.getElementById('drop-area');
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewImage.src = e.target.result;
+        if (filesCount === 1) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                placeholder.classList.add('hidden');
+                previewContainer.classList.remove('hidden');
+                filenameDisplay.textContent = file.name;
+                filenameDisplay.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+        } else {
+            // Multiple files
             placeholder.classList.add('hidden');
-            previewContainer.classList.remove('hidden');
-            filenameDisplay.textContent = file.name;
+            previewContainer.classList.add('hidden'); // Hide single preview for multiple
+            filenameDisplay.textContent = filesCount + ' adet dosya seçildi';
             filenameDisplay.classList.remove('hidden');
-            dropArea.classList.remove('p-8');
-            dropArea.classList.add('p-2');
+            dropArea.classList.add('bg-primary/5');
         }
-        reader.readAsDataURL(file);
     }
 }
 
@@ -212,8 +221,7 @@ function removeSelectedImage() {
     previewContainer.classList.add('hidden');
     placeholder.classList.remove('hidden');
     filenameDisplay.classList.add('hidden');
-    dropArea.classList.remove('p-2');
-    dropArea.classList.add('p-8');
+    dropArea.classList.remove('bg-primary/5');
 }
 
 function showGalleryAddModal() {

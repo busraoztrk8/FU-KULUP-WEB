@@ -1,13 +1,17 @@
 @forelse($events as $event)
 <a href="{{ route('etkinlik.detay', ['slug' => $event->slug]) }}"
     class="group bg-primary rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full border border-white/5 cursor-pointer">
-    <div class="relative h-36 md:h-64 w-full overflow-hidden shrink-0">
+    <div class="relative w-full overflow-hidden shrink-0">
         @if($event->image)
+            @php
+                $evImg = $event->image;
+                $evUrl = str_starts_with($evImg, 'http') ? $evImg : (file_exists(public_path('uploads/' . $evImg)) ? asset('uploads/' . $evImg) : asset('storage/' . $evImg));
+            @endphp
             <img alt="{{ $event->title }}"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" />
+                class="aspect-stable-img group-hover:scale-110 transition-transform duration-700"
+                src="{{ $evUrl }}" />
         @else
-            <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+            <div class="aspect-stable-img bg-slate-100 flex items-center justify-center text-slate-300">
                 <span class="material-symbols-outlined text-5xl">event</span>
             </div>
         @endif
@@ -21,7 +25,7 @@
             </div>
         </div>
     </div>
-    <div class="p-4 md:p-8 flex flex-col flex-1 text-white">
+    <div class="p-4 md:p-8 flex flex-col flex-1 text-white card-content">
         <div class="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
             @if($event->category)
             <span class="bg-white/10 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded tracking-wider border border-white/10">

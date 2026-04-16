@@ -270,6 +270,39 @@ html, body {
     overflow: hidden;
 }
 
+.line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Card Stability & Flow */
+.equal-height-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.equal-height-card .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.aspect-stable-img {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    object-fit: cover;
+}
+
+.thumb-stable-img {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    object-fit: cover;
+}
+
 /* ---------- Hide scrollbar for filter rows ---------- */
 .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -875,12 +908,44 @@ table.dataTable tbody td {
     font-size: 0.875rem;
 }
 
-table.dataTable tbody tr {
-    transition: background-color 0.2s ease;
-}
-
 table.dataTable tbody tr:hover td {
     background-color: #f8fafc;
+}
+
+/* Table Stability Fix (Kayma Önleyici) */
+table.dataTable.table-fixed {
+    table-layout: fixed !important;
+    width: 100% !important;
+    min-width: 100% !important;
+}
+
+table.dataTable thead th,
+table.dataTable tbody td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Allow wrapping for specific info columns if needed, but default is no-wrap for stability */
+.allow-wrap {
+    white-space: normal !important;
+}
+
+/* Ensure the processing indicator doesn't shift layout */
+.dataTables_processing {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    padding: 1rem 2rem !important;
+    width: auto !important;
 }
 
 table.dataTable.no-footer {

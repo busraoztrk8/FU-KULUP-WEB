@@ -22,9 +22,9 @@ class HomeController extends Controller
             ->get();
 
         $activeClubs = Club::where('is_active', true)
-            ->with('category')
+            ->with(['category', 'members'])
             ->latest()
-            ->limit(2)
+            ->limit(8)
             ->get();
 
         $categories = \App\Models\Category::all();
@@ -59,9 +59,11 @@ class HomeController extends Controller
                 
                 $clubs = $selectedEvents->pluck('club')->unique('id')->filter();
                 
+                $unifiedHtml = view('partials.unified-event-card', compact('selectedEvents', 'date'))->render();
+                
                 return response()->json([
-                    'html' => view('partials.event-list-items', compact('selectedEvents', 'date'))->render(),
-                    'club_html' => $clubs->isNotEmpty() ? view('partials.club-mini-profile', compact('clubs'))->render() : ''
+                    'html' => $unifiedHtml,
+                    'club_html' => '' // Artık tüm bilgi 'html' içinde birleşti
                 ]);
             }
             
@@ -81,14 +83,7 @@ class HomeController extends Controller
         $gridEvents = Event::with(['category', 'club'])->where('status', 'published')->orderBy('start_time', 'asc')->limit(10)->get();
         $totalPublishedEvents = Event::where('status', 'published')->count();
         
-        // Fetch recent announcements
-        $announcements = \App\Models\Announcement::with('club')
-            ->where('is_published', true)
-            ->latest('published_at')
-            ->take(4)
-            ->get();
-
-        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date', 'totalPublishedEvents', 'announcements'));
+        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date', 'totalPublishedEvents'));
     }
 
     public function dailyEvents($date)

@@ -9,8 +9,12 @@
     <!-- Hero Section -->
     <section class="relative h-[280px] sm:h-[420px] md:h-[500px] lg:h-[600px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-xl">
         @if($featured && $featured->image)
+            @php
+                $fPath = $featured->image;
+                $fUrl = str_starts_with($fPath, 'http') ? $fPath : (file_exists(public_path('uploads/' . $fPath)) ? asset('uploads/' . $fPath) : asset('storage/' . $fPath));
+            @endphp
             <img alt="{{ $featured->title }}" class="absolute inset-0 w-full h-full object-cover"
-                src="{{ str_starts_with($featured->image, 'http') ? $featured->image : asset('storage/' . $featured->image) }}" />
+                src="{{ $fUrl }}" />
         @else
             <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
         @endif
@@ -29,9 +33,9 @@
             </p>
             @endif
             <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-2 md:gap-4">
-                <a href="{{ route('etkinlik.detay', $featured->slug) }}"
+                <a href="{{ route('kulup.detay', $featured->club->slug) }}"
                     class="bg-primary hover:bg-primary-dark text-white px-4 md:px-8 py-2 md:py-4 rounded-full font-bold transition-all flex justify-center items-center gap-2 group text-[11px] md:text-base">
-                    Kayıt Ol
+                    Kulübe Üye Ol
                     <span class="material-symbols-outlined text-sm md:text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </a>
                 <a href="{{ route('etkinlik.detay', $featured->slug) }}"
@@ -168,14 +172,8 @@
                     </span>
                 </div>
                 
-                <div id="club-profile-container" class="transition-all duration-500">
-                    @if(isset($initialClubs) && $initialClubs->isNotEmpty())
-                        @include('partials.club-mini-profile', ['clubs' => $initialClubs])
-                    @endif
-                </div>
-
-                <div id="event-list-container" class="space-y-4 md:space-y-6 mb-10 md:mb-0 transition-all duration-300">
-                    @include('partials.event-list-items', ['date' => $currentDateStr])
+                <div id="event-list-container" class="transition-all duration-500">
+                    @include('partials.unified-event-card', ['selectedEvents' => $selectedEvents, 'date' => $currentDateStr])
                 </div>
             </div>
         </div>
@@ -200,46 +198,7 @@
         @endif
     </section>
 
-    <!-- Announcements (Duyurular) Section -->
-    <section id="duyurular-sec" class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 md:pb-24 border-t border-slate-100 pt-16 md:pt-16 mt-16 md:mt-0">
-        @if(isset($announcements) && $announcements->count() > 0)
-        <div>
-            <div class="flex items-center justify-between mb-6 md:mb-10">
-                <h3 class="text-base md:text-3xl font-bold font-headline text-on-background flex items-center gap-3">
-                    <span class="w-2 h-8 bg-primary rounded-full hidden md:block"></span>
-                    <span class="material-symbols-outlined text-primary text-[28px] md:hidden">campaign</span>
-                    Duyurular
-                </h3>
-                <a href="{{ route('duyurular') }}" class="text-primary font-bold text-sm md:text-base hover:underline flex items-center gap-1 group">
-                    Tümünü Gör <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </a>
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                @foreach($announcements as $announcement)
-                <a href="{{ route('duyuru.detay', $announcement->slug) }}" class="group bg-surface-container rounded-[2rem] p-6 md:p-8 border border-black/5 hover:border-primary/20 hover:shadow-xl transition-all flex flex-col h-full relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <div class="flex items-center gap-4 mb-5">
-                        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-primary text-[28px]">campaign</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-[10px] md:text-xs text-primary font-bold uppercase tracking-wider mb-0.5">{{ $announcement->published_at ? $announcement->published_at->format('d M') : $announcement->created_at->format('d M') }}</p>
-                            <p class="text-xs text-on-surface-variant font-medium truncate">{{ $announcement->club ? $announcement->club->name : 'Genel Duyuru' }}</p>
-                        </div>
-                    </div>
-                    <h4 class="font-bold text-base md:text-lg text-on-background group-hover:text-primary transition-colors leading-snug mb-3 line-clamp-2">
-                        {{ $announcement->title }}
-                    </h4>
-                    <p class="text-on-surface-variant text-sm line-clamp-2 mt-auto">
-                        {{ \Illuminate\Support\Str::limit(strip_tags($announcement->content), 80) }}
-                    </p>
-                </a>
-                @endforeach
-            </div>
-        </div>
-        @endif
-    </section>
+
 <script>
         function toggleAdditionalEvents(btn) {
             const container = btn.parentElement.querySelector('.additional-events');
@@ -253,24 +212,20 @@
             }
         }
 
-        let clubSwiper;
+        let unifiedSwiper;
 
-        function initClubSwiper() {
-            if (document.querySelector('.club-swiper')) {
+        function initUnifiedSwiper() {
+            if (document.querySelector('.unified-events-swiper')) {
                 // Destroy existing swiper if it exists
-                if (clubSwiper) clubSwiper.destroy(true, true);
+                if (unifiedSwiper) unifiedSwiper.destroy(true, true);
 
-                clubSwiper = new Swiper('.club-swiper', {
+                unifiedSwiper = new Swiper('.unified-events-swiper', {
                     slidesPerView: 1,
                     spaceBetween: 24,
-                    loop: true,
+                    loop: false,
                     grabCursor: true,
-                    autoplay: {
-                        delay: 5000,
-                        disableOnInteraction: false,
-                    },
                     pagination: {
-                        el: '.swiper-pagination',
+                        el: '.unified-pagination',
                         clickable: true,
                         dynamicBullets: true,
                     },
@@ -285,7 +240,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            initClubSwiper();
+            initUnifiedSwiper();
         });
 
         function filterByDate(date, element) {
@@ -306,28 +261,30 @@
             const options = { day: 'numeric', month: 'long', weekday: 'long' };
             document.getElementById('selected-date-title').innerText = dateObj.toLocaleDateString('tr-TR', options);
 
-            const container = document.getElementById('event-list-container');
-            const clubContainer = document.getElementById('club-profile-container');
-            container.style.opacity = '0.5';
-            clubContainer.style.opacity = '0.5';
-
-            fetch(`/etkinlikler?date=${date}&view_type=calendar_list`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                container.innerHTML = data.html;
-                clubContainer.innerHTML = data.club_html;
-                
-                container.style.opacity = '1';
-                clubContainer.style.opacity = '1';
-                
-                const count = container.querySelectorAll('.group').length;
-                document.getElementById('event-count-badge').innerText = `${count} Etkinlik Bulundu`;
-                
-                // Re-initialize swiper for new content
-                setTimeout(initClubSwiper, 100);
-            });
+            const eventListContainer = document.getElementById('event-list-container');
+            
+            eventListContainer.style.opacity = '0';
+            setTimeout(() => {
+                fetch(`/etkinlikler?date=${date}&view_type=calendar_list`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    eventListContainer.innerHTML = data.html;
+                    
+                    // Update title and count
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = data.html;
+                    
+                    // Re-initialize slider
+                    initUnifiedSwiper();
+                    
+                    eventListContainer.style.opacity = '1';
+                    
+                    const count = tempDiv.querySelectorAll('.group').length;
+                    document.getElementById('event-count-badge').innerText = `${count} Etkinlik Bulundu`;
+                });
+            }, 300);
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {

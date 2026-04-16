@@ -10,7 +10,11 @@
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div class="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center shrink-0">
                 @if(auth()->user()->profile_photo)
-                    <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}"
+                    @php
+                        $dashPhoto = auth()->user()->profile_photo;
+                        $dashPUrl = str_starts_with($dashPhoto, 'http') ? $dashPhoto : (file_exists(public_path('uploads/' . $dashPhoto)) ? asset('uploads/' . $dashPhoto) : asset('storage/' . $dashPhoto));
+                    @endphp
+                    <img src="{{ $dashPUrl }}"
                         class="w-full h-full object-cover rounded-2xl" alt=""/>
                 @else
                     <span class="material-symbols-outlined text-primary text-[28px]">account_circle</span>
@@ -123,7 +127,11 @@
                 class="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors group">
                 <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shrink-0">
                     @if($member->club->logo)
-                        <img src="{{ asset('storage/' . $member->club->logo) }}" class="w-full h-full object-cover rounded-xl" alt=""/>
+                        @php
+                            $dashLogo = $member->club->logo;
+                            $dashLUrl = str_starts_with($dashLogo, 'http') ? $dashLogo : (file_exists(public_path('uploads/' . $dashLogo)) ? asset('uploads/' . $dashLogo) : asset('storage/' . $dashLogo));
+                        @endphp
+                        <img src="{{ $dashLUrl }}" class="w-full h-full object-cover rounded-xl" alt=""/>
                     @else
                         <span class="material-symbols-outlined text-white text-[18px]">groups</span>
                     @endif

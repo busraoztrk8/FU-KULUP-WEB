@@ -91,17 +91,42 @@
 </div>
 
 <!-- Actions -->
-<div class="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
-    <div class="flex items-center gap-3">
-        <select id="kategori-filter" class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm transition-all">
-            <option value="all">Tüm Kategoriler</option>
-            @foreach($categories as $cat)
-                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-            @endforeach
-        </select>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <div class="flex flex-wrap items-center gap-2">
+        {{-- Search Bar --}}
+        <div class="relative min-w-[200px]">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+            <input type="text" id="custom-search" placeholder="Kulüplerde ara..." class="w-full bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+        </div>
+
+        <div class="h-8 w-[1px] bg-slate-200 mx-1 hidden md:block"></div>
+
+        {{-- Category Filter --}}
+        <div class="relative min-w-[160px]">
+            <select id="kategori-filter" class="w-full bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                <option value="all">Tüm Kategoriler</option>
+                @foreach($categories as $cat)
+                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- Status Filter --}}
+        <div class="relative min-w-[140px]">
+            <select id="status-filter" class="w-full bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                <option value="all">Tüm Durumlar</option>
+                <option value="active">Aktif</option>
+                <option value="inactive">Pasif</option>
+            </select>
+        </div>
+
+        {{-- Reset --}}
+        <button id="reset-filters" class="flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all shadow-sm" title="Filtreleri Temizle">
+            <span class="material-symbols-outlined text-[20px]">filter_alt_off</span>
+        </button>
     </div>
     @if(auth()->user()->isAdmin())
-    <button onclick="showKulupEkle()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm shadow-primary/10 active:scale-95">
+    <button onclick="showKulupEkle()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0">
         <span class="material-symbols-outlined text-[18px]">add</span>Yeni Kulüp
     </button>
     @endif
@@ -109,20 +134,20 @@
 
 <!-- Table -->
 <div class="admin-card p-0 overflow-hidden shadow-sm">
-    <div class="overflow-x-auto w-full pt-4">
-        <table class="w-full" id="kulupler-table">
+    <div class="overflow-x-auto pt-4 w-full min-h-[500px]">
+        <table class="w-full table-fixed" id="kulupler-table">
             <thead>
                 <tr>
-                    <th class="w-12 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KULÜP</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KATEGORİ</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">BAŞKAN</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">ÜYE SAYISI</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">DURUM</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">İŞLEMLER</th>
+                    <th class="w-16 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
+                    <th class="w-[22%] text-slate-500 font-bold uppercase text-xs tracking-wider">KULÜP</th>
+                    <th class="w-[15%] text-slate-500 font-bold uppercase text-xs tracking-wider">KATEGORİ</th>
+                    <th class="w-[18%] text-slate-500 font-bold uppercase text-xs tracking-wider">BAŞKAN</th>
+                    <th class="w-[10%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ÜYELER</th>
+                    <th class="w-[15%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">DURUM</th>
+                    <th class="w-[160px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">İŞLEMLER</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
                 <!-- DataTables will fill this -->
             </tbody>
         </table>
@@ -355,6 +380,7 @@
                          onclick="document.getElementById('edit-gallery-input').click()">
                         <span class="material-symbols-outlined text-slate-400 text-[32px] mb-2">add_a_photo</span>
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Yeni Fotoğraflar Ekle</p>
+                        <p class="text-[10px] text-slate-400 mt-1 italic">Birden fazla resim seçmek için Ctrl tuşuna basılı tutun veya hepsini birden sürükleyin.</p>
                         <input id="edit-gallery-input" type="file" name="gallery[]" multiple class="hidden" accept="image/*" onchange="previewGallery(this)"/>
                     </div>
                 </div>
@@ -546,16 +572,18 @@ $(document).ready(function() {
     let table = $('#kulupler-table').DataTable({
         processing: true,
         serverSide: true,
+        autoWidth: false,
         ajax: {
             url: "{{ route('admin.kulupler') }}",
             data: function (d) {
                 d.category_id = $('#kategori-filter').val();
+                d.status = $('#status-filter').val();
             }
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
-            {data: 'club_info', name: 'club_info', orderable: false, searchable: false},
-            {data: 'category_name', name: 'category.name'},
+            {data: 'club_info', name: 'club_info'},
+            {data: 'category_name', name: 'category_name'},
             {data: 'president_name', name: 'president.name'},
             {data: 'members_count', name: 'members_count', orderable: false, searchable: false},
             {data: 'status', name: 'status', orderable: false, searchable: false},
@@ -566,9 +594,9 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"grid"l f>rt<"grid"i p>',
+        dom: '<"grid"rt><"flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
         initComplete: function() {
-            this.api().columns.adjust();
+            // Columns adjusted via CSS table-fixed for perfect stability
         }
     });
 
@@ -576,8 +604,21 @@ $(document).ready(function() {
         if (table) table.columns.adjust();
     });
 
-    $('#kategori-filter').change(function(){
+    // Custom Search
+    $('#custom-search').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    // Filter Change Events
+    $('#kategori-filter, #status-filter').on('change', function() {
         table.draw();
+    });
+
+    $('#reset-filters').on('click', function() {
+        $('#kategori-filter').val('all');
+        $('#status-filter').val('all');
+        $('#custom-search').val('');
+        table.search('').draw();
     });
 
     // Select2 AJAX initialization
@@ -643,6 +684,20 @@ function cancelPresidentAssignment() {
     document.getElementById('president-confirm-modal').classList.add('hidden');
     window.pendingPresidentSelect = null;
     window.pendingPresidentData = null;
+}
+
+/**
+ * Resim yolunu dinamik olarak çözer (uploads veya storage)
+ */
+function resolveImageUrl(path) {
+    if (!path) return '/images/logo_orj.png';
+    if (path.startsWith('http')) return path;
+    
+    // Yükleme klasörü kontrolü
+    if (path.includes('/') && !path.startsWith('logos/') && !path.startsWith('covers/') && !path.startsWith('gallery/') && !path.startsWith('profiles/')) {
+        return '/uploads/' + path;
+    }
+    return '/storage/' + path;
 }
 
 function showKulupEkle() {
@@ -720,14 +775,14 @@ function showKulupDuzenle(id) {
             if (data.logo) {
                 const preview = document.getElementById('edit-logo-preview');
                 const placeholder = document.getElementById('edit-logo-placeholder');
-                preview.src = '/storage/' + data.logo;
+                preview.src = resolveImageUrl(data.logo);
                 preview.classList.remove('hidden');
                 if (placeholder) placeholder.classList.add('opacity-0');
             }
             if (data.cover_image) {
                 const preview = document.getElementById('edit-cover-preview');
                 const placeholder = document.getElementById('edit-cover-placeholder');
-                preview.src = '/storage/' + data.cover_image;
+                preview.src = resolveImageUrl(data.cover_image);
                 preview.classList.remove('hidden');
                 if (placeholder) placeholder.classList.add('opacity-0');
             }
@@ -787,7 +842,7 @@ function showKulupDuzenle(id) {
                         
                         // Create image
                         const image = document.createElement('img');
-                        image.src = `/storage/${img.image_path}`;
+                        image.src = resolveImageUrl(img.image_path);
                         image.className = 'w-full h-full object-cover';
                         
                         // Create delete button
@@ -912,26 +967,28 @@ $(document).on('input', '.has-char-counter', function() {
         counter.addClass('text-slate-400').removeClass('text-red-500');
     }
 });
+
+let galleryDataTransfer = new DataTransfer();
+
 function previewGallery(input) {
     const galleryList = document.getElementById('edit-gallery-list');
     if (!input.files || !galleryList) return;
 
-    // "Yeni Yüklenenler" bölümü yoksa oluştur
     let newUploadsSection = document.getElementById('new-gallery-previews');
     if (!newUploadsSection) {
         newUploadsSection = document.createElement('div');
         newUploadsSection.id = 'new-gallery-previews';
         newUploadsSection.className = 'col-span-full grid grid-cols-4 sm:grid-cols-6 gap-3 pt-3 mt-3 border-t border-slate-100';
         galleryList.appendChild(newUploadsSection);
-    } else {
-        newUploadsSection.innerHTML = ''; // Temizle
     }
 
     Array.from(input.files).forEach((file) => {
+        galleryDataTransfer.items.add(file);
+
         const reader = new FileReader();
         reader.onload = function(e) {
             const div = document.createElement('div');
-            div.className = 'relative group aspect-square rounded-lg overflow-hidden border-2 border-primary/20 bg-slate-50';
+            div.className = 'relative group aspect-square rounded-lg overflow-hidden border-2 border-primary/20 bg-slate-50 shadow-sm';
             
             const img = document.createElement('img');
             img.src = e.target.result;
@@ -941,12 +998,31 @@ function previewGallery(input) {
             badge.className = 'absolute top-1 left-1 bg-primary text-white text-[8px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase';
             badge.textContent = 'Yeni';
 
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-lg';
+            removeBtn.innerHTML = '<span class="material-symbols-outlined text-[14px]">close</span>';
+            removeBtn.onclick = (event) => {
+                event.stopPropagation();
+                div.remove();
+                const newDataTransfer = new DataTransfer();
+                Array.from(galleryDataTransfer.files).forEach(f => {
+                    if (f !== file) newDataTransfer.items.add(f);
+                });
+                galleryDataTransfer = newDataTransfer;
+                input.files = galleryDataTransfer.files;
+            };
+
             div.appendChild(img);
             div.appendChild(badge);
+            div.appendChild(removeBtn);
             newUploadsSection.appendChild(div);
         }
         reader.readAsDataURL(file);
     });
+
+    input.files = galleryDataTransfer.files;
 }
+
 </script>
 @endpush

@@ -5,20 +5,26 @@
             <a href="{{ route('home') }}"
                 class="font-headline font-bold text-primary text-2xl md:text-3xl block transition-transform hover:scale-105 lg:origin-left uppercase tracking-tighter">Fırat
                 Üniversitesi</a>
-            <p class="font-body text-sm text-on-surface-variant leading-relaxed opacity-80 max-w-md mx-auto lg:mx-0">
+            <p class="font-body text-base text-on-surface-variant leading-relaxed opacity-90 max-w-md mx-auto lg:mx-0">
                 Üniversitemizin aktif topluluk ve etkinlik ekosistemi. Öğrencileri, akademisyenleri ve kulüpleri dijital
-                bir platformda buluşturuyoruz.</p>
+                bir platformda buluşturuyoruz.
+            </p>
+            <p class="font-body text-sm text-on-surface-variant/80 font-bold mt-6">
+                © {{ date('Y') }} {{ \App\Models\SiteSetting::getVal('site_name', 'Fırat Üniversitesi') }}. Tüm hakları saklıdır.
+            </p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12 text-center sm:text-left">
             <div class="space-y-3 md:space-y-4">
                 <h4
-                    class="text-primary font-headline font-extrabold text-sm uppercase tracking-widest border-b-2 border-primary/10 pb-2 inline-block">
+                    class="text-primary font-headline font-extrabold text-base uppercase tracking-widest border-b-2 border-primary/10 pb-2 inline-block">
                     HIZLI BAĞLANTILAR</h4>
                 <ul class="space-y-2 font-body text-sm text-on-surface-variant font-bold pt-2">
                     <li><a class="hover:text-primary transition-colors" href="{{ route('home') }}">Ana Sayfa</a></li>
                     <li><a class="hover:text-primary transition-colors"
                             href="{{ route('etkinlikler') }}">Etkinlikler</a></li>
+                    <li><a class="hover:text-primary transition-colors"
+                            href="{{ route('duyurular') }}">Duyurular</a></li>
                     <li><a class="hover:text-primary transition-colors" href="{{ route('kulupler') }}">Kulüpler</a></li>
                     <li><a class="hover:text-primary transition-colors" href="{{ route('login') }}">Giriş Yap</a></li>
                 </ul>
@@ -27,7 +33,7 @@
             <div class="space-y-4 md:space-y-6 flex flex-col items-center sm:items-start text-center sm:text-left h-full">
                 <div>
                     <h4
-                        class="text-primary font-headline font-extrabold text-sm uppercase tracking-widest mb-6 border-b-2 border-primary/10 pb-2 inline-block">
+                        class="text-primary font-headline font-extrabold text-base uppercase tracking-widest mb-6 border-b-2 border-primary/10 pb-2 inline-block">
                         BİZİ TAKİP EDİN</h4>
                     <div class="flex gap-3 md:gap-4">
                         @php
@@ -73,24 +79,19 @@
                     <div class="space-y-2 mt-2">
                         @if($email)
                             <a href="mailto:{{ $email }}"
-                                class="flex items-center gap-2 text-xs text-on-surface-variant hover:text-primary transition-colors font-bold">
-                                <span class="material-symbols-outlined text-[16px]">mail</span> {{ $email }}
+                                class="flex items-center gap-2 text-[13px] text-on-surface-variant hover:text-primary transition-colors font-bold">
+                                <span class="material-symbols-outlined text-[18px]">mail</span> {{ $email }}
                             </a>
                         @endif
                         @if($phone)
                             <a href="tel:{{ $phone }}"
-                                class="flex items-center gap-2 text-xs text-on-surface-variant hover:text-primary transition-colors font-bold">
-                                <span class="material-symbols-outlined text-[16px]">call</span> {{ $phone }}
+                                class="flex items-center gap-2 text-[13px] text-on-surface-variant hover:text-primary transition-colors font-bold">
+                                <span class="material-symbols-outlined text-[18px]">call</span> {{ $phone }}
                             </a>
                         @endif
                     </div>
                 @endif
-
-                <div class="w-full mt-auto pt-6 sm:pt-8">
-                    <p class="font-body text-[11px] sm:text-xs text-on-surface-variant/60 font-medium opacity-80 border-t border-black/5 pt-4 sm:border-none sm:pt-0">
-                        © {{ date('Y') }} {{ \App\Models\SiteSetting::getVal('site_name', 'Fırat Üniversitesi') }}. Tüm hakları saklıdır.
-                    </p>
-                </div>
+            </div>
             </div>
         </div>
     </div>

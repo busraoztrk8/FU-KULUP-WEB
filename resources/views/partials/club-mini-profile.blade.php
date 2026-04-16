@@ -16,7 +16,11 @@
                             <div class="flex items-center gap-4 mb-4">
                                 <div class="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-white shadow-lg flex items-center justify-center overflow-hidden border border-primary/10 p-1.5 shrink-0">
                                     @if($club->logo)
-                                        <img src="{{ str_starts_with($club->logo, 'http') ? $club->logo : asset('storage/' . $club->logo) }}" 
+                                        @php
+                                            $cLogo = $club->logo;
+                                            $cUrl = str_starts_with($cLogo, 'http') ? $cLogo : (file_exists(public_path('uploads/' . $cLogo)) ? asset('uploads/' . $cLogo) : asset('storage/' . $cLogo));
+                                        @endphp
+                                        <img src="{{ $cUrl }}" 
                                              alt="{{ $club->name }}" class="w-full h-full object-contain">
                                     @else
                                         <span class="material-symbols-outlined text-primary text-2xl">groups</span>

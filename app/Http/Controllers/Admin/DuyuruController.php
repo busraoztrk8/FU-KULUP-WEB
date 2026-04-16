@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Announcement;
 use App\Models\Club;
 use Str;
+use Illuminate\Support\Facades\Storage;
 
 class DuyuruController extends Controller
 {
@@ -14,19 +15,41 @@ class DuyuruController extends Controller
     {
         if ($request->ajax()) {
             try {
-                $query = Announcement::query();
+                $query = Announcement::leftJoin('clubs', 'announcements.club_id', '=', 'clubs.id')
+                    ->leftJoin('categories', 'clubs.category_id', '=', 'categories.id')
+                    ->select('announcements.*')
+                    ->with(['club.category']);
 
                 if (auth()->user()->isEditor()) {
                     $query->where(function ($q) {
-                        $q->where('club_id', auth()->user()->club_id)
-                            ->orWhereNull('club_id');
+                        $q->where('announcements.club_id', auth()->user()->club_id)
+                            ->orWhereNull('announcements.club_id');
                     });
                 }
 
-                return \Yajra\DataTables\Facades\DataTables::of($query->oldest())
+                // Filters
+                if ($request->filled('club_id')) {
+                    $query->where('announcements.club_id', $request->club_id);
+                }
+                if ($request->filled('category_id')) {
+                    $query->where('clubs.category_id', $request->category_id);
+                }
+
+                return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('announcements.created_at', 'desc'))
                     ->addIndexColumn()
                     ->addColumn('announcement_info', function ($row) {
-                        $url = $row->image_path ? asset('storage/' . $row->image_path) : asset('images/logo_orj.png');
+                        $url = $row->image_path;
+                        if ($url) {
+                            if (!str_starts_with($url, 'http')) {
+                                if (file_exists(public_path('uploads/' . $url))) {
+                                    $url = asset('uploads/' . $url);
+                                } else {
+                                    $url = asset('storage/' . $url);
+                                }
+                            }
+                        } else {
+                            $url = asset('images/logo_orj.png');
+                        }
                         return '<div class="flex items-center gap-3">
                             <div class="w-12 h-10 bg-white border border-slate-100 p-1 flex items-center justify-center rounded-lg shadow-sm shrink-0">
                                 <img src="' . $url . '" class="max-w-full max-h-full object-contain" alt="Görsel">
@@ -52,19 +75,17 @@ class DuyuruController extends Controller
                         </div>';
                     })
                     ->addColumn('action', function ($row) {
-                        $btn = '<div class="flex items-center justify-start gap-2">';
+                        $btn = '<div class="flex items-center justify-center gap-2">';
                         $btn .= '<button onclick="showDuyuruDuzenle(' . $row->id . ')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         $btn .= '<button onclick="showDeleteModal(' . $row->id . ', \'' . e(addslashes($row->title)) . '\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';
                         return $btn;
                     })
                     ->filterColumn('announcement_info', function($query, $keyword) {
-                        $query->where('title', 'like', "%{$keyword}%");
+                        $query->where('announcements.title', 'like', "%{$keyword}%");
                     })
                     ->filterColumn('club_name', function($query, $keyword) {
-                        $query->whereHas('club', function($q) use ($keyword) {
-                            $q->where('name', 'like', "%{$keyword}%");
-                        });
+                        $query->where('clubs.name', 'like', "%{$keyword}%");
                     })
                     ->rawColumns(['announcement_info', 'club_name', 'status', 'action'])
                     ->make(true);
@@ -93,7 +114,9 @@ class DuyuruController extends Controller
             'draft' => (clone $statsQuery)->where('is_published', false)->count(),
         ];
 
-        return view('admin.duyurular', compact('clubs', 'stats'));
+        $categories = \App\Models\Category::all();
+
+        return view('admin.duyurular', compact('clubs', 'stats', 'categories'));
     }
 
     public function store(Request $request)
@@ -107,7 +130,10 @@ class DuyuruController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('announcements', 'public');
+            $clubId = auth()->user()->isEditor() ? auth()->user()->club_id : $validated['club_id'];
+            $club = $clubId ? Club::find($clubId) : null;
+            $path = $club ? $club->slug : 'global';
+            $validated['image_path'] = $request->file('image')->store($path . '/announcements', 'uploads');
         }
 
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
@@ -153,7 +179,19 @@ class DuyuruController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $validated['image_path'] = $request->file('image')->store('announcements', 'public');
+            // Eski resmi sil
+            if ($announcement->image_path) {
+                if (Storage::disk('uploads')->exists($announcement->image_path)) {
+                    Storage::disk('uploads')->delete($announcement->image_path);
+                } elseif (Storage::disk('public')->exists($announcement->image_path)) {
+                    Storage::disk('public')->delete($announcement->image_path);
+                }
+            }
+
+            $clubId = auth()->user()->isEditor() ? auth()->user()->club_id : (isset($validated['club_id']) ? $validated['club_id'] : $announcement->club_id);
+            $club = $clubId ? Club::find($clubId) : null;
+            $path = $club ? $club->slug : 'global';
+            $validated['image_path'] = $request->file('image')->store($path . '/announcements', 'uploads');
         }
 
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
@@ -178,6 +216,13 @@ class DuyuruController extends Controller
             abort(403, 'Bu duyuruyu silme yetkiniz yok.');
         }
 
+        if ($announcement->image_path) {
+            if (Storage::disk('uploads')->exists($announcement->image_path)) {
+                Storage::disk('uploads')->delete($announcement->image_path);
+            } else {
+                Storage::disk('public')->delete($announcement->image_path);
+            }
+        }
         $announcement->delete();
         return redirect()->route('admin.duyurular')->with('success', 'Duyuru başarıyla silindi.');
     }

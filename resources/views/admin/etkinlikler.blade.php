@@ -51,38 +51,75 @@
 </div>
 
 <!-- Top Actions -->
-<div class="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
-    <div class="flex items-center gap-3">
-        <select id="status-filter" class="bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 shadow-sm transition-all">
-            <option value="all">Tüm Durumlar</option>
-            <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Aktif</option>
-            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Taslak</option>
-            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Tamamlandı</option>
-            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>İptal</option>
-        </select>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+    <div class="flex flex-wrap items-center gap-2">
+        {{-- Search Bar --}}
+        <div class="relative min-w-[200px]">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+            <input type="text" id="custom-search" placeholder="Etkinliklerde ara..." class="w-full bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+        </div>
+
+        <div class="h-8 w-[1px] bg-slate-200 mx-1 hidden md:block"></div>
+
+        {{-- Club Select --}}
+        <div class="relative min-w-[150px]">
+            <select id="filter-club" class="w-full bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                <option value="">Tüm Kulüpler</option>
+                @foreach($clubs as $club)
+                    <option value="{{ $club->id }}">{{ $club->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- Category Select --}}
+        <div class="relative min-w-[150px]">
+            <select id="filter-category" class="w-full bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                <option value="">Tüm Kategoriler</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        {{-- Status Select --}}
+        <div class="relative min-w-[140px]">
+            <select id="status-filter" class="w-full bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                <option value="all">Tüm Durumlar</option>
+                <option value="published">Aktif</option>
+                <option value="draft">Pasif</option>
+                <option value="cancelled">İptal</option>
+                <option value="completed">Tamamlandı</option>
+            </select>
+        </div>
+
+        {{-- Reset --}}
+        <button id="reset-filters" class="flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all shadow-sm" title="Filtreleri Temizle">
+            <span class="material-symbols-outlined text-[20px]">filter_alt_off</span>
+        </button>
     </div>
-    <button onclick="showEventModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm shadow-primary/10 active:scale-95">
+
+    <button onclick="showEventModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0">
         <span class="material-symbols-outlined text-[18px]">add</span>Yeni Etkinlik
     </button>
 </div>
 
 <!-- Table -->
 <div class="admin-card p-0 overflow-hidden shadow-sm">
-    <div class="overflow-x-auto w-full pt-4">
-        <table class="w-full" id="etkinlikler-table">
+    <div class="overflow-x-auto pt-4 w-full min-h-[500px]">
+        <table class="w-full table-fixed" id="etkinlikler-table">
             <thead>
                 <tr>
-                    <th class="w-12 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">ETKİNLİK</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KULÜP</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KATEGORİ</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">TARİH</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">KAYIT</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">DURUM</th>
-                    <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">İŞLEMLER</th>
+                    <th class="w-16 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
+                    <th class="w-[20%] text-slate-500 font-bold uppercase text-xs tracking-wider">ETKİNLİK</th>
+                    <th class="w-[15%] text-slate-500 font-bold uppercase text-xs tracking-wider">KULÜP</th>
+                    <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider">KATEGORİ</th>
+                    <th class="w-[15%] text-slate-500 font-bold uppercase text-xs tracking-wider">TARİH</th>
+                    <th class="w-[8%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">KAYIT</th>
+                    <th class="w-[12%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">DURUM</th>
+                    <th class="w-[140px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">İŞLEMLER</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
                 <!-- DataTables will fill this -->
             </tbody>
         </table>
@@ -468,32 +505,52 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
+/**
+ * Resim yolunu dinamik olarak çözer (uploads veya storage)
+ */
+function resolveImageUrl(path) {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    
+    // Yükleme klasörü kontrolü (varsayılan uploads)
+    if (path.includes('/') && !path.startsWith('logos/') && !path.startsWith('covers/') && !path.startsWith('gallery/') && !path.startsWith('profiles/')) {
+        return '/uploads/' + path;
+    }
+    return '/storage/' + path;
+}
+
 $(document).ready(function() {
     let table = $('#etkinlikler-table').DataTable({
         processing: true,
         serverSide: true,
+        autoWidth: false,
         ajax: {
             url: "{{ route('admin.etkinlikler') }}",
             data: function (d) {
                 d.status = $('#status-filter').val();
+                d.club_id = $('#filter-club').val();
+                d.category_id = $('#filter-category').val();
             }
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
-            {data: 'event_info', name: 'title', orderable: false, searchable: true},
-            {data: 'club_name', name: 'club.name', orderable: false},
-            {data: 'category_name', name: 'category.name', orderable: false},
-            {data: 'date', name: 'start_time'},
-            {data: 'participants', name: 'current_participants'},
-            {data: 'status', name: 'status', orderable: false, searchable: false},
+            {data: 'event_info', name: 'events.title'},
+            {data: 'club_name', name: 'clubs.name'},
+            {data: 'category_name', name: 'categories.name'},
+            {data: 'date', name: 'events.start_time'},
+            {data: 'participants', name: 'events.current_participants', orderable: false, searchable: false},
+            {data: 'status', name: 'events.status', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
-        order: [[0, 'asc']],
+        order: [[4, 'asc']],
         language: {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"grid"l f>rt<"grid"i p>',
+        dom: '<"grid min-h-[400px]"rt><"flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
+        initComplete: function() {
+            // Stability guaranteed via CSS table-fixed
+        }
     });
 
     // İstatistik animasyonu
@@ -509,8 +566,20 @@ $(document).ready(function() {
         });
     });
 
-    $('#status-filter').change(function(){
+    // Custom Search
+    $('#custom-search').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    // Filter Change Events
+    $('#status-filter, #filter-club, #filter-category').on('change', function() {
         table.draw();
+    });
+
+    $('#reset-filters').on('click', function() {
+        $('#filter-club, #filter-category, #custom-search').val('');
+        $('#status-filter').val('all');
+        table.search('').draw();
     });
 });
 
@@ -598,7 +667,7 @@ function showEtkinlikDuzenle(id) {
             if (data.image) {
                 const previewImg = document.getElementById('edit-event-image-preview');
                 const placeholder = document.getElementById('edit-event-placeholder');
-                previewImg.src = '/storage/' + data.image;
+                previewImg.src = resolveImageUrl(data.image);
                 previewImg.classList.remove('hidden');
                 placeholder.classList.add('hidden');
             }
@@ -635,7 +704,7 @@ function addSpeakerRow(context, data = null) {
     const container = document.getElementById(`${context}-speakers-container`);
     const index = container.children.length;
     
-    const previewSrc = data?.image ? `/storage/${data.image}` : '';
+    const previewSrc = data?.image ? resolveImageUrl(data.image) : '';
     const hasImage = data?.image ? '' : 'hidden';
     const noImage = data?.image ? 'hidden' : '';
 

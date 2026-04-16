@@ -41,10 +41,14 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($user->profile_photo) {
-            \Storage::disk('public')->delete($user->profile_photo);
+            if (\Storage::disk('uploads')->exists($user->profile_photo)) {
+                \Storage::disk('uploads')->delete($user->profile_photo);
+            } else {
+                \Storage::disk('public')->delete($user->profile_photo);
+            }
         }
 
-        $path = $request->file('profile_photo')->store('profile-photos', 'public');
+        $path = $request->file('profile_photo')->store('profiles', 'uploads');
         $user->update(['profile_photo' => $path]);
 
         // Auth cache'ini yenile

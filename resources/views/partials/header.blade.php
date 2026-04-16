@@ -90,7 +90,11 @@
                             <div
                                 class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-primary border border-slate-200 overflow-hidden shadow-sm">
                                 @if(auth()->user()->profile_photo)
-                                    <img src="{{ asset('uploads/' . auth()->user()->profile_photo) }}"
+                                    @php
+                                        $photo = auth()->user()->profile_photo;
+                                        $photoUrl = file_exists(public_path('uploads/' . $photo)) ? asset('uploads/' . $photo) : asset('storage/' . $photo);
+                                    @endphp
+                                    <img src="{{ $photoUrl }}"
                                         class="w-full h-full object-cover">
                                 @else
                                     <span class="material-symbols-outlined text-[20px]">account_circle</span>
@@ -231,7 +235,11 @@
                     <div class="w-12 h-12 rounded-full border-2 border-primary/20 p-0.5">
                         <div class="w-full h-full rounded-full bg-slate-100 overflow-hidden shadow-inner">
                             @if(auth()->user()->profile_photo)
-                                <img src="{{ asset('uploads/' . auth()->user()->profile_photo) }}"
+                                @php
+                                    $photo = auth()->user()->profile_photo;
+                                    $photoUrl = file_exists(public_path('uploads/' . $photo)) ? asset('uploads/' . $photo) : asset('storage/' . $photo);
+                                @endphp
+                                <img src="{{ $photoUrl }}"
                                     class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-primary">

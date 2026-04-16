@@ -5,9 +5,13 @@
         class="group bg-white border border-slate-100 hover:border-primary/30 hover:shadow-xl rounded-2xl md:rounded-[2rem] p-4 sm:p-5 md:p-6 transition-all duration-300 flex flex-col sm:flex-row gap-4 md:gap-6 items-start w-full">
         <div class="w-full sm:w-40 md:w-48 h-24 md:h-32 rounded-xl md:rounded-2xl overflow-hidden shrink-0 bg-slate-100">
             @if($firstEvent->image)
+                @php
+                    $eImg = $firstEvent->image;
+                    $eUrl = str_starts_with($eImg, 'http') ? $eImg : (file_exists(public_path('uploads/' . $eImg)) ? asset('uploads/' . $eImg) : asset('storage/' . $eImg));
+                @endphp
                 <img alt="{{ $firstEvent->title }}"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    src="{{ str_starts_with($firstEvent->image, 'http') ? $firstEvent->image : asset('storage/' . $firstEvent->image) }}" />
+                    src="{{ $eUrl }}" />
             @else
                 <div class="w-full h-full flex items-center justify-center text-slate-300">
                     <span class="material-symbols-outlined text-4xl">event</span>

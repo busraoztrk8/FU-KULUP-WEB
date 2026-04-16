@@ -36,13 +36,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             @foreach($news as $item)
             <a href="{{ route('haber.detay', $item->slug) }}"
-                class="group bg-white rounded-2xl overflow-hidden border border-black/5 hover:border-primary/20 hover:shadow-xl transition-all duration-300">
+                class="group bg-white rounded-2xl overflow-hidden border border-black/5 hover:border-primary/20 hover:shadow-xl transition-all duration-300 equal-height-card">
                 <div class="relative h-48 md:h-52 overflow-hidden">
                     @if($item->image_path)
-                        <img src="{{ str_starts_with($item->image_path, 'http') ? $item->image_path : asset('storage/' . $item->image_path) }}" alt="{{ $item->title }}"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
+                        @php
+                            $nPath = $item->image_path;
+                            $nUrl = str_starts_with($nPath, 'http') ? $nPath : (file_exists(public_path('uploads/' . $nPath)) ? asset('uploads/' . $nPath) : asset('storage/' . $nPath));
+                        @endphp
+                        <img src="{{ $nUrl }}" alt="{{ $item->title }}"
+                            class="aspect-stable-img group-hover:scale-110 transition-transform duration-500"/>
                     @else
-                        <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
+                        <div class="aspect-stable-img bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
                             <span class="material-symbols-outlined text-primary/40 text-[56px]">newspaper</span>
                         </div>
                     @endif
@@ -52,7 +56,7 @@
                     </div>
                     @endif
                 </div>
-                <div class="p-5 md:p-6">
+                <div class="p-5 md:p-6 card-content">
                     <div class="flex items-center gap-2 text-xs text-slate-400 font-bold uppercase tracking-wider mb-3">
                         <span class="material-symbols-outlined text-[14px] text-primary">schedule</span>
                         {{ $item->published_at ? $item->published_at->format('d M Y') : $item->created_at->format('d M Y') }}
@@ -63,7 +67,7 @@
                     <p class="text-sm text-slate-500 leading-relaxed line-clamp-3">
                         {{ Str::limit(strip_tags($item->content), 120) }}
                     </p>
-                    <div class="mt-4 flex items-center text-primary font-bold text-sm gap-1 group-hover:gap-2 transition-all">
+                    <div class="mt-auto pt-4 flex items-center text-primary font-bold text-sm gap-1 group-hover:gap-2 transition-all">
                         Devamını Oku
                         <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
                     </div>

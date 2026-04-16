@@ -23,7 +23,11 @@
                     <div class="relative group/photo shrink-0">
                         <div class="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] overflow-hidden shadow-xl shadow-primary/20">
                             @if($user->profile_photo)
-                                <img src="{{ asset('storage/' . $user->profile_photo) }}" id="photo-preview"
+                                @php
+                                    $pPhoto = $user->profile_photo;
+                                    $pUrl = str_starts_with($pPhoto, 'http') ? $pPhoto : (file_exists(public_path('uploads/' . $pPhoto)) ? asset('uploads/' . $pPhoto) : asset('storage/' . $pPhoto));
+                                @endphp
+                                <img src="{{ $pUrl }}" id="photo-preview"
                                      class="w-full h-full object-cover" alt="">
                             @else
                                 <div id="photo-placeholder" class="w-full h-full bg-gradient-to-br from-primary to-[#8b1d35] flex items-center justify-center">

@@ -57,25 +57,60 @@
     </div>
     @endif
 
-    <div class="flex flex-col md:flex-row md:items-center justify-end gap-3 mb-6">
-        <button onclick="showDuyuruModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+        <div class="flex flex-wrap items-center gap-2">
+            {{-- Search Bar --}}
+            <div class="relative min-w-[200px]">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+                <input type="text" id="custom-search" placeholder="Duyurularda ara..." class="w-full bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+            </div>
+
+            <div class="h-8 w-[1px] bg-slate-200 mx-1 hidden md:block"></div>
+
+            {{-- Club Select --}}
+            <div class="relative min-w-[160px]">
+                <select id="filter-club" class="w-full bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                    <option value="">Tüm Kulüpler</option>
+                    @foreach($clubs as $club)
+                        <option value="{{ $club->id }}">{{ $club->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Category Select --}}
+            <div class="relative min-w-[160px]">
+                <select id="filter-category" class="w-full bg-white border border-slate-200 rounded-xl text-sm px-4 py-2.5 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer">
+                    <option value="">Tüm Kategoriler</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Reset --}}
+            <button id="reset-filters" class="flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 text-slate-400 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all shadow-sm" title="Filtreleri Temizle">
+                <span class="material-symbols-outlined text-[20px]">filter_alt_off</span>
+            </button>
+        </div>
+
+        <button onclick="showDuyuruModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0">
             <span class="material-symbols-outlined text-[18px]">add</span>Yeni Duyuru
         </button>
     </div>
 
     <div class="admin-card p-0 overflow-hidden shadow-sm">
-        <div class="overflow-x-auto pt-4 w-full">
-            <table class="w-full" id="duyurular-table">
+        <div class="overflow-x-auto pt-4 w-full min-h-[500px]">
+            <table class="w-full table-fixed" id="duyurular-table">
                 <thead>
                     <tr>
-                        <th class="w-12 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">Duyuru</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">Kulüp</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">Durum</th>
-                        <th class="text-slate-500 font-bold uppercase text-xs tracking-wider">İşlemler</th>
+                        <th class="w-16 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
+                        <th class="w-[45%] text-slate-500 font-bold uppercase text-xs tracking-wider">Duyuru Bilgisi</th>
+                        <th class="w-[20%] text-slate-500 font-bold uppercase text-xs tracking-wider">Kulüp</th>
+                        <th class="w-[12%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">Durum</th>
+                        <th class="w-[120px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">İşlemler</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100">
                     <!-- DataTables will fill this -->
                 </tbody>
             </table>
@@ -104,8 +139,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                          <label class="block text-sm font-bold text-slate-700 mb-2">Görsel (Opsiyonel)</label>
-                         <input id="duyuru-gorsel" name="image" type="file" accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
-                    </div>
+                     </div>
                     <div class="{{ auth()->user()->isEditor() ? 'hidden' : '' }}">
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp <span class="text-red-500">*</span></label>
                         <select id="duyuru-kulup" name="club_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
@@ -179,20 +213,45 @@ $(document).ready(function() {
     let table = $('#duyurular-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('admin.duyurular') }}",
+        autoWidth: false,
+        ajax: {
+            url: "{{ route('admin.duyurular') }}",
+            data: function (d) {
+                d.club_id = $('#filter-club').val();
+                d.category_id = $('#filter-category').val();
+            }
+        },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
-            {data: 'announcement_info', name: 'title'},
-            {data: 'club_name', name: 'club.name', orderable: false},
-            {data: 'status', name: 'status', orderable: false, searchable: false},
+            {data: 'announcement_info', name: 'announcements.title'},
+            {data: 'club_name', name: 'clubs.name'},
+            {data: 'status', name: 'announcements.is_published', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
-        order: [[0, 'asc']],
+        order: [[1, 'asc']],
         language: {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"grid"l f>rt<"grid"i p>',
+        dom: '<"grid"rt><"flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
+        initComplete: function() {
+            // Stability guaranteed via CSS table-fixed
+        }
+    });
+
+    // Custom Search
+    $('#custom-search').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    // Filter Change Events
+    $('#filter-club, #filter-category').on('change', function() {
+        table.draw();
+    });
+
+    $('#reset-filters').on('click', function() {
+        $('#filter-club, #filter-category, #custom-search').val('');
+        table.search('').draw();
     });
 });
 
@@ -204,8 +263,24 @@ function showDuyuruModal() {
     document.getElementById('duyuru-icerik').value = '';
     document.getElementById('duyuru-kulup').value = "{{ auth()->user()->isEditor() ? auth()->user()->club_id : '' }}";
     document.getElementById('duyuru-durum').value = '1';
+    document.getElementById('duyuru-preview-container').classList.add('hidden');
     document.getElementById('duyuru-modal').classList.remove('hidden');
 }
+
+/**
+ * Resim yolunu dinamik olarak çözer (uploads veya storage)
+ */
+function resolveImageUrl(path) {
+    if (!path) return '/images/logo_orj.png';
+    if (path.startsWith('http')) return path;
+    
+    // Yükleme klasörü kontrolü
+    if (path.includes('/') && !path.startsWith('logos/') && !path.startsWith('covers/') && !path.startsWith('gallery/') && !path.startsWith('profiles/')) {
+        return '/uploads/' + path;
+    }
+    return '/storage/' + path;
+}
+
 function showDuyuruDuzenle(id) {
     // Show loading state
     document.getElementById('duyuru-baslik').value = 'Yükleniyor...';
@@ -235,6 +310,14 @@ function showDuyuruDuzenle(id) {
             });
         }, 100);
         
+        if (data.image_path) {
+            const preview = document.getElementById('duyuru-preview');
+            preview.src = resolveImageUrl(data.image_path);
+            document.getElementById('duyuru-preview-container').classList.remove('hidden');
+        } else {
+            document.getElementById('duyuru-preview-container').classList.add('hidden');
+        }
+
         document.getElementById('duyuru-modal').classList.remove('hidden');
     }).fail(function() {
         alert('Duyuru verileri yüklenirken bir hata oluştu.');

@@ -42,9 +42,13 @@
                 <div class="group bg-white border border-slate-100 rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 hover:-translate-y-1 block">
                     <div class="relative h-48 sm:h-56 overflow-hidden">
                         @if($event->image)
+                            @php
+                                $dImg = $event->image;
+                                $dUrl = str_starts_with($dImg, 'http') ? $dImg : (file_exists(public_path('uploads/' . $dImg)) ? asset('uploads/' . $dImg) : asset('storage/' . $dImg));
+                            @endphp
                             <img alt="{{ $event->title }}"
                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" />
+                                src="{{ $dUrl }}" />
                         @else
                             <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
                                 <span class="material-symbols-outlined text-5xl">event</span>
@@ -83,7 +87,11 @@
                         <div class="flex items-center justify-between pt-6 border-t border-slate-50 mt-auto">
                             <div class="flex items-center gap-2">
                                 @if($event->club && $event->club->logo)
-                                    <img src="{{ str_starts_with($event->club->logo, 'http') ? $event->club->logo : asset('storage/' . $event->club->logo) }}" 
+                                    @php
+                                        $clLogo = $event->club->logo;
+                                        $clUrl = str_starts_with($clLogo, 'http') ? $clLogo : (file_exists(public_path('uploads/' . $clLogo)) ? asset('uploads/' . $clLogo) : asset('storage/' . $clLogo));
+                                    @endphp
+                                    <img src="{{ $clUrl }}" 
                                          class="w-6 h-6 rounded-full object-cover border border-slate-100" />
                                 @endif
                                 <span class="text-[11px] font-bold text-slate-500 truncate max-w-[100px]">{{ $event->club ? $event->club->name : 'Fırat Üniversitesi' }}</span>

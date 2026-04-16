@@ -4,83 +4,85 @@
 @section('content')
 
     <!-- Hero Section with Image Slider -->
-    <section class="relative h-[480px] sm:h-[550px] md:h-[700px] lg:h-[800px] flex items-center justify-center overflow-hidden bg-slate-900 group">
+    <section
+        class="relative h-[400px] sm:h-[500px] md:h-[650px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-2xl group">
         @if(isset($sliders) && $sliders->count() > 0)
-            <div class="swiper hero-swiper h-full w-full absolute inset-0 z-0">
-                <div class="swiper-wrapper">
-                    @foreach($sliders as $slider)
-                        <div class="swiper-slide relative">
-                            <img alt="{{ $slider->title ?? 'Fırat Üniversitesi' }}" class="w-full h-full object-cover brightness-[0.5] sm:brightness-[0.6] md:brightness-75" src="{{ asset('storage/' . $slider->image_path) }}" />
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="container mx-auto px-4 sm:px-6 relative z-10 text-center">
-                                    <div class="glass-card inline-block px-5 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
-                                        @if($slider->title)
-                                            <h1 class="font-headline text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight text-on-surface">
-                                                {{ $slider->title }}
-                                            </h1>
-                                        @endif
-                                        @if($slider->subtitle)
-                                            <p class="font-body text-sm sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed">
-                                                {{ $slider->subtitle }}
-                                            </p>
-                                        @endif
-                                        @if($slider->button_text && $slider->button_url)
-                                            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
-                                                <a href="{{ $slider->button_url }}" class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-sm md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
-                                                    {{ $slider->button_text }}
-                                                </a>
-                                            </div>
-                                        @endif
+                <div class="swiper hero-swiper h-full w-full absolute inset-0 z-0">
+                    <div class="swiper-wrapper">
+                        @foreach($sliders as $slider)
+                            <div class="swiper-slide relative">
+                                <img alt="{{ $slider->title ?? 'Fırat Üniversitesi' }}" class="w-full h-full object-cover brightness-[0.5] sm:brightness-[0.6] md:brightness-75" 
+                                     src="{{ str_starts_with($slider->image_path, 'http') ? $slider->image_path : (file_exists(public_path('uploads/' . $slider->image_path)) ? asset('uploads/' . $slider->image_path) : asset('storage/' . $slider->image_path)) }}" />
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="container mx-auto px-4 sm:px-6 relative z-10 text-center">
+                                        <div class="glass-card inline-block px-5 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
+                                            @if($slider->title)
+                                                <h1 class="font-headline text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight text-on-surface">
+                                                    {{ $slider->title }}
+                                                </h1>
+                                            @endif
+                                            @if($slider->subtitle)
+                                                <p class="font-body text-sm sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed">
+                                                    {{ $slider->subtitle }}
+                                                </p>
+                                            @endif
+                                            @if($slider->button_text && $slider->button_url)
+                                                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
+                                                    <a href="{{ $slider->button_url }}" class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-sm md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
+                                                        {{ $slider->button_text }}
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
+                    
+                    @if($sliders->count() > 1)
+                        <!-- Navigation -->
+                        <div class="swiper-button-next !text-white !right-4 !w-12 !h-12 !bg-black/20 hover:!bg-black/40 rounded-full backdrop-blur opacity-0 group-hover:opacity-100 transition-all after:!text-xl z-20"></div>
+                        <div class="swiper-button-prev !text-white !left-4 !w-12 !h-12 !bg-black/20 hover:!bg-black/40 rounded-full backdrop-blur opacity-0 group-hover:opacity-100 transition-all after:!text-xl z-20"></div>
+                        <!-- Pagination -->
+                        <div class="swiper-pagination !bottom-6 swiper-pagination-white z-20"></div>
+                    @endif
                 </div>
-                
-                @if($sliders->count() > 1)
-                    <!-- Navigation -->
-                    <div class="swiper-button-next !text-white !right-4 !w-12 !h-12 !bg-black/20 hover:!bg-black/40 rounded-full backdrop-blur opacity-0 group-hover:opacity-100 transition-all after:!text-xl z-20"></div>
-                    <div class="swiper-button-prev !text-white !left-4 !w-12 !h-12 !bg-black/20 hover:!bg-black/40 rounded-full backdrop-blur opacity-0 group-hover:opacity-100 transition-all after:!text-xl z-20"></div>
-                    <!-- Pagination -->
-                    <div class="swiper-pagination !bottom-6 swiper-pagination-white z-20"></div>
-                @endif
-            </div>
-        @else
-            <!-- Static Fallback Slider Content -->
-            <div class="absolute inset-0 z-0">
-                <div class="hero-slider-item active h-full w-full">
-                    <img alt="University Library" class="w-full h-full object-cover brightness-[0.5] sm:brightness-[0.6] md:brightness-75"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGXyLOwSo27k1_6Ddg5vXCAGtTwpzk90fHHcbFmXnMq5aIBKeKGr0UhTzQH7c8B7Z-Zjlfpq2DTtT8Eh_VfP5YFf2SSNjtOZ_zO8ftmO4Mxzk8F_wwoHnZyFVDtTBk1jpkdPAVw_p1brUdDUJq8F8lyzl6Oy-KEqdeIOoESaDzEi0d0BRD8dGJERB0nFhYcoKDf6jcn9RAtpiE5DqymljGU-NTHD_fB9_BmG2PdLhPcVHkCNvum-DdK6erFUECPnPUAzpaw41m2hE" />
-                </div>
-            </div>
-            <div class="container mx-auto px-4 sm:px-6 relative z-10 text-center">
-                <div class="glass-card inline-block px-5 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
-                    <h1 class="font-headline text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight text-on-surface">
-                        Üniversite Hayatını <span class="text-gradient">Keşfedin</span>
-                    </h1>
-                    <p class="font-body text-sm sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed">
-                        Etkinlikleri keşfedin, kulüplere katılın ve kampüs topluluğunuzla ağ oluşturun. Geleceğin
-                        akademik ekosistemine bugün adım atın.
-                    </p>
-                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
-                        <a href="{{ route('etkinlikler') }}"
-                            class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-sm md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
-                            Etkinlikleri Keşfedin
-                        </a>
-                        <a href="{{ route('kulupler') }}"
-                            class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-white border border-outline-variant text-on-surface rounded-full font-bold text-sm md:text-lg hover:bg-surface-container transition-all text-center">
-                            Kulüpleri Keşfedin
-                        </a>
+            @else
+                <!-- Static Fallback Slider Content -->
+                <div class="absolute inset-0 z-0">
+                    <div class="hero-slider-item active h-full w-full">
+                        <img alt="University Library" class="w-full h-full object-cover brightness-[0.5] sm:brightness-[0.6] md:brightness-75"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGXyLOwSo27k1_6Ddg5vXCAGtTwpzk90fHHcbFmXnMq5aIBKeKGr0UhTzQH7c8B7Z-Zjlfpq2DTtT8Eh_VfP5YFf2SSNjtOZ_zO8ftmO4Mxzk8F_wwoHnZyFVDtTBk1jpkdPAVw_p1brUdDUJq8F8lyzl6Oy-KEqdeIOoESaDzEi0d0BRD8dGJERB0nFhYcoKDf6jcn9RAtpiE5DqymljGU-NTHD_fB9_BmG2PdLhPcVHkCNvum-DdK6erFUECPnPUAzpaw41m2hE" />
                     </div>
                 </div>
-            </div>
-        @endif
+                <div class="container mx-auto px-4 sm:px-6 relative z-10 text-center">
+                    <div class="glass-card inline-block px-5 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
+                        <h1 class="font-headline text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight text-on-surface">
+                            Üniversite Hayatını <span class="text-gradient">Keşfedin</span>
+                        </h1>
+                        <p class="font-body text-sm sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed">
+                            Etkinlikleri keşfedin, kulüplere katılın ve kampüs topluluğunuzla ağ oluşturun. Geleceğin
+                            akademik ekosistemine bugün adım atın.
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
+                            <a href="{{ route('etkinlikler') }}"
+                                class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-sm md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
+                                Etkinlikleri Keşfedin
+                            </a>
+                            <a href="{{ route('kulupler') }}"
+                                class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-white border border-outline-variant text-on-surface rounded-full font-bold text-sm md:text-lg hover:bg-surface-container transition-all text-center">
+                                Kulüpleri Keşfedin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
     </section>
 
     <!-- Stats Section -->
     <section class="py-10 md:py-12 border-b border-black/5 bg-white">
-        <div class="container mx-auto px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-12 text-center">
                 <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors flex flex-col items-center justify-center h-full" data-animate>
                     <div class="text-4xl md:text-5xl font-headline font-extrabold text-gradient mb-1 flex items-center justify-center tabular-nums">
@@ -108,8 +110,8 @@
     </section>
 
     <!-- Trending Events Section - Single Row Carousel -->
-    <section class="py-12 md:py-16 px-4 sm:px-6 bg-slate-50">
-        <div class="max-w-7xl mx-auto">
+    <section class="py-12 md:py-16 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div class="flex justify-between items-end mb-8 md:mb-12 gap-4">
                 <div>
                     <h2 class="text-2xl md:text-3xl font-headline font-bold mb-2 text-on-surface">Trend Etkinlikler</h2>
@@ -126,7 +128,7 @@
             </div>
 
             @if($trendingEvents->count() > 0)
-            <div class="swiper events-swiper overflow-hidden">
+            <div class="swiper events-swiper overflow-hidden !pb-12">
                 <div class="swiper-wrapper">
                     @foreach($trendingEvents as $event)
                     <div class="swiper-slide !h-auto">
@@ -154,20 +156,29 @@
                                     <span
                                         class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">{{ $event->category->name }}</span>
                                     @endif
+                                    @if($event->club)
+                                    <span
+                                        class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider">{{ $event->club->name }}</span>
+                                    @endif
                                 </div>
                                 @if($event->image)
-                                    <img alt="{{ $event->title }}" class="w-full h-40 md:h-48 object-cover rounded-xl"
-                                        src="{{ asset('storage/' . $event->image) }}" />
+                                    <img alt="{{ $event->title }}" class="aspect-stable-img rounded-xl"
+                                        src="{{ str_starts_with($event->image, 'http') ? $event->image : (file_exists(public_path('uploads/' . $event->image)) ? asset('uploads/' . $event->image) : asset('storage/' . $event->image)) }}" />
                                 @else
-                                    <div class="w-full h-40 md:h-48 bg-slate-100 flex items-center justify-center rounded-xl text-slate-300">
+                                    <div class="aspect-stable-img bg-slate-100 flex items-center justify-center rounded-xl text-slate-300">
                                         <span class="material-symbols-outlined text-4xl">event</span>
                                     </div>
                                 @endif
+                                <div class="card-content mt-4">
+                                    <h3 class="text-xl font-headline font-bold mb-2 line-clamp-2">{{ $event->title }}</h3>
+                                    <p class="text-on-surface-variant text-sm line-clamp-3">{{ $event->short_description ?? Str::limit(strip_tags($event->description), 120) }}</p>
+                                </div>
                             </div>
                         </a>
                     </div>
                     @endforeach
                 </div>
+                <div class="swiper-pagination events-pagination mt-4"></div>
             </div>
             @else
             <div class="py-12 text-center text-slate-400">
@@ -179,7 +190,7 @@
 
     <!-- Active Clubs Section -->
     <section class="py-12 md:py-16 bg-white">
-        <div class="container mx-auto px-4 sm:px-6 max-w-7xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div class="mb-10 md:mb-16">
                 <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Aktif Kulüpler</h2>
                 <p class="text-on-surface-variant text-center max-w-xl mx-auto text-sm md:text-base">İlgi alanlarınıza göre bir topluluk
@@ -199,14 +210,18 @@
                     class="group bg-surface-container-high rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col lg:flex-row hover:shadow-xl transition-all duration-500 block text-left h-full">
                     <div class="lg:w-1/2 relative overflow-hidden h-48 sm:h-64 lg:h-auto">
                         @if($club->logo)
-                            <img src="{{ str_starts_with($club->logo, 'http') ? $club->logo : asset('storage/' . $club->logo) }}" alt="{{ $club->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            @php
+                                $logoPath = $club->logo;
+                                $logoUrl = str_starts_with($logoPath, 'http') ? $logoPath : (file_exists(public_path('uploads/' . $logoPath)) ? asset('uploads/' . $logoPath) : asset('storage/' . $logoPath));
+                            @endphp
+                            <img src="{{ $logoUrl }}" alt="{{ $club->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         @else
                             <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
                                 <span class="material-symbols-outlined text-5xl">groups</span>
                             </div>
                         @endif
                     </div>
-                    <div class="lg:w-1/2 p-6 md:p-8 lg:p-10 flex flex-col justify-between">
+                    <div class="lg:w-1/2 p-6 md:p-8 lg:p-10 flex flex-col justify-between card-content">
                         <div>
                             <div class="flex items-center justify-between mb-3 md:mb-4">
                                 @if($club->category)
@@ -217,13 +232,13 @@
                                         class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
                             </div>
                             <h3
-                                class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors">
+                                class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">
                                 {{ $club->name }}</h3>
-                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6">
-                                {{ $club->short_description ?? Str::limit(strip_tags($club->description), 100) }}
+                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3">
+                                {{ $club->short_description ?? Str::limit(strip_tags($club->description), 150) }}
                             </p>
                         </div>
-                        <div class="text-primary font-bold text-sm flex items-center gap-2">
+                        <div class="text-primary font-bold text-sm flex items-center gap-2 mt-auto">
                             Kulübü Görüntüle <span class="material-symbols-outlined">arrow_right_alt</span>
                         </div>
                     </div>
@@ -267,9 +282,13 @@
                                             : ($imgIndex % 2 == 0 ? 'h-48 md:h-64' : 'h-60 md:h-80');
                                     @endphp
                                     <div class="relative group cursor-pointer {{ $heightClass }} overflow-hidden rounded-2xl md:rounded-3xl shadow-md hover:shadow-2xl transition-all duration-500 bg-slate-100">
-                                        <img alt="{{ $image->title ?? 'Kampüs Yaşamı' }}"
-                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                            src="{{ str_starts_with($image->image_path, 'http') ? $image->image_path : asset('storage/' . $image->image_path) }}" />
+                                            @php
+                                                $gp = $image->image_path;
+                                                $gUrl = str_starts_with($gp, 'http') ? $gp : (file_exists(public_path('uploads/' . $gp)) ? asset('uploads/' . $gp) : asset('storage/' . $gp));
+                                            @endphp
+                                            <img alt="{{ $image->title ?? 'Kampüs Yaşamı' }}"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                src="{{ $gUrl }}" />
                                         <div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4 md:p-6">
                                             <p class="text-white text-sm font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{{ $image->title }}</p>
                                         </div>
@@ -293,8 +312,8 @@
     </section>
 
     <!-- Success Stories Section -->
-    <section class="py-12 md:py-16 px-4 sm:px-6 bg-white">
-        <div class="max-w-7xl mx-auto">
+    <section class="py-12 md:py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div class="mb-10 md:mb-16">
                 <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Başarı Hikayeleri</h2>
                 <p class="text-on-surface-variant text-center max-w-xl mx-auto text-sm md:text-base">Topluluğumuzun birlikte imza attığı
@@ -378,22 +397,58 @@
             // Events Carousel Swiper
             if (document.querySelector('.events-swiper')) {
                 new Swiper('.events-swiper', {
-                    slidesPerView: 1,
+                    slidesPerView: 1.2,
                     spaceBetween: 16,
                     grabCursor: true,
-                    loop: false,
+                    loop: true,
+                    autoplay: {
+                        delay: 4000,
+                        disableOnInteraction: false,
+                    },
                     navigation: {
                         nextEl: '.events-swiper-next',
                         prevEl: '.events-swiper-prev',
                     },
+                    pagination: {
+                        el: '.events-pagination',
+                        clickable: true,
+                    },
                     breakpoints: {
                         640: {
-                            slidesPerView: 2,
+                            slidesPerView: 2.2,
                             spaceBetween: 20,
                         },
                         1024: {
-                            slidesPerView: 3,
+                            slidesPerView: 3.2,
                             spaceBetween: 24,
+                        },
+                    },
+                });
+            }
+
+            // Active Clubs Swiper
+            if (document.querySelector('.active-clubs-swiper')) {
+                new Swiper('.active-clubs-swiper', {
+                    slidesPerView: 1,
+                    spaceBetween: 20,
+                    grabCursor: true,
+                    loop: true,
+                    autoplay: {
+                        delay: 4000,
+                        disableOnInteraction: false,
+                    },
+                    pagination: {
+                        el: '.active-clubs-pagination',
+                        clickable: true,
+                    },
+                    breakpoints: {
+                        768: {
+                            slidesPerView: 1.5,
+                            spaceBetween: 30,
+                        },
+                        1024: {
+                            slidesPerView: 2,
+                            spaceBetween: 40,
                         },
                     },
                 });

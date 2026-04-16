@@ -27,7 +27,7 @@ class SliderController extends Controller
             'is_active'   => 'nullable|boolean',
         ]);
 
-        $path = $request->file('image')->store('sliders', 'public');
+        $path = $request->file('image')->store('global/sliders', 'uploads');
 
         Slider::create([
             'image_path'  => $path,
@@ -58,8 +58,13 @@ class SliderController extends Controller
         $data['is_active'] = $request->boolean('is_active', true);
 
         if ($request->hasFile('image')) {
-            Storage::disk('public')->delete($slider->image_path);
-            $data['image_path'] = $request->file('image')->store('sliders', 'public');
+            // Eski dosyayı sil
+            if (Storage::disk('uploads')->exists($slider->image_path)) {
+                Storage::disk('uploads')->delete($slider->image_path);
+            } else {
+                Storage::disk('public')->delete($slider->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('global/sliders', 'uploads');
         }
 
         $slider->update($data);
@@ -69,7 +74,11 @@ class SliderController extends Controller
 
     public function destroy(Slider $slider)
     {
-        Storage::disk('public')->delete($slider->image_path);
+        if (Storage::disk('uploads')->exists($slider->image_path)) {
+            Storage::disk('uploads')->delete($slider->image_path);
+        } else {
+            Storage::disk('public')->delete($slider->image_path);
+        }
         $slider->delete();
         return redirect()->route('admin.slider')->with('success', 'Slide silindi.');
     }
