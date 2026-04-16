@@ -79,7 +79,7 @@
 
         <!-- Pagination -->
         <div class="mt-12 flex justify-center">
-            {{ $announcements->links('vendor.pagination.tailwind') }}
+            {{ $announcements->links('partials.custom-pagination') }}
         </div>
         @else
         <div class="text-center py-20">

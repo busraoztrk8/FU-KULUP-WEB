@@ -17,6 +17,11 @@
                     <span class="material-symbols-outlined text-sm align-middle mr-1">event</span>
                     Toplam {{ $totalEvents }} Etkinlik
                 </span>
+                @if($events->lastPage() > 1)
+                <span class="bg-slate-100 text-slate-600 px-4 py-2 rounded-full text-sm font-bold">
+                    Sayfa {{ $events->currentPage() }} / {{ $events->lastPage() }}
+                </span>
+                @endif
             </div>
         </div>
     </section>
@@ -24,118 +29,72 @@
     <!-- Main Content Area -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16">
         <div id="all-events-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            @include('partials.event-grid-list', ['events' => $events])
-
-            @if($events->isEmpty())
+            @forelse($events as $event)
+            <a href="{{ route('etkinlik.detay', ['slug' => $event->slug]) }}"
+                class="group bg-primary rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full border border-white/5 cursor-pointer">
+                <div class="relative h-36 md:h-64 w-full overflow-hidden shrink-0">
+                    @if($event->image)
+                        <img alt="{{ $event->title }}"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            src="{{ str_starts_with($event->image, 'http') ? $event->image : asset('storage/' . $event->image) }}" />
+                    @else
+                        <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                            <span class="material-symbols-outlined text-5xl">event</span>
+                        </div>
+                    @endif
+                    
+                    <div class="absolute top-4 left-4 bg-white rounded-xl md:rounded-[1.2rem] p-2 md:p-3 text-center min-w-[55px] md:min-w-[65px] shadow-xl">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">
+                            {{ \Carbon\Carbon::parse($event->start_time)->translatedFormat('M') }}
+                        </div>
+                        <div class="text-xl md:text-2xl font-black text-primary leading-tight">
+                            {{ \Carbon\Carbon::parse($event->start_time)->format('d') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 md:p-8 flex flex-col flex-1 text-white">
+                    <div class="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                        @if($event->category)
+                        <span class="bg-white/10 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded tracking-wider border border-white/10">
+                            {{ $event->category->name }}
+                        </span>
+                        @endif
+                        <span class="text-white/80 text-xs flex items-center gap-1.5 font-medium">
+                            <span class="material-symbols-outlined text-sm">schedule</span> 
+                            {{ \Carbon\Carbon::parse($event->start_time)->format('H:i') }}
+                        </span>
+                    </div>
+                    <h4 class="text-sm md:text-2xl font-extrabold font-headline mb-1 md:mb-4 leading-tight uppercase group-hover:text-amber-200 transition-colors">
+                        {{ $event->title }}
+                    </h4>
+                    <p class="text-white/60 text-xs md:text-sm mb-4 md:mb-8 line-clamp-2 leading-relaxed font-body">
+                        {{ $event->short_description ?? strip_tags($event->description) }}
+                    </p>
+                    <div class="mt-auto flex items-center justify-between pt-4 md:pt-5 border-t border-white/5">
+                        <div class="flex items-center gap-1 md:gap-2">
+                            <span class="material-symbols-outlined text-sm text-white/40">location_on</span>
+                            <span class="text-xs text-white/70 font-medium truncate max-w-[140px]">{{ $event->location ?? 'Yer Belirtilmedi' }}</span>
+                        </div>
+                        <div class="text-white font-bold text-xs md:text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                            Detaylar <span class="material-symbols-outlined text-sm">arrow_forward_ios</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            @empty
             <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
                 <span class="material-symbols-outlined text-6xl text-slate-300 mb-4 inline-block">event_busy</span>
                 <h3 class="text-xl font-bold text-slate-600 mb-2">Henüz Etkinlik Bulunmuyor</h3>
                 <p class="text-slate-400">Şu anda planlanmış bir etkinlik verisi bulunamadı.</p>
             </div>
-            @endif
+            @endforelse
         </div>
         
-        <!-- AJAX Load More Button -->
-        @if($events->count() >= 15)
-        <div id="tum-load-more-container" class="mt-12 flex justify-center">
-            <button id="tum-load-more-btn"
-                data-offset="15"
-                data-limit="15"
-                class="bg-white hover:bg-slate-50 text-primary px-8 md:px-10 py-3 md:py-4 rounded-full font-bold transition-all border border-primary/20 flex items-center gap-2 shadow-lg hover:shadow-xl text-sm md:text-base group">
-                <span id="tum-btn-text">Daha Fazla Yükle</span>
-                <span id="tum-btn-icon" class="material-symbols-outlined text-sm group-hover:translate-y-1 transition-transform">expand_more</span>
-                <span id="tum-btn-spinner" class="hidden">
-                    <svg class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </span>
-            </button>
+        <!-- Pagination -->
+        @if($events->hasPages())
+        <div class="mt-12 md:mt-16">
+            {{ $events->links('partials.custom-pagination') }}
         </div>
         @endif
     </section>
-
-    @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loadMoreBtn = document.getElementById('tum-load-more-btn');
-            const grid = document.getElementById('all-events-grid');
-
-            if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', function() {
-                    const offset = parseInt(this.getAttribute('data-offset'));
-                    const limit = parseInt(this.getAttribute('data-limit'));
-                    const btnText = document.getElementById('tum-btn-text');
-                    const btnIcon = document.getElementById('tum-btn-icon');
-                    const btnSpinner = document.getElementById('tum-btn-spinner');
-
-                    // Loading state
-                    loadMoreBtn.disabled = true;
-                    btnText.innerText = 'Yükleniyor...';
-                    btnIcon.classList.add('hidden');
-                    btnSpinner.classList.remove('hidden');
-
-                    fetch(`{{ route('tum-etkinlikler') }}?offset=${offset}&limit=${limit}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.html && data.html.trim() !== "") {
-                            // Create temp container to parse new elements
-                            const temp = document.createElement('div');
-                            temp.innerHTML = data.html;
-                            const newElements = temp.querySelectorAll('a');
-
-                            // Animate new items in
-                            newElements.forEach((el, index) => {
-                                el.style.opacity = '0';
-                                el.style.transform = 'translateY(20px)';
-                                grid.appendChild(el);
-
-                                // Stagger animation
-                                setTimeout(() => {
-                                    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                                    el.style.opacity = '1';
-                                    el.style.transform = 'translateY(0)';
-                                }, index * 80);
-                            });
-
-                            // Update offset
-                            this.setAttribute('data-offset', offset + data.count);
-
-                            // Check if more data exists
-                            if (!data.has_more) {
-                                loadMoreBtn.parentElement.innerHTML = `
-                                    <div class="text-center text-on-surface-variant py-4">
-                                        <span class="material-symbols-outlined text-2xl text-primary mb-2 block">check_circle</span>
-                                        <p class="font-medium">Tüm etkinlikler yüklendi</p>
-                                    </div>
-                                `;
-                            }
-                        } else {
-                            loadMoreBtn.parentElement.innerHTML = `
-                                <div class="text-center text-on-surface-variant py-4">
-                                    <span class="material-symbols-outlined text-2xl text-primary mb-2 block">check_circle</span>
-                                    <p class="font-medium">Tüm etkinlikler yüklendi</p>
-                                </div>
-                            `;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading more events:', error);
-                        btnText.innerText = 'Hata Oluştu, Tekrar Dene';
-                    })
-                    .finally(() => {
-                        loadMoreBtn.disabled = false;
-                        btnSpinner.classList.add('hidden');
-                        btnIcon.classList.remove('hidden');
-                        btnText.innerText = 'Daha Fazla Yükle';
-                    });
-                });
-            }
-        });
-    </script>
-    @endpush
 @endsection

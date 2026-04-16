@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,7 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 </head>
-<body class="font-body min-h-screen bg-slate-50 flex">
+<body class="font-body min-h-screen bg-slate-50 flex overflow-x-hidden">
+
+    <!-- Mobile Header Inclusion -->
+    <div class="md:hidden">
+        @include('partials.header')
+    </div>
 
     <!-- Sol Panel (Dekoratif) - Sadece md+ ekranlarda görünür -->
     <div class="hidden md:flex md:w-1/2 lg:w-[55%] bg-primary relative overflow-hidden flex-col items-center justify-center p-12">
@@ -49,7 +54,7 @@
     </div>
 
     <!-- Sağ Panel (Form) -->
-    <div class="w-full md:w-1/2 lg:w-[45%] flex items-center justify-center p-6 sm:p-10">
+    <div class="w-full md:w-1/2 lg:w-[45%] flex items-center justify-center p-6 sm:p-10 pt-24 md:pt-10">
         <div class="w-full max-w-md">
 
             <!-- Mobil logo -->

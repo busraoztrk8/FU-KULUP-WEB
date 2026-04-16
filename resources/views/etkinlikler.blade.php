@@ -188,66 +188,57 @@
             </div>
         </div>
 
-        <!-- More Button - Goes to Tüm Etkinlikler page -->
+        <!-- More Button - Redirect to Tüm Etkinlikler page -->
+        @if($totalPublishedEvents > 10)
         <div id="load-more-container" class="mt-6 md:mt-16 flex justify-center" style="display: none;">
             <a href="{{ route('tum-etkinlikler') }}"
-                class="bg-white hover:bg-slate-50 text-primary px-6 md:px-10 py-2 md:py-4 rounded-full font-bold transition-all border border-primary/20 flex items-center gap-2 shadow-lg hover:shadow-xl text-xs md:text-base group">
-                <span>Daha Fazla Yükle</span>
+                class="bg-white hover:bg-slate-50 text-primary px-6 md:px-10 py-2.5 md:py-4 rounded-full font-bold transition-all border border-primary/20 flex items-center gap-2 shadow-lg hover:shadow-xl text-xs md:text-base group">
+                <span>Tüm Etkinlikleri Gör</span>
                 <span class="material-symbols-outlined text-xs md:text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
             </a>
         </div>
+        @endif
     </section>
 
-    <!-- Categories / Filter Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 md:pb-24 border-t border-slate-100 pt-16 md:pt-16 mt-16 md:mt-0">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-12 gap-3 md:gap-8">
-            <h3 class="text-base md:text-3xl font-bold font-headline text-on-background">Tüm Etkinlik Kategorileri</h3>
-            <div class="flex flex-wrap gap-2 md:gap-4 items-center w-full md:w-auto">
-                <div class="relative flex-1 md:w-80">
-                    <span
-                        class="material-symbols-outlined absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-base md:text-xl">search</span>
-                    <input type="text" placeholder="Hızlı ara..."
-                        class="w-full pl-9 md:pl-12 pr-4 py-2 md:py-3 bg-surface-container border-none rounded-xl md:rounded-2xl focus:ring-2 focus:ring-primary/20 font-medium text-xs md:text-base">
-                </div>
-                <button
-                    class="p-3 bg-surface-container rounded-xl md:rounded-2xl text-on-surface-variant hover:text-primary transition-all">
-                    <span class="material-symbols-outlined">tune</span>
-                </button>
+    <!-- Announcements (Duyurular) Section -->
+    <section id="duyurular-sec" class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 md:pb-24 border-t border-slate-100 pt-16 md:pt-16 mt-16 md:mt-0">
+        @if(isset($announcements) && $announcements->count() > 0)
+        <div>
+            <div class="flex items-center justify-between mb-6 md:mb-10">
+                <h3 class="text-base md:text-3xl font-bold font-headline text-on-background flex items-center gap-3">
+                    <span class="w-2 h-8 bg-primary rounded-full hidden md:block"></span>
+                    <span class="material-symbols-outlined text-primary text-[28px] md:hidden">campaign</span>
+                    Duyurular
+                </h3>
+                <a href="{{ route('duyurular') }}" class="text-primary font-bold text-sm md:text-base hover:underline flex items-center gap-1 group">
+                    Tümünü Gör <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </a>
             </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            <!-- Bento Style Card -->
-            <div class="md:col-span-2 group relative h-60 sm:h-72 md:h-80 rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-xl">
-                <img alt="Academic Research"
-                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuACZq-VolsSL6zSF-oAqBHZtcPzNPBDJIdpKFv-9WNuhL7wX1AGzTwwsYyYFhjfFuQ9Wo2SBOSVzbC3I0GTyH8Ts-prdx77ncJw0fqdFuWmsZTjmuhxceeHoefP84QvY-T2oHF-E43fa0IzNdHWSyZaYWxrK1tIzWtN95SAPphgLMpUeKv5m2yUCG8INZgptzl7NdkqfiBVU2SbIA8orVw7BPi4xYRe4DBbO1BKpXOfKpFoJDVJCVLFgpT9hLnL8I1GzYUltJIaSC8" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 p-6 sm:p-8 md:p-12">
-                    <span class="text-tertiary text-xs font-extrabold uppercase tracking-widest mb-2 md:mb-4 block">Öne
-                        Çıkan</span>
-                    <h4 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 md:mb-4 leading-tight">Uluslararası Tıp Kongresi 2024</h4>
-                    <p class="text-slate-300 text-sm md:text-lg max-w-md line-clamp-2">Genom düzenleme ve geleceğin sağlık teknolojileri
-                        üzerine 3 günlük maraton.</p>
-                </div>
-            </div>
-            <!-- Additional Categories -->
-            <div
-                class="group bg-surface-container border border-black/5 rounded-2xl md:rounded-[2rem] p-6 md:p-8 flex flex-col justify-between hover:border-primary/30 transition-all">
-                <div>
-                    <div class="w-12 h-12 md:w-14 md:h-14 bg-primary/10 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6">
-                        <span class="material-symbols-outlined text-primary text-2xl md:text-3xl">school</span>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                @foreach($announcements as $announcement)
+                <a href="{{ route('duyuru.detay', $announcement->slug) }}" class="group bg-surface-container rounded-[2rem] p-6 md:p-8 border border-black/5 hover:border-primary/20 hover:shadow-xl transition-all flex flex-col h-full relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-dark opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="flex items-center gap-4 mb-5">
+                        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-primary text-[28px]">campaign</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] md:text-xs text-primary font-bold uppercase tracking-wider mb-0.5">{{ $announcement->published_at ? $announcement->published_at->format('d M') : $announcement->created_at->format('d M') }}</p>
+                            <p class="text-xs text-on-surface-variant font-medium truncate">{{ $announcement->club ? $announcement->club->name : 'Genel Duyuru' }}</p>
+                        </div>
                     </div>
-                    <h4 class="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-on-surface">Mezuniyet Balosu</h4>
-                    <p class="text-on-surface-variant text-sm leading-relaxed">2024 Mezunları için unutulmaz bir
-                        gece. Bilet satışları başladı.</p>
-                </div>
-                <div class="mt-6 md:mt-8 flex items-center justify-between">
-                    <span class="text-primary font-bold text-sm md:text-base">21 Haziran</span>
-                    <span
-                        class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-2 transition-transform">arrow_forward</span>
-                </div>
+                    <h4 class="font-bold text-base md:text-lg text-on-background group-hover:text-primary transition-colors leading-snug mb-3 line-clamp-2">
+                        {{ $announcement->title }}
+                    </h4>
+                    <p class="text-on-surface-variant text-sm line-clamp-2 mt-auto">
+                        {{ \Illuminate\Support\Str::limit(strip_tags($announcement->content), 80) }}
+                    </p>
+                </a>
+                @endforeach
             </div>
         </div>
+        @endif
     </section>
 <script>
         function toggleAdditionalEvents(btn) {

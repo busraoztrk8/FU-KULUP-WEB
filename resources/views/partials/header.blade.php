@@ -1,10 +1,10 @@
 <!-- Header -->
 <header id="main-nav"
-    class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5">
-    <nav class="flex justify-between items-center px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto">
+    class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5 transition-all duration-300">
+    <nav class="relative flex justify-between items-center px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto h-full">
 
         <!-- Logo / Branding -->
-        <a href="{{ route('home') }}" class="flex items-center gap-2 md:gap-3 group shrink-0">
+        <a href="{{ route('home') }}" class="flex items-center gap-2 md:gap-3 group shrink-0 relative z-10">
             <img src="{{ asset('images/logo_orj.png') }}" alt="FIRAT ÜNİVERSİTESİ Logo"
                 class="h-8 md:h-10 w-auto object-contain">
             <div
@@ -14,7 +14,7 @@
         </a>
 
         <!-- Desktop Navigation (Center) -->
-        <div class="hidden md:flex items-center space-x-8 font-headline font-bold">
+        <div class="hidden lg:flex items-center space-x-8 font-headline font-bold absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             @foreach($mainMenus as $menu)
                 @if($menu->children->count() > 0)
                     <div class="relative group">
@@ -77,7 +77,7 @@
         </div>
 
         <!-- Right Actions -->
-        <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6">
+        <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6 relative z-10">
             <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
 
                 <span
@@ -144,7 +144,7 @@
 
             <!-- Mobile UI Button -->
             <button id="mob-menu-btn"
-                class="md:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600 active:bg-slate-200 transition-colors">
+                class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600 active:bg-slate-200 transition-colors">
                 <span class="material-symbols-outlined">menu</span>
             </button>
         </div>
@@ -153,11 +153,11 @@
 
 <!-- Mobile Menu Overlay -->
 <div id="mob-overlay"
-    class="mobile-menu-overlay md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
+    class="mobile-menu-overlay lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] opacity-0 pointer-events-none transition-opacity duration-300">
 </div>
 
 <!-- Mobile Menu Side Panel -->
-<div id="mob-menu" class="mobile-menu md:hidden flex flex-col">
+<div id="mob-menu" class="mobile-menu lg:hidden flex flex-col">
     <!-- Header Area -->
     <div class="p-6 flex items-center justify-between shrink-0 bg-white/40 border-b border-black/5">
         <div class="flex items-center gap-3">

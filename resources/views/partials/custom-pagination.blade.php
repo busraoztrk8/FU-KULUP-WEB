@@ -1,0 +1,57 @@
+@if ($paginator->hasPages())
+    <nav role="navigation" aria-label="{{ __('Pagination Navigation') }}" class="flex items-center justify-center gap-2 md:gap-3">
+        {{-- Previous Page Link --}}
+        @if ($paginator->onFirstPage())
+            <span class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-slate-100 text-slate-300 cursor-not-allowed transition-all">
+                <span class="material-symbols-outlined text-base md:text-xl">chevron_left</span>
+            </span>
+        @else
+            <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white border border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30 hover:shadow-lg transition-all active:scale-90" aria-label="{{ __('pagination.previous') }}">
+                <span class="material-symbols-outlined text-base md:text-xl">chevron_left</span>
+            </a>
+        @endif
+
+        {{-- Pagination Elements --}}
+        <div class="hidden sm:flex items-center gap-2">
+            @foreach ($elements as $element)
+                {{-- "Three Dots" Separator --}}
+                @if (is_string($element))
+                    <span aria-disabled="true" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-slate-400 font-bold">
+                        {{ $element }}
+                    </span>
+                @endif
+
+                {{-- Array Of Links --}}
+                @if (is_array($element))
+                    @foreach ($element as $page => $url)
+                        @if ($page == $paginator->currentPage())
+                            <span aria-current="page" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-primary text-white font-bold text-sm md:text-base shadow-lg shadow-primary/20 transition-all scale-110">
+                                {{ $page }}
+                            </span>
+                        @else
+                            <a href="{{ $url }}" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white border border-slate-200 text-slate-600 font-bold text-sm md:text-base hover:text-primary hover:border-primary/30 hover:shadow-lg transition-all active:scale-95" aria-label="{{ __('Go to page :page', ['page' => $page]) }}">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
+        </div>
+
+        {{-- Mobile Page indicator --}}
+        <span class="sm:hidden text-slate-500 font-bold text-sm px-4">
+            {{ $paginator->currentPage() }} / {{ $paginator->lastPage() }}
+        </span>
+
+        {{-- Next Page Link --}}
+        @if ($paginator->hasMorePages())
+            <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white border border-slate-200 text-slate-600 hover:text-primary hover:border-primary/30 hover:shadow-lg transition-all active:scale-90" aria-label="{{ __('pagination.next') }}">
+                <span class="material-symbols-outlined text-base md:text-xl">chevron_right</span>
+            </a>
+        @else
+            <span class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-slate-100 text-slate-300 cursor-not-allowed transition-all">
+                <span class="material-symbols-outlined text-base md:text-xl">chevron_right</span>
+            </span>
+        @endif
+    </nav>
+@endif

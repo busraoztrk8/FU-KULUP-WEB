@@ -29,6 +29,12 @@ Route::get('/etkinlikler', [HomeController::class, 'etkinlikler'])->name('etkinl
 Route::get('/tum-etkinlikler', [HomeController::class, 'tumEtkinlikler'])->name('tum-etkinlikler');
 Route::get('/etkinlikler/tarih/{date}', [HomeController::class, 'dailyEvents'])->name('etkinlikler.daily');
 
+Route::get('/duyurular', [HomeController::class, 'duyurular'])->name('duyurular');
+Route::get('/duyurular/{slug}', [HomeController::class, 'duyuruDetay'])->name('duyuru.detay');
+
+Route::get('/haberler', [HomeController::class, 'haberler'])->name('haberler');
+Route::get('/haberler/{slug}', [HomeController::class, 'haberDetay'])->name('haber.detay');
+
 Route::get('/kulupler', function () {
     $clubs = \App\Models\Club::with('category')
         ->where('is_active', true)

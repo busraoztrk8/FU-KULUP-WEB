@@ -42,20 +42,6 @@ class HomeController extends Controller
     {
         $query = Event::with(['category', 'club'])->where('status', 'published');
         
-        // Handle AJAX Load More
-        if ($request->ajax() && $request->has('offset')) {
-            $offset = $request->get('offset', 0);
-            $limit = $request->get('limit', 15);
-            $events = $query->orderBy('start_time', 'asc')
-                ->offset($offset)
-                ->limit($limit)
-                ->get();
-
-            return response()->json([
-                'html' => view('partials.event-grid-list', compact('events'))->render(),
-                'has_more' => $events->count() >= $limit
-            ]);
-        }
 
         // Date filtering for calendar
         $date = $request->get('date', now()->format('Y-m-d'));
@@ -91,10 +77,18 @@ class HomeController extends Controller
         $selectedEvents = $eventsByDate->get($date, collect());
         $initialClubs = $selectedEvents->pluck('club')->unique('id')->filter();
 
-        // Initial grid events should be limited for Load More functionality
-        $gridEvents = $query->orderBy('start_time', 'asc')->limit(15)->get();
+        // Initial grid events - show 10 in the "Tümü" tab
+        $gridEvents = Event::with(['category', 'club'])->where('status', 'published')->orderBy('start_time', 'asc')->limit(10)->get();
+        $totalPublishedEvents = Event::where('status', 'published')->count();
+        
+        // Fetch recent announcements
+        $announcements = \App\Models\Announcement::with('club')
+            ->where('is_published', true)
+            ->latest('published_at')
+            ->take(4)
+            ->get();
 
-        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date'));
+        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date', 'totalPublishedEvents', 'announcements'));
     }
 
     public function dailyEvents($date)
@@ -112,28 +106,67 @@ class HomeController extends Controller
 
     public function tumEtkinlikler(Request $request)
     {
-        $query = Event::with(['category', 'club'])->where('status', 'published');
+        $events = Event::with(['category', 'club'])
+            ->where('status', 'published')
+            ->orderBy('start_time', 'asc')
+            ->paginate(9);
 
-        // Handle AJAX Load More
-        if ($request->ajax() && $request->has('offset')) {
-            $offset = $request->get('offset', 0);
-            $limit = $request->get('limit', 15);
-            $events = $query->orderBy('start_time', 'asc')
-                ->offset($offset)
-                ->limit($limit)
-                ->get();
-
-            return response()->json([
-                'html' => view('partials.event-grid-list', compact('events'))->render(),
-                'has_more' => $events->count() >= $limit,
-                'count' => $events->count()
-            ]);
-        }
-
-        // Initial page load: first 15 events
-        $events = $query->orderBy('start_time', 'asc')->limit(15)->get();
         $totalEvents = Event::where('status', 'published')->count();
 
         return view('tum-etkinlikler', compact('events', 'totalEvents'));
+    }
+
+    public function duyurular()
+    {
+        $announcements = \App\Models\Announcement::with('club')
+            ->where('is_published', true)
+            ->latest('published_at')
+            ->paginate(9);
+
+        return view('duyurular', compact('announcements'));
+    }
+
+    public function duyuruDetay($slug)
+    {
+        $duyuru = \App\Models\Announcement::with('club')
+            ->where('slug', $slug)
+            ->where('is_published', true)
+            ->firstOrFail();
+            
+        $relatedAnnouncements = \App\Models\Announcement::with('club')
+            ->where('is_published', true)
+            ->where('id', '!=', $duyuru->id)
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        return view('duyuru-detay', compact('duyuru', 'relatedAnnouncements'));
+    }
+
+    public function haberler()
+    {
+        $news = \App\Models\News::with('club')
+            ->where('is_published', true)
+            ->latest('published_at')
+            ->paginate(9);
+
+        return view('haberler', compact('news'));
+    }
+
+    public function haberDetay($slug)
+    {
+        $haber = \App\Models\News::with('club')
+            ->where('slug', $slug)
+            ->where('is_published', true)
+            ->firstOrFail();
+            
+        $relatedNews = \App\Models\News::with('club')
+            ->where('is_published', true)
+            ->where('id', '!=', $haber->id)
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        return view('haber-detay', compact('haber', 'relatedNews'));
     }
 }

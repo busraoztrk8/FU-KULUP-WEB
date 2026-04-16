@@ -74,7 +74,7 @@
 
         <!-- Pagination -->
         <div class="mt-12 flex justify-center">
-            {{ $news->links('vendor.pagination.tailwind') }}
+            {{ $news->links('partials.custom-pagination') }}
         </div>
         @else
         <div class="text-center py-20">
