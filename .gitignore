@@ -18,6 +18,7 @@ yarn-error.log
 /.vscode
 /storage/*
 !/storage/.gitignore
+/public/uploads/
 /bootstrap/cache/*
 migrate_error.txt
 tables_list.txt
