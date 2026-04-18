@@ -99,15 +99,15 @@
     </div>
 
     <div class="admin-card p-0 overflow-hidden shadow-sm">
-        <div class="overflow-x-auto pt-4 w-full min-h-[500px]">
-            <table class="w-full table-fixed" id="duyurular-table">
+        <div class="admin-datatable-wrap pt-4 w-full">
+            <table class="admin-data-table w-full table-fixed min-w-[920px]" id="duyurular-table">
                 <thead>
                     <tr>
-                        <th class="w-16 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
-                        <th class="w-[45%] text-slate-500 font-bold uppercase text-xs tracking-wider">Duyuru Bilgisi</th>
-                        <th class="w-[20%] text-slate-500 font-bold uppercase text-xs tracking-wider">Kulüp</th>
-                        <th class="w-[12%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">Durum</th>
-                        <th class="w-[120px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">İşlemler</th>
+                        <th class="w-14 text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ID</th>
+                        <th class="w-[44%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Duyuru Bilgisi</th>
+                        <th class="w-[22%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Kulüp</th>
+                        <th class="w-[11rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Durum</th>
+                        <th class="w-[120px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -120,29 +120,33 @@
 {{-- Ekle/Düzenle Modal --}}
 <div id="duyuru-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideDuyuruModal()"></div>
-    <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 shadow-2xl">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+    <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col shadow-2xl">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
             <h3 id="duyuru-modal-title" class="text-lg font-bold font-headline text-slate-800">Yeni Duyuru</h3>
             <button type="button" onclick="hideDuyuruModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
-        <form id="duyuru-form" action="{{ route('admin.duyurular.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
+        <form id="duyuru-form" action="{{ route('admin.duyurular.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden min-h-0">
             @csrf
             <input type="hidden" name="_method" id="duyuru-method" value="POST">
-            <div class="p-6 space-y-4">
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Başlık <span class="text-red-500">*</span></label>
                     <input id="duyuru-baslik" name="title" type="text" required maxlength="100" placeholder="Duyuru başlığı..." class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all has-char-counter"/>
                     <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/100</span></div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                         <label class="block text-sm font-bold text-slate-700 mb-2">Görsel (Opsiyonel)</label>
-                     </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Görsel (Opsiyonel)</label>
+                    <input id="duyuru-gorsel" name="image" type="file" accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-2 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"/>
+                </div>
+                <div class="hidden mb-1" id="duyuru-preview-container">
+                    <img id="duyuru-preview" src="" alt="" class="w-full h-40 object-cover rounded-xl border border-slate-100 shadow-sm">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="{{ auth()->user()->isEditor() ? 'hidden' : '' }}">
                         <label class="block text-sm font-bold text-slate-700 mb-2">Kulüp <span class="text-red-500">*</span></label>
-                        <select id="duyuru-kulup" name="club_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                        <select id="duyuru-kulup" name="club_id" @unless(auth()->user()->isEditor()) required @endunless class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                             <option value="">Seçiniz...</option>
                             @foreach($clubs as $club)
                                 <option value="{{ $club->id }}">{{ $club->name }}</option>
@@ -163,7 +167,7 @@
                     <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/5000</span></div>
                 </div>
             </div>
-            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
+            <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
                 <button type="button" onclick="hideDuyuruModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
                     <span class="material-symbols-outlined text-[18px]">done</span>Kaydet
@@ -233,7 +237,7 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"grid"rt><"flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
+        dom: '<"admin-dt-table-block"rt><"admin-dt-footer flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
         initComplete: function() {
             // Stability guaranteed via CSS table-fixed
         }
@@ -253,6 +257,21 @@ $(document).ready(function() {
         $('#filter-club, #filter-category, #custom-search').val('');
         table.search('').draw();
     });
+
+    $('#duyuru-gorsel').on('change', function() {
+        const f = this.files && this.files[0];
+        const box = document.getElementById('duyuru-preview-container');
+        const img = document.getElementById('duyuru-preview');
+        if (!f || !box || !img) return;
+        const url = URL.createObjectURL(f);
+        img.onload = function() { URL.revokeObjectURL(url); };
+        img.src = url;
+        box.classList.remove('hidden');
+    });
+
+    @if(request('action') === 'add')
+    showDuyuruModal();
+    @endif
 });
 
 function showDuyuruModal() {
@@ -261,9 +280,14 @@ function showDuyuruModal() {
     document.getElementById('duyuru-method').value = 'POST';
     document.getElementById('duyuru-baslik').value = '';
     document.getElementById('duyuru-icerik').value = '';
-    document.getElementById('duyuru-kulup').value = "{{ auth()->user()->isEditor() ? auth()->user()->club_id : '' }}";
+    document.getElementById('duyuru-kulup').value = "{{ auth()->user()->isEditor() ? (auth()->user()->club_id ?? '') : '' }}";
     document.getElementById('duyuru-durum').value = '1';
-    document.getElementById('duyuru-preview-container').classList.add('hidden');
+    const gorsel = document.getElementById('duyuru-gorsel');
+    if (gorsel) gorsel.value = '';
+    const prevBox = document.getElementById('duyuru-preview-container');
+    const prevImg = document.getElementById('duyuru-preview');
+    if (prevBox) prevBox.classList.add('hidden');
+    if (prevImg) prevImg.src = '';
     document.getElementById('duyuru-modal').classList.remove('hidden');
 }
 
@@ -285,7 +309,9 @@ function showDuyuruDuzenle(id) {
     // Show loading state
     document.getElementById('duyuru-baslik').value = 'Yükleniyor...';
     document.getElementById('duyuru-icerik').value = '';
-    
+    const gorselIn = document.getElementById('duyuru-gorsel');
+    if (gorselIn) gorselIn.value = '';
+
     // Fetch real data via AJAX
     $.get('/admin/duyurular/' + id, function(data) {
         document.getElementById('duyuru-modal-title').textContent = 'Duyuruyu Düzenle';

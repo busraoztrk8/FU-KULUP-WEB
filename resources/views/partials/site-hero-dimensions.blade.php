@@ -1,0 +1,1 @@
+relative h-[280px] sm:h-[420px] md:h-[500px] lg:h-[600px] flex items-center overflow-hidden mt-4 rounded-2xl md:rounded-3xl shadow-xl

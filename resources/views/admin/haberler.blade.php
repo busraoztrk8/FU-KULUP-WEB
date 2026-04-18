@@ -101,17 +101,17 @@
     </div>
 
     <div class="admin-card p-0 overflow-hidden shadow-sm">
-        <div class="overflow-x-auto pt-4 w-full min-h-[500px]">
-            <table class="w-full table-fixed" id="haberler-table">
+        <div class="admin-datatable-wrap pt-4 w-full">
+            <table class="admin-data-table w-full table-fixed min-w-[1100px]" id="haberler-table">
                 <thead>
                     <tr>
-                        <th class="w-16 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
-                        <th class="w-[35%] text-slate-500 font-bold uppercase text-xs tracking-wider">Haber Bilgisi</th>
-                        <th class="w-[15%] text-slate-500 font-bold uppercase text-xs tracking-wider">Kulüp</th>
-                        <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider">Kategori</th>
-                        <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider">Tarih</th>
-                        <th class="w-[10%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">Durum</th>
-                        <th class="w-[120px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">İşlemler</th>
+                        <th class="w-14 text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ID</th>
+                        <th class="w-[36%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Haber Bilgisi</th>
+                        <th class="w-[16%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Kulüp</th>
+                        <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Kategori</th>
+                        <th class="w-[10%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Tarih</th>
+                        <th class="w-[11rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">Durum</th>
+                        <th class="w-[120px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -263,7 +263,7 @@
                     url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
                     paginate: { previous: "Önceki", next: "Sonraki" }
                 },
-                dom: '<"grid"rt><"flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
+                dom: '<"admin-dt-table-block"rt><"admin-dt-footer flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
                 initComplete: function() {
                     // Stability guaranteed via CSS table-fixed
                 }

@@ -52,38 +52,47 @@ class HaberController extends Controller
                         } else {
                             $url = asset('images/logo_orj.png');
                         }
-                        return '<div class="flex items-center gap-3">
+                        $t = e($row->title);
+                        return '<div class="flex items-center gap-3 min-w-0 max-w-full">
                             <div class="w-12 h-10 bg-white border border-slate-100 p-1 flex items-center justify-center rounded-lg shadow-sm shrink-0">
                                 <img src="'.$url.'" class="max-w-full max-h-full object-contain" alt="Görsel">
                             </div>
-                            <span class="font-bold text-slate-700">'.e($row->title).'</span>
+                            <span class="font-bold text-slate-700 min-w-0 truncate" title="'.$t.'">'.$t.'</span>
                         </div>';
                     })
                     ->addColumn('club_name', function($row) {
-                        return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
+                        if (!$row->club) {
+                            return '<span class="text-slate-400 text-xs">—</span>';
+                        }
+                        $n = e($row->club->name);
+                        return '<span class="px-2 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold max-w-full truncate inline-block align-bottom" title="'.$n.'">'.$n.'</span>';
                     })
                     ->addColumn('category_name', function($row) {
-                        return $row->club && $row->club->category ? '<span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">'.e($row->club->category->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
+                        if (!$row->club || !$row->club->category) {
+                            return '<span class="text-slate-400 text-xs">—</span>';
+                        }
+                        $n = e($row->club->category->name);
+                        return '<span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium max-w-full truncate inline-block align-bottom" title="'.$n.'">'.$n.'</span>';
                     })
                     ->addColumn('date', function($row) {
-                        return '<span class="text-slate-500 text-sm">'.$row->created_at->format('d.m.Y').'</span>';
+                        return '<span class="text-slate-500 text-sm whitespace-nowrap">'.$row->created_at->format('d.m.Y').'</span>';
                     })
                     ->addColumn('status', function($row) {
                         $bgToggle = $row->is_published ? 'bg-green-600' : 'bg-slate-200';
                         $lbl = $row->is_published ? 'Aktif' : 'Pasif';
                         $lblColor = $row->is_published ? 'text-slate-700' : 'text-slate-500';
-                        
-                        return '<div class="flex items-center gap-3">
-                            <label class="relative inline-flex items-center cursor-pointer m-0" onclick="event.preventDefault(); toggleStatus(\'news\', '.$row->id.')">
+                        $lblEsc = e($lbl);
+                        return '<div class="flex items-center gap-2 justify-center min-w-0 max-w-full">
+                            <label class="relative inline-flex items-center cursor-pointer m-0 shrink-0" onclick="event.preventDefault(); toggleStatus(\'news\', '.$row->id.')">
                                 <div class="w-11 h-6 rounded-full relative transition-colors '.$bgToggle.'">
                                     <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform '.($row->is_published ? 'translate-x-5' : '').'"></span>
                                 </div>
                             </label>
-                            <span class="text-sm font-semibold '.$lblColor.'">'.$lbl.'</span>
+                            <span class="text-xs sm:text-sm font-semibold '.$lblColor.' min-w-0 truncate" title="'.$lblEsc.'">'.$lblEsc.'</span>
                         </div>';
                     })
                     ->addColumn('action', function($row) {
-                        $btn = '<div class="flex items-center justify-center gap-2">';
+                        $btn = '<div class="flex items-center justify-center gap-2 whitespace-nowrap">';
                         $btn .= '<button onclick="showHaberDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->title)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';

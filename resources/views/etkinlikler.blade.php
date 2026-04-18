@@ -6,8 +6,9 @@
 @section('content')
 @php $featured = $events->where('is_featured', true)->first() ?? $events->first(); @endphp
 
-    <!-- Hero Section -->
-    <section class="relative h-[280px] sm:h-[420px] md:h-[500px] lg:h-[600px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-xl">
+<div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <!-- Hero Section (duyuru/kulüp listeleri ile aynı boyut ve aynı içerik genişliği) -->
+    <section class="@include('partials.site-hero-dimensions')">
         @if($featured && $featured->image)
             @php
                 $fPath = $featured->image;
@@ -19,7 +20,8 @@
             <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
         @endif
         <div class="absolute inset-0 bg-gradient-to-r from-black/90 md:from-black/80 via-black/40 to-transparent"></div>
-        <div class="relative z-10 max-w-3xl px-4 sm:px-6 md:px-20 text-center md:text-left">
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16">
+        <div class="max-w-3xl text-center md:text-left">
             <span class="bg-primary text-white px-2.5 md:px-4 py-0.5 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold mb-2 md:mb-4 inline-block uppercase tracking-widest">
                 Ana Etkinlik
             </span>
@@ -47,10 +49,11 @@
             <h1 class="text-3xl md:text-5xl font-bold font-headline text-white mb-4">Etkinlikler</h1>
             @endif
         </div>
+        </div>
     </section>
 
     <!-- Main Content Area -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-12 md:py-16">
+    <section class="pt-6 pb-12 md:py-16">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 md:mb-12 gap-3 md:gap-6">
             <div>
                 <h2 class="text-base sm:text-2xl md:text-3xl font-bold font-headline text-on-background mb-1 md:mb-2">Yaklaşan Etkinlikler</h2>
@@ -69,8 +72,8 @@
             </div>
         </div>
 
-        <!-- Tab Content 1: Calendar View (Default) -->
-        <div id="calendar-view" class="tab-content active grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10"
+        <!-- Tab Content 1: Calendar View — sol ~1/3 (takvim+kategoriler tek kart), sağ ~2/3; üstten hizalı -->
+        <div id="calendar-view" class="tab-content active grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-10 lg:items-stretch"
             data-tab-content="calendar">
 @php
     \Carbon\Carbon::setLocale('tr');
@@ -90,9 +93,9 @@
     
     $selectedEvents = $eventsByDate->get($currentDateStr, collect());
 @endphp
-            <!-- Calendar Side -->
-            <div class="lg:col-span-1 bg-slate-50 rounded-2xl md:rounded-[2rem] p-3 sm:p-6 md:p-8 border border-slate-100 h-fit">
-                <div class="flex justify-between items-center mb-4 md:mb-8">
+            <!-- Calendar + Kategoriler (sol kart — sağ kart ile aynı çerçeve) -->
+            <div class="lg:col-span-4 w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-6 md:p-8 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full">
+                <div class="flex justify-between items-center mb-3 md:mb-6">
                     <h3 class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">{{ $startOfMonth->translatedFormat('F Y') }}</h3>
                     <div class="flex gap-2">
                         <a href="?date={{ $startOfMonth->copy()->subMonth()->format('Y-m-d') }}#calendar-view" class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
@@ -144,16 +147,29 @@
                         @endfor
                     @endif
                 </div>
-                <div class="mt-4 md:mt-8 pt-4 md:pt-8 border-t border-slate-200">
-                    <h4 class="text-xs md:text-sm font-bold mb-2 md:mb-4 flex items-center gap-2 text-on-background">
+                <div class="mt-3 md:mt-6 pt-3 md:pt-6 border-t border-slate-200">
+                    <h4 class="text-xs md:text-sm font-bold mb-2 md:mb-3 flex items-center gap-2 text-on-background">
                         <span class="material-symbols-outlined text-primary text-xs md:text-sm"
                             style="font-variation-settings: 'FILL' 1;">category</span>
                         Kategoriler
                     </h4>
-                    <ul class="space-y-1.5 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-2">
-                        @foreach(\App\Models\Category::take(6)->get() as $cat)
-                        <li class="flex items-center text-xs md:text-sm gap-2">
-                            <span class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-primary/80"></span>
+                    <ul class="space-y-1.5 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-x-3 lg:gap-y-2">
+                        @php
+                            $fallbackDots = ['#5d1021', '#2563eb', '#ca8a04', '#16a34a', '#9333ea', '#db2777'];
+                        @endphp
+                        @foreach(\App\Models\Category::take(6)->get() as $idx => $cat)
+                        <li class="flex items-center text-xs md:text-sm gap-2 min-w-0">
+                            @php
+                                $dotColor = $cat->color;
+                                $isHex = $dotColor && preg_match('/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/', trim($dotColor ?? ''));
+                            @endphp
+                            <span class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full shrink-0 ring-1 ring-black/5 {{ $dotColor && !$isHex ? $dotColor : '' }}"
+                                @if($isHex)
+                                    style="background-color: {{ trim($dotColor) }};"
+                                @elseif(!$dotColor)
+                                    style="background-color: {{ $fallbackDots[$idx % count($fallbackDots)] }};"
+                                @endif
+                            ></span>
                             <span class="text-on-surface-variant truncate" title="{{ $cat->name }}">{{ $cat->name }}</span>
                         </li>
                         @endforeach
@@ -161,18 +177,17 @@
                 </div>
             </div>
 
-            <!-- Event List Side -->
-            <div class="lg:col-span-1 space-y-4 md:space-y-6 mt-12 md:mt-0">
-                <div class="flex items-center justify-between mb-2 md:mb-4">
+            <!-- Etkinlik alanı — sol takvim kartı ile aynı padding/köşe/gölge (eşit hiza) -->
+            <div class="lg:col-span-8 min-w-0 w-full max-w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-6 md:p-8 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full overflow-x-hidden">
+                <div class="flex items-center justify-between gap-3 mb-3 md:mb-6 shrink-0">
                     <h3 id="selected-date-title" class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">
                         {{ $currentDate->translatedFormat('j F, l') }}
                     </h3>
-                    <span id="event-count-badge" class="text-on-surface-variant text-[10px] md:text-sm">
+                    <span id="event-count-badge" class="text-on-surface-variant text-[10px] md:text-sm whitespace-nowrap">
                         {{ $selectedEvents->count() }} Etkinlik Bulundu
                     </span>
                 </div>
-                
-                <div id="event-list-container" class="transition-all duration-500">
+                <div id="event-list-container" class="transition-all duration-500 min-w-0 max-w-full flex-1 min-h-0 flex flex-col overflow-x-hidden">
                     @include('partials.unified-event-card', ['selectedEvents' => $selectedEvents, 'date' => $currentDateStr])
                 </div>
             </div>
@@ -197,7 +212,7 @@
         </div>
         @endif
     </section>
-
+</div>
 
 <script>
         function toggleAdditionalEvents(btn) {
@@ -215,28 +230,61 @@
         let unifiedSwiper;
 
         function initUnifiedSwiper() {
-            if (document.querySelector('.unified-events-swiper')) {
-                // Destroy existing swiper if it exists
-                if (unifiedSwiper) unifiedSwiper.destroy(true, true);
-
-                unifiedSwiper = new Swiper('.unified-events-swiper', {
-                    slidesPerView: 1,
-                    spaceBetween: 24,
-                    loop: false,
-                    grabCursor: true,
-                    pagination: {
-                        el: '.unified-pagination',
-                        clickable: true,
-                        dynamicBullets: true,
-                    },
-                    breakpoints: {
-                        640: {
-                            slidesPerView: 2,
-                            spaceBetween: 24,
-                        }
-                    }
-                });
+            const el = document.querySelector('.unified-events-swiper');
+            if (!el) {
+                if (unifiedSwiper) {
+                    unifiedSwiper.destroy(true, true);
+                    unifiedSwiper = null;
+                }
+                return;
             }
+            if (unifiedSwiper) {
+                unifiedSwiper.destroy(true, true);
+                unifiedSwiper = null;
+            }
+            const prevEl = el.querySelector('.unified-events-prev');
+            const nextEl = el.querySelector('.unified-events-next');
+            const paginationEl = el.querySelector('.unified-pagination');
+
+            unifiedSwiper = new Swiper(el, {
+                slidesPerView: 1,
+                spaceBetween: 16,
+                loop: false,
+                rewind: true,
+                grabCursor: true,
+                watchOverflow: true,
+                autoHeight: true,
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                },
+                keyboard: {
+                    enabled: true,
+                    onlyInViewport: true,
+                },
+                navigation: (prevEl && nextEl) ? { prevEl, nextEl } : undefined,
+                pagination: paginationEl ? {
+                    el: paginationEl,
+                    clickable: true,
+                    dynamicBullets: true,
+                } : undefined,
+                breakpoints: {
+                    1024: {
+                        slidesPerView: 2,
+                        spaceBetween: 16,
+                    },
+                },
+            });
+            unifiedSwiper.on('slideChangeTransitionEnd', function () {
+                this.updateAutoHeight(0);
+            });
+            requestAnimationFrame(function() {
+                if (unifiedSwiper) {
+                    unifiedSwiper.update();
+                    unifiedSwiper.updateAutoHeight(0);
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -272,7 +320,7 @@
                 .then(data => {
                     eventListContainer.innerHTML = data.html;
                     
-                    // Update title and count
+                    // Update title and count (data-event-count avoids false matches on .group)
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = data.html;
                     
@@ -281,7 +329,8 @@
                     
                     eventListContainer.style.opacity = '1';
                     
-                    const count = tempDiv.querySelectorAll('.group').length;
+                    const countRoot = tempDiv.querySelector('.unified-event-list-root');
+                    const count = countRoot ? parseInt(countRoot.getAttribute('data-event-count') || '0', 10) : tempDiv.querySelectorAll('.swiper-slide').length;
                     document.getElementById('event-count-badge').innerText = `${count} Etkinlik Bulundu`;
                 });
             }, 300);
@@ -312,6 +361,9 @@
                         content.classList.add('active');
                     }
                 });
+                if (target === 'calendar') {
+                    setTimeout(function() { initUnifiedSwiper(); }, 50);
+                }
             });
         });
 

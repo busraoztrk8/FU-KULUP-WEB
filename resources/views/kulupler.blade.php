@@ -3,13 +3,13 @@
 @section('data-page', 'clubs')
 
 @section('content')
-<div class="px-4 sm:px-6 md:px-12 max-w-7xl mx-auto pb-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
 
-    {{-- Hero: İlk aktif kulüp --}}
+    {{-- Hero: İlk aktif kulüp — etkinlik/duyuru ile aynı üst banner boyutu --}}
     @php $featured = $clubs->first(); @endphp
     @if($featured)
-    <section class="mb-4 md:mb-16">
-        <div class="relative overflow-hidden rounded-2xl md:rounded-3xl min-h-[280px] md:h-[400px] flex items-center group shadow-2xl">
+    <section class="mb-6 md:mb-12">
+        <div class="@include('partials.site-hero-dimensions') group overflow-hidden">
             <div class="absolute inset-0 z-0">
                 @if($featured->cover_image)
                     @php
@@ -23,7 +23,8 @@
                 @endif
                 <div class="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/60 to-transparent"></div>
             </div>
-            <div class="relative z-10 px-6 sm:px-10 md:px-16 max-w-2xl text-white py-8 md:py-0">
+            <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16">
+                <div class="max-w-2xl text-white py-8 md:py-0">
                 <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 mb-4 backdrop-blur-md">
                     <span class="material-symbols-outlined text-sm mr-1.5" style="font-variation-settings:'FILL' 1;">star</span>
                     <span class="text-[10px] font-bold uppercase tracking-wider">Öne Çıkan Kulüp</span>
@@ -39,6 +40,7 @@
                     Kulübü Görüntüle
                     <span class="material-symbols-outlined text-xs md:text-base">arrow_forward</span>
                 </a>
+                </div>
             </div>
         </div>
     </section>

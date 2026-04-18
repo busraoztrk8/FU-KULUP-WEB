@@ -58,20 +58,30 @@ class EventController extends Controller
                             }
                         }
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">event</span></div>';
-                        return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . e($row->title) . '</span></div>';
+                        $t = e($row->title);
+                        return '<div class="flex items-center gap-3 min-w-0 max-w-full">' . $imgHtml . '<span class="font-semibold text-slate-800 min-w-0 truncate" title="'.$t.'">' . $t . '</span></div>';
                     })
                     ->addColumn('club_name', function($row) {
-                        return $row->club ? '<span class="px-3 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold">'.e($row->club->name).'</span>' : '<span class="text-slate-400 text-xs">—</span>';
+                        if (!$row->club) {
+                            return '<span class="text-slate-400 text-xs">—</span>';
+                        }
+                        $n = e($row->club->name);
+                        return '<span class="px-2 py-1 bg-primary/10 text-primary rounded-lg text-xs font-bold max-w-full truncate inline-block align-bottom" title="'.$n.'">'.$n.'</span>';
                     })
                     ->addColumn('category_name', function($row) {
-                        return $row->category ? '<span class="badge badge-primary">'.e($row->category->name).'</span>' : '<span class="text-slate-400 text-sm">—</span>';
+                        if (!$row->category) {
+                            return '<span class="text-slate-400 text-sm">—</span>';
+                        }
+                        $n = e($row->category->name);
+                        return '<span class="badge badge-primary max-w-full truncate inline-block align-bottom" title="'.$n.'">'.$n.'</span>';
                     })
                     ->addColumn('date', function($row) {
-                        return '<span class="text-slate-500">' . ($row->start_time ? $row->start_time->format('d M Y') : '-') . '</span>';
+                        $d = $row->start_time ? $row->start_time->format('d M Y') : '-';
+                        return '<span class="text-slate-500 text-sm whitespace-nowrap">'.e($d).'</span>';
                     })
                     ->addColumn('participants', function($row) {
                         $max = $row->max_participants ? '/'.$row->max_participants : ' / ∞';
-                        return '<span class="font-semibold">'.(int)$row->current_participants.'</span><span class="text-slate-400">'.e($max).'</span>';
+                        return '<div class="text-center whitespace-nowrap tabular-nums"><span class="font-semibold">'.(int)$row->current_participants.'</span><span class="text-slate-400">'.e($max).'</span></div>';
                     })
                     ->editColumn('status', function($row) {
                         $published = ($row->status === 'published');
@@ -85,17 +95,18 @@ class EventController extends Controller
                         $label = $statusMap[$row->status] ?? $row->status;
                         $lblColor = $published ? 'text-slate-700' : ($row->status === 'cancelled' ? 'text-red-500' : 'text-slate-500');
                             
-                        return '<div class="flex items-center gap-3">
-			      <label class="relative inline-flex items-center cursor-pointer m-0" onclick="event.preventDefault(); toggleStatus(\'event\', '.$row->id.')">
+                        $lblEsc = e($label);
+                        return '<div class="flex items-center gap-2 justify-center min-w-0 max-w-full">
+			      <label class="relative inline-flex items-center cursor-pointer m-0 shrink-0" onclick="event.preventDefault(); toggleStatus(\'event\', '.$row->id.')">
                                 <div class="w-11 h-6 rounded-full relative transition-colors '.$bgToggle.'">
                                     <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform '.($published ? 'translate-x-[20px]' : '').'"></span>
                                 </div>
                               </label>
-			      <span class="text-sm font-semibold '.$lblColor.'">'.e($label).'</span>
+			      <span class="text-xs sm:text-sm font-semibold '.$lblColor.' min-w-0 truncate" title="'.$lblEsc.'">'.$lblEsc.'</span>
 			    </div>';
                     })
                     ->addColumn('action', function($row) {
-                        $btn = '<div class="flex items-center justify-center gap-2">';
+                        $btn = '<div class="flex items-center justify-center gap-2 whitespace-nowrap">';
                         $btn .= '<button onclick="showEtkinlikDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         $btn .= '<button onclick="showDeleteModal('.$row->id.', \''.e(addslashes($row->title)).'\')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil"><span class="material-symbols-outlined text-[16px]">delete</span></button>';
                         $btn .= '</div>';

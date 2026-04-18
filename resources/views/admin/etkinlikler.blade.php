@@ -105,18 +105,18 @@
 
 <!-- Table -->
 <div class="admin-card p-0 overflow-hidden shadow-sm">
-    <div class="overflow-x-auto pt-4 w-full min-h-[500px]">
-        <table class="w-full table-fixed" id="etkinlikler-table">
+    <div class="admin-datatable-wrap pt-4 w-full">
+        <table class="admin-data-table w-full table-fixed min-w-[1180px]" id="etkinlikler-table">
             <thead>
                 <tr>
-                    <th class="w-16 text-center text-slate-500 font-bold uppercase text-xs tracking-wider">ID</th>
-                    <th class="w-[20%] text-slate-500 font-bold uppercase text-xs tracking-wider">ETKİNLİK</th>
-                    <th class="w-[15%] text-slate-500 font-bold uppercase text-xs tracking-wider">KULÜP</th>
-                    <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider">KATEGORİ</th>
-                    <th class="w-[15%] text-slate-500 font-bold uppercase text-xs tracking-wider">TARİH</th>
-                    <th class="w-[8%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">KAYIT</th>
-                    <th class="w-[12%] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">DURUM</th>
-                    <th class="w-[140px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider">İŞLEMLER</th>
+                    <th class="w-14 text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ID</th>
+                    <th class="w-[26%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ETKİNLİK</th>
+                    <th class="w-[14%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KULÜP</th>
+                    <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KATEGORİ</th>
+                    <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">TARİH</th>
+                    <th class="w-[7rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KAYIT</th>
+                    <th class="w-[11rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">DURUM</th>
+                    <th class="w-[132px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">İŞLEMLER</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -547,7 +547,7 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"grid min-h-[400px]"rt><"flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
+        dom: '<"admin-dt-table-block"rt><"admin-dt-footer flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
         initComplete: function() {
             // Stability guaranteed via CSS table-fixed
         }

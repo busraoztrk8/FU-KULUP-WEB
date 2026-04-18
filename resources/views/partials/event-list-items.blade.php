@@ -63,47 +63,7 @@
         <p class="text-slate-400 text-xs md:text-sm">Bu güne ait planlanmış bir etkinlik gözükmüyor.</p>
     </div>
 
-    <!-- Fallback Content: Suggested Discovery -->
-    <div class="bg-white border border-slate-100 rounded-2xl md:rounded-[2.5rem] p-6 shadow-sm animate-fade-in">
-        <h4 class="font-headline font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <span class="material-symbols-outlined text-primary text-xl">explore</span>
-            Kampüsü Keşfetmeye Devam Et
-        </h4>
-        
-        <div class="grid grid-cols-2 gap-3 mb-8">
-            <a href="{{ route('kulupler') }}" class="flex flex-col items-center justify-center p-4 rounded-2xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-all group">
-                <span class="material-symbols-outlined text-primary text-3xl mb-2 group-hover:scale-110 transition-transform">groups</span>
-                <span class="text-xs font-bold text-primary">Tüm Kulüpler</span>
-            </a>
-            <a href="{{ route('etkinlikler') }}" class="flex flex-col items-center justify-center p-4 rounded-2xl bg-tertiary/5 hover:bg-tertiary/10 border border-tertiary/10 transition-all group">
-                <span class="material-symbols-outlined text-tertiary text-3xl mb-2 group-hover:scale-110 transition-transform">event_note</span>
-                <span class="text-xs font-bold text-tertiary">Takvime Dön</span>
-            </a>
-        </div>
-
-        <div class="space-y-4">
-            <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-1">Popüler Kategoriler</p>
-            <div class="flex flex-wrap gap-2">
-                @php $categories = \App\Models\Category::take(5)->get(); @endphp
-                @foreach($categories as $cat)
-                <a href="{{ route('etkinlikler') }}?category={{ $cat->id }}" class="px-4 py-2 rounded-xl bg-slate-50 text-slate-600 text-xs font-semibold hover:bg-primary hover:text-white transition-all">
-                    #{{ $cat->name }}
-                </a>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="mt-8 p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden group">
-            <div class="relative z-10">
-                <p class="text-[10px] font-bold text-primary-light uppercase tracking-widest mb-1">Yeni Bir Şeyler Başlat</p>
-                <h5 class="font-bold text-sm mb-3">Kendi etkinliğini mi planlamak istiyorsun?</h5>
-                <a href="#" class="inline-flex items-center gap-2 text-xs font-bold bg-white text-slate-900 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
-                    Kulüp Paneli <span class="material-symbols-outlined text-xs">arrow_forward</span>
-                </a>
-            </div>
-            <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-7xl text-white/5 rotate-12 group-hover:scale-110 transition-transform">rocket_launch</span>
-        </div>
-    </div>
+    @include('partials.events-empty-discovery')
 @endif
 
 

@@ -114,5 +114,6 @@ class DatabaseSeeder extends Seeder
         \App\Models\Menu::updateOrCreate(['url' => '/'], ['label' => 'Anasayfa', 'order' => 1, 'is_active' => true, 'location' => 'main']);
         \App\Models\Menu::updateOrCreate(['url' => '/kulupler'], ['label' => 'Kulüpler', 'order' => 2, 'is_active' => true, 'location' => 'main']);
         \App\Models\Menu::updateOrCreate(['url' => '/etkinlikler'], ['label' => 'Etkinlikler', 'order' => 3, 'is_active' => true, 'location' => 'main']);
+        \App\Models\Menu::updateOrCreate(['url' => '/duyurular'], ['label' => 'Duyurular', 'order' => 4, 'is_active' => true, 'location' => 'main']);
     }
 }

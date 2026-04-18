@@ -55,16 +55,25 @@ class ClubController extends Controller
                             $img = null;
                         }
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">groups</span></div>';
-                        return '<div class="flex items-center gap-3">' . $imgHtml . '<span class="font-semibold text-slate-800">' . e($row->name) . '</span></div>';
+                        $n = e($row->name);
+                        return '<div class="flex items-center gap-3 min-w-0 max-w-full">' . $imgHtml . '<span class="font-semibold text-slate-800 min-w-0 truncate" title="'.$n.'">' . $n . '</span></div>';
                     })
                     ->addColumn('category_name', function($row) {
-                        return $row->category ? '<span class="badge badge-primary">'.e($row->category->name).'</span>' : '<span class="text-slate-400 text-sm">—</span>';
+                        if (!$row->category) {
+                            return '<span class="text-slate-400 text-sm">—</span>';
+                        }
+                        $cn = e($row->category->name);
+                        return '<span class="badge badge-primary max-w-full min-w-0 truncate" title="'.$cn.'">'.$cn.'</span>';
                     })
                     ->addColumn('president_name', function($row) {
-                        return $row->president ? e($row->president->name) : '<span class="text-slate-400">Atanmadı</span>';
+                        if (!$row->president) {
+                            return '<span class="text-slate-400 text-sm">Atanmadı</span>';
+                        }
+                        $pn = e($row->president->name);
+                        return '<span class="block truncate text-slate-700 text-sm" title="'.$pn.'">'.$pn.'</span>';
                     })
                     ->addColumn('members_count', function($row) {
-                        return '<span class="font-semibold">' . (int)$row->member_count . '</span>';
+                        return '<div class="text-center whitespace-nowrap tabular-nums"><span class="font-semibold">' . (int)$row->member_count . '</span></div>';
                     })
                     ->addColumn('status', function($row) {
                         $bgToggle = $row->is_active ? 'bg-green-600' : 'bg-slate-200';
@@ -72,20 +81,22 @@ class ClubController extends Controller
                         $lblColor = $row->is_active ? 'text-slate-700' : 'text-slate-500';
 
                         if (!auth()->user()->isAdmin()) {
-                            return '<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full '.($row->is_active ? 'bg-green-500' : 'bg-slate-300').'"></span><span class="text-sm font-semibold '.$lblColor.'">'.e($lbl).'</span></div>';
+                            $lblEsc = e($lbl);
+                        return '<div class="flex items-center gap-2 justify-center min-w-0"><span class="w-2 h-2 rounded-full shrink-0 '.($row->is_active ? 'bg-green-500' : 'bg-slate-300').'"></span><span class="text-sm font-semibold '.$lblColor.' truncate min-w-0" title="'.$lblEsc.'">'.$lblEsc.'</span></div>';
                         }
 
-                        return '<div class="flex items-center gap-3">
-                            <label class="relative inline-flex items-center cursor-pointer m-0" onclick="event.preventDefault(); toggleStatus(\'club\', '.$row->id.')">
+                        $lblEsc = e($lbl);
+                        return '<div class="flex items-center gap-2 justify-center min-w-0 max-w-full">
+                            <label class="relative inline-flex items-center cursor-pointer m-0 shrink-0" onclick="event.preventDefault(); toggleStatus(\'club\', '.$row->id.')">
                                 <div class="w-11 h-6 rounded-full relative transition-colors '.$bgToggle.'">
                                     <span class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform '.($row->is_active ? 'translate-x-[20px]' : '').'"></span>
                                 </div>
                             </label>
-                            <span class="text-sm font-semibold '.$lblColor.'">'.e($lbl).'</span>
+                            <span class="text-xs sm:text-sm font-semibold '.$lblColor.' min-w-0 truncate" title="'.$lblEsc.'">'.$lblEsc.'</span>
                         </div>';
                     })
                     ->addColumn('action', function($row) {
-                        $btn = '<div class="flex items-center justify-center gap-2">';
+                        $btn = '<div class="flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap">';
                         $btn .= '<a href="/admin/kulupler/'.$row->id.'/uyeler" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Üyeler"><span class="material-symbols-outlined text-[16px]">group</span></a>';
                         $btn .= '<a href="/admin/kulupler/'.$row->id.'/form-alanlari" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Kayıt Formu"><span class="material-symbols-outlined text-[16px]">dynamic_form</span></a>';
                         $btn .= '<button onclick="showKulupDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
