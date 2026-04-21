@@ -16,17 +16,7 @@
         </a>
     </div>
 
-    <div class="space-y-2">
-        <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-1">Popüler Kategoriler</p>
-        <div class="flex flex-wrap gap-2">
-            @php $categories = \App\Models\Category::take(5)->get(); @endphp
-            @foreach($categories as $cat)
-            <a href="{{ route('etkinlikler') }}?category={{ $cat->id }}" class="px-4 py-2 rounded-xl bg-slate-50 text-slate-600 text-xs font-semibold hover:bg-primary hover:text-white transition-all">
-                #{{ $cat->name }}
-            </a>
-            @endforeach
-        </div>
-    </div>
+
 
     <div class="mt-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden group">
         <div class="relative z-10">

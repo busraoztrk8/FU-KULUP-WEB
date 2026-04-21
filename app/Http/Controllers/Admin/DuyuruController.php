@@ -40,7 +40,7 @@ class DuyuruController extends Controller
                     $query->where('announcements.is_published', (int) $request->status);
                 }
 
-                return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('announcements.created_at', 'desc'))
+                return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('announcements.created_at', 'asc'))
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         $search = (string) data_get($request->input('search'), 'value', '');
@@ -72,7 +72,7 @@ class DuyuruController extends Controller
                             <div class="w-12 h-10 bg-white border border-slate-100 p-1 flex items-center justify-center rounded-lg shadow-sm shrink-0">
                                 <img src="' . $url . '" class="max-w-full max-h-full object-contain" alt="Görsel">
                             </div>
-                            <span class="font-bold text-slate-700 min-w-0 truncate" title="' . $t . '">' . $t . '</span>
+                            <span class="font-bold text-slate-700 min-w-0 truncate block flex-1" title="' . $t . '">' . $t . '</span>
                         </div>';
                     })
                     ->addColumn('club_name', function ($row) {

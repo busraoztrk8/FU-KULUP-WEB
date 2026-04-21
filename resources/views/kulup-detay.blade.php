@@ -466,7 +466,13 @@
 
             {{-- Active Members / Board --}}
             @php
-                $activeMembers = $club->members()->where('status', 'approved')->whereNotNull('title')->orderBy('title')->take(4)->get();
+                $activeMembers = $club->members()
+                    ->where('status', 'approved')
+                    ->whereNotNull('title')
+                    ->orderByRaw("CASE WHEN title LIKE '%Başkan%' THEN 0 ELSE 1 END")
+                    ->orderBy('title')
+                    ->take(4)
+                    ->get();
             @endphp
             @if($activeMembers->count() > 0)
             <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">

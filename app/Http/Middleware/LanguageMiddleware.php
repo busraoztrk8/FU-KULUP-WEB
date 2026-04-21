@@ -17,6 +17,12 @@ class LanguageMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Admin rotaları için her zaman Türkçe zorla
+        if ($request->is('admin') || $request->is('admin/*')) {
+            App::setLocale('tr');
+            return $next($request);
+        }
+
         if (Session::has('locale')) {
             App::setLocale(Session::get('locale'));
         }

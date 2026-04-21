@@ -3,6 +3,7 @@
     if (request()->routeIs('admin.haberler*')) $currentPage = 'news';
     elseif (request()->routeIs('admin.etkinlikler*')) $currentPage = 'events';
     elseif (request()->routeIs('admin.duyurular*')) $currentPage = 'announcements';
+    elseif (request()->routeIs('admin.kategoriler*')) $currentPage = 'categories';
     elseif (request()->routeIs('admin.kulupler.uyeler*')) $currentPage = 'members';
     elseif (request()->routeIs('admin.members*')) $currentPage = 'members';
     elseif (request()->routeIs('admin.kulupler*')) $currentPage = 'clubs';
@@ -33,6 +34,7 @@
         <x-admin-sidebar-link id="news"          icon="article"   label="Haberler"           href="{{ route('admin.haberler') }}"    :current="$currentPage" />
         <x-admin-sidebar-link id="events"        icon="event"     label="Etkinlikler"        href="{{ route('admin.etkinlikler') }}" :current="$currentPage" />
         <x-admin-sidebar-link id="announcements" icon="campaign"  label="Duyurular"          href="{{ route('admin.duyurular') }}"   :current="$currentPage" />
+        <x-admin-sidebar-link id="categories"    icon="category"  label="Kategoriler"        href="{{ route('admin.kategoriler') }}" :current="$currentPage" />
         <x-admin-sidebar-link id="clubs"         icon="groups"    label="Kulüpler"           href="{{ route('admin.kulupler') }}"    :current="$currentPage" />
         
         @if(auth()->user()->isEditor())

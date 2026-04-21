@@ -154,8 +154,8 @@
 <section class="bg-slate-50 py-14 md:py-20 border-t border-black/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div class="flex justify-between items-end mb-8">
-            <h2 class="text-2xl md:text-3xl font-headline font-bold text-on-surface">
-                Diğer <span class="text-gradient">Haberler</span>
+            <h2 class="text-2xl md:text-3xl font-headline font-bold text-slate-900">
+                Diğer Haberler
             </h2>
             <a href="{{ route('haberler') }}" class="text-primary font-bold text-sm hover:underline">Tümünü Gör</a>
         </div>

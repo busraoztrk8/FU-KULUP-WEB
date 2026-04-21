@@ -47,9 +47,11 @@
                     <td class="text-right">
                         <div class="flex items-center justify-end gap-1">
                             <button onclick="showEditCategoryModal({{ $category->id }}, '{{ e(addslashes($category->name)) }}', '{{ $category->icon }}', '{{ $category->color }}')" class="action-btn text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                            <form action="{{ route('admin.kategoriler.destroy', $category) }}" method="POST" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?')">
+                            <form action="{{ route('admin.kategoriler.destroy', $category) }}" method="POST" class="inline" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="action-btn action-btn-danger text-slate-400"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+                                <button type="submit" class="action-btn action-btn-danger transition-all" title="Sil">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
                             </form>
                         </div>
                     </td>

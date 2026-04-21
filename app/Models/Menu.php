@@ -10,10 +10,13 @@ class Menu extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-        'label', 'url', 'location', 'target', 'order', 'is_active', 'parent_id',
+        'label', 'url', 'location', 'target', 'order', 'is_active', 'show_in_footer', 'parent_id',
     ];
 
-    protected $casts = ['is_active' => 'boolean'];
+    protected $casts = [
+        'is_active' => 'boolean',
+        'show_in_footer' => 'boolean'
+    ];
 
     public function children()
     {

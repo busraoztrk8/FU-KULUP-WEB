@@ -22,12 +22,18 @@
                 <h4 class="text-primary font-headline font-extrabold text-base uppercase tracking-widest border-b-2 border-primary/10 pb-2 inline-block">
                     HIZLI BAĞLANTILAR
                 </h4>
+                @php
+                    $footerMenus = \App\Models\Menu::where('show_in_footer', true)->active()->get();
+                @endphp
                 <ul class="space-y-2 font-body text-sm text-on-surface-variant font-bold pt-2">
-                    <li><a class="hover:text-primary transition-colors" href="{{ route('home') }}">Ana Sayfa</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="{{ route('etkinlikler') }}">Etkinlikler</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="{{ route('duyurular') }}">Duyurular</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="{{ route('kulupler') }}">Kulüpler</a></li>
-                    <li><a class="hover:text-primary transition-colors" href="{{ route('login') }}">Giriş Yap</a></li>
+                    @forelse($footerMenus as $fMenu)
+                        <li><a class="hover:text-primary transition-colors" href="{{ $fMenu->url }}" target="{{ $fMenu->target }}">{{ $fMenu->label }}</a></li>
+                    @empty
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('home') }}">Ana Sayfa</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('etkinlikler') }}">Etkinlikler</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('duyurular') }}">Duyurular</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('kulupler') }}">Kulüpler</a></li>
+                    @endforelse
                 </ul>
             </div>
 

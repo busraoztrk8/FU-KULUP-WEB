@@ -40,6 +40,7 @@ class MenuController extends Controller
             'target'    => $request->target ?? '_self',
             'order'     => $request->order ?? Menu::where('parent_id', $request->parent_id)->max('order') + 1,
             'is_active' => $request->boolean('is_active', true),
+            'show_in_footer' => $request->boolean('show_in_footer', false),
         ]);
 
         return redirect()->route('admin.menu')->with('success', 'Menü öğesi eklendi.');
@@ -62,6 +63,7 @@ class MenuController extends Controller
             'target'    => $request->target ?? '_self',
             'order'     => $request->order ?? $menu->order,
             'is_active' => $request->boolean('is_active', true),
+            'show_in_footer' => $request->boolean('show_in_footer', false),
         ]);
 
         return redirect()->route('admin.menu')->with('success', 'Menü öğesi güncellendi.');
@@ -76,6 +78,12 @@ class MenuController extends Controller
     public function toggle(Menu $menu)
     {
         $menu->update(['is_active' => !$menu->is_active]);
+        return response()->json(['success' => true]);
+    }
+
+    public function toggleFooter(Menu $menu)
+    {
+        $menu->update(['show_in_footer' => !$menu->show_in_footer]);
         return response()->json(['success' => true]);
     }
 }

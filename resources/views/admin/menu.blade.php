@@ -65,6 +65,7 @@
                     <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Menü Yapısı</th>
                     <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Bağlantı</th>
                     <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Durum</th>
+                    <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Footer</th>
                     <th class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right">İşlemler</th>
                 </tr>
             </thead>
@@ -106,12 +107,20 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" {{ $item->show_in_footer ? 'checked' : '' }} onchange="toggleFooterStatus({{ $item->id }})">
+                                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary shadow-inner"></div>
+                                </label>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-2">
                                 <button onclick="showSubMenuModal({{ $item->id }}, '{{ e(addslashes($item->label)) }}')" 
                                     class="h-9 px-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95">
                                     <span class="material-symbols-outlined text-[16px]">add</span> Alt Menü
                                 </button>
-                                <button onclick="showMenuDuzenle({{ $item->id }}, '{{ e(addslashes($item->label)) }}', '{{ e(addslashes($item->url)) }}', '{{ $item->parent_id }}', '{{ $item->target }}', {{ $item->order }}, {{ $item->is_active ? 'true' : 'false' }})" 
+                                <button onclick="showMenuDuzenle({{ $item->id }}, '{{ e(addslashes($item->label)) }}', '{{ e(addslashes($item->url)) }}', '{{ $item->parent_id }}', '{{ $item->target }}', {{ $item->order }}, {{ $item->is_active ? 'true' : 'false' }}, {{ $item->show_in_footer ? 'true' : 'false' }})" 
                                     class="w-9 h-9 bg-slate-100 hover:bg-amber-100 hover:text-amber-600 text-slate-500 rounded-xl flex items-center justify-center transition-all active:scale-95" title="Düzenle">
                                     <span class="material-symbols-outlined text-[18px]">edit_note</span>
                                 </button>
@@ -149,9 +158,17 @@
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ $child->is_active ? 'Aktif' : 'Pasif' }}</span>
                             </div>
                         </td>
+                        <td class="px-6 py-3">
+                            <div class="flex items-center gap-2 opacity-80">
+                                <label class="relative inline-flex items-center cursor-pointer scale-75 origin-left">
+                                    <input type="checkbox" class="sr-only peer" {{ $child->show_in_footer ? 'checked' : '' }} onchange="toggleFooterStatus({{ $child->id }})">
+                                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                        </td>
                         <td class="px-6 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button onclick="showMenuDuzenle({{ $child->id }}, '{{ e(addslashes($child->label)) }}', '{{ e(addslashes($child->url)) }}', '{{ $child->parent_id }}', '{{ $child->target }}', {{ $child->order }}, {{ $child->is_active ? 'true' : 'false' }})" 
+                                <button onclick="showMenuDuzenle({{ $child->id }}, '{{ e(addslashes($child->label)) }}', '{{ e(addslashes($child->url)) }}', '{{ $child->parent_id }}', '{{ $child->target }}', {{ $child->order }}, {{ $child->is_active ? 'true' : 'false' }}, {{ $child->show_in_footer ? 'true' : 'false' }})" 
                                     class="w-8 h-8 text-slate-400 hover:text-amber-500 hover:bg-white hover:shadow-sm rounded-lg flex items-center justify-center transition-all" title="Düzenle">
                                     <span class="material-symbols-outlined text-[16px]">edit</span>
                                 </button>
@@ -234,6 +251,11 @@
                     <input type="checkbox" id="menu-aktif" name="is_active" value="1" checked
                         class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"/>
                     <label for="menu-aktif" class="text-sm font-semibold text-slate-600 cursor-pointer">Aktif olarak göster</label>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="menu-footer" name="show_in_footer" value="1"
+                        class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"/>
+                    <label for="menu-footer" class="text-sm font-semibold text-slate-600 cursor-pointer">Footer'da göster (Hızlı Bağlantılar)</label>
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
@@ -327,6 +349,7 @@
         document.getElementById('menu-target').value = '_self';
         document.getElementById('menu-order').value = '';
         document.getElementById('menu-aktif').checked = true;
+        document.getElementById('menu-footer').checked = false;
         document.getElementById('menu-modal').classList.remove('hidden');
     }
 
@@ -336,7 +359,7 @@
         document.getElementById('menu-parent_id').value = parentId;
     }
 
-    function showMenuDuzenle(id, label, url, parent_id, target, order, aktif) {
+    function showMenuDuzenle(id, label, url, parent_id, target, order, aktif, footer) {
         document.getElementById('menu-modal-title').textContent = 'Menü Öğesini Düzenle';
         document.getElementById('menu-form').action = '/admin/menu/' + id;
         document.getElementById('menu-method').value = 'PUT';
@@ -346,6 +369,7 @@
         document.getElementById('menu-target').value = target;
         document.getElementById('menu-order').value = order;
         document.getElementById('menu-aktif').checked = aktif;
+        document.getElementById('menu-footer').checked = footer;
         document.getElementById('menu-modal').classList.remove('hidden');
     }
 
@@ -359,6 +383,22 @@
         }).then(response => {
             if (response.ok) {
                 showToast('Durum güncellendi', 'success');
+            } else {
+                showToast('Bir hata oluştu', 'error');
+            }
+        });
+    }
+
+    function toggleFooterStatus(id) {
+        fetch(`/admin/menu/${id}/toggle-footer`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                showToast('Footer durumu güncellendi', 'success');
             } else {
                 showToast('Bir hata oluştu', 'error');
             }

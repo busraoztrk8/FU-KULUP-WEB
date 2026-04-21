@@ -47,7 +47,7 @@ class EventController extends Controller
                     $query->where('events.category_id', $request->category_id);
                 }
 
-                return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('events.created_at', 'desc'))
+                return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('events.created_at', 'asc'))
                     ->addIndexColumn()
                     ->filter(function ($query) use ($request) {
                         $search = (string) data_get($request->input('search'), 'value', '');
@@ -77,7 +77,7 @@ class EventController extends Controller
                         }
                         $imgHtml = $img ? '<img src="'.$img.'" class="w-10 h-10 rounded-lg object-cover shrink-0 shadow-sm" alt=""/>' : '<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-primary text-[18px]">event</span></div>';
                         $t = e($row->title);
-                        return '<div class="flex items-center gap-3 min-w-0 max-w-full">' . $imgHtml . '<span class="font-semibold text-slate-800 min-w-0 truncate" title="'.$t.'">' . $t . '</span></div>';
+                        return '<div class="flex items-center gap-3 min-w-0 max-w-full">' . $imgHtml . '<span class="font-semibold text-slate-800 min-w-0 truncate block flex-1" title="'.$t.'">' . $t . '</span></div>';
                     })
                     ->addColumn('club_name', function($row) {
                         if (!$row->club) {

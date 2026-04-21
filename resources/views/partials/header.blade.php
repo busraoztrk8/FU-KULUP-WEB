@@ -151,8 +151,6 @@
                             </div>
                         </div>
                     </div>
-                @else
-                    <span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">account_circle</span>
                 @endauth
             </div>
 

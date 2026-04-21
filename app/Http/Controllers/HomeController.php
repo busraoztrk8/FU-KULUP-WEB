@@ -21,8 +21,8 @@ class HomeController extends Controller
             ->limit(6)
             ->get();
 
-        $activeClubs = Club::with(['category', 'members'])
-            ->latest()
+        $activeClubs = Club::with(['category', 'members', 'president'])
+            ->oldest()
             ->limit(8)
             ->get();
 
@@ -101,10 +101,41 @@ class HomeController extends Controller
 
     public function tumEtkinlikler(Request $request)
     {
-        $events = Event::with(['category', 'club'])
-            ->where('status', 'published')
-            ->orderBy('start_time', 'asc')
-            ->paginate(9);
+        $query = Event::with(['category', 'club'])->where('status', 'published');
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhereHas('club', function($cq) use ($search) {
+                      $cq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $events = $query->orderBy('start_time', 'asc')->paginate(9);
+
+        if ($request->ajax()) {
+            $html = view('partials.event-grid-list', compact('events'))->render();
+            /** @var \Illuminate\Pagination\LengthAwarePaginator $events */
+            $pagination = $events->links('partials.custom-pagination')->render();
+            
+            if ($events->isEmpty()) {
+                $html = '<div class="col-span-full text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
+                            <span class="material-symbols-outlined text-6xl text-slate-300 mb-4 inline-block">event_busy</span>
+                            <h3 class="text-xl font-bold text-slate-600 mb-2">Etkinlik Bulunamadı</h3>
+                            <p class="text-slate-400">Aramanızla eşleşen bir sonuç bulunamadı.</p>
+                         </div>';
+            }
+            
+            return response()->json([
+                'html' => $html,
+                'pagination' => $pagination,
+                'total' => $events->total()
+            ]);
+        }
 
         $totalEvents = Event::where('status', 'published')->count();
 
@@ -125,6 +156,32 @@ class HomeController extends Controller
             ->get();
 
         return view('duyurular', compact('announcements', 'latestNews'));
+    }
+
+    public function tumDuyurular(Request $request)
+    {
+        $query = \App\Models\Announcement::with('club')->where('is_published', true);
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhereHas('club', function($cq) use ($search) {
+                      $cq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $announcements = $query->latest('published_at')->paginate(12);
+
+        if ($request->ajax()) {
+            return view('partials.announcement-grid-items', compact('announcements'))->render();
+        }
+
+        $totalAnnouncements = \App\Models\Announcement::where('is_published', true)->count();
+
+        return view('tum-duyurular', compact('announcements', 'totalAnnouncements'));
     }
 
     public function duyuruDetay($slug)
@@ -154,6 +211,32 @@ class HomeController extends Controller
         return view('haberler', compact('news'));
     }
 
+    public function tumHaberler(Request $request)
+    {
+        $query = \App\Models\News::with('club')->where('is_published', true);
+
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhereHas('club', function($cq) use ($search) {
+                      $cq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $news = $query->latest('published_at')->paginate(12);
+
+        if ($request->ajax()) {
+            return view('partials.news-grid-items', compact('news'))->render();
+        }
+
+        $totalNews = \App\Models\News::where('is_published', true)->count();
+
+        return view('tum-haberler', compact('news', 'totalNews'));
+    }
+
     public function haberDetay($slug)
     {
         $haber = \App\Models\News::with('club')
@@ -173,10 +256,10 @@ class HomeController extends Controller
 
     public function kulupler(Request $request)
     {
-        $clubs = Club::with('category')->where('is_active', true)->latest()->paginate(12);
-        \App\Models\Category::all();
+        $clubs = Club::with('category')->where('is_active', true)->oldest()->paginate(12);
+        $categories = \App\Models\Category::all();
         $latestNews = \App\Models\News::where('is_published', true)->latest()->take(3)->get();
-        return view('kulupler', compact('clubs', 'latestNews'));
+        return view('kulupler', compact('clubs', 'categories', 'latestNews'));
     }
 
     public function kulupDetay($slug)

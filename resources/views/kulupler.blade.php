@@ -135,7 +135,6 @@
     @endif
 
 </div>
-    @include('partials.latest-news-section')
 @endsection
 
 @push('scripts')

@@ -1,8 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Tüm Etkinlikler - Fırat Üniversitesi')
-@section('data-page', 'tum-etkinlikler')
-@section('page-title', 'Tüm Etkinlikler')
+@section('title', 'Tüm Haberler - Fırat Üniversitesi')
+@section('data-page', 'tum-haberler')
 
 @section('content')
     <!-- Hero Section -->
@@ -10,20 +9,20 @@
         <div class="absolute right-0 top-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div class="absolute left-0 bottom-0 w-48 h-48 bg-primary/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3"></div>
         <div class="max-w-7xl mx-auto text-center relative z-10">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-headline text-on-background mb-4 uppercase tracking-tight">Tüm Etkinlikler</h1>
-            <p class="text-on-surface-variant text-base md:text-xl max-w-2xl mx-auto font-body">Üniversitemizdeki tüm yaklaşan ve geçmiş etkinlikleri takip edin.</p>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-headline text-on-background mb-4 uppercase tracking-tight">Tüm Haberler</h1>
+            <p class="text-on-surface-variant text-base md:text-xl max-w-2xl mx-auto font-body">Üniversitemizdeki tüm güncel gelişmeleri, akademik başarıları ve kulüp haberlerini takip edin.</p>
             
             <!-- Search Bar -->
             <div class="mt-8 max-w-xl mx-auto relative group">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-                <input type="text" id="event-search" placeholder="Etkinlik adı, açıklaması veya kulüp adı ile ara..." 
+                <input type="text" id="news-search" placeholder="Haber başlığı, içeriği veya kulüp adı ile ara..." 
                     class="w-full bg-white border border-black/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none shadow-sm font-bold">
             </div>
 
             <div class="mt-6 flex items-center justify-center gap-3">
                 <span class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold">
-                    <span class="material-symbols-outlined text-sm align-middle mr-1">event</span>
-                    Toplam <span id="total-count">{{ $totalEvents }}</span> Etkinlik
+                    <span class="material-symbols-outlined text-sm align-middle mr-1">newspaper</span>
+                    Toplam <span id="total-count">{{ $totalNews }}</span> Haber
                 </span>
             </div>
         </div>
@@ -31,15 +30,8 @@
 
     <!-- Main Content Area -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16">
-        <div id="all-events-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[400px] transition-opacity duration-300">
-            @include('partials.event-grid-list', ['events' => $events])
-        </div>
-        
-        <!-- Pagination -->
-        <div id="pagination-container" class="mt-12 md:mt-16">
-            @if($events->hasPages())
-                {{ $events->links('partials.custom-pagination') }}
-            @endif
+        <div id="news-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[300px] transition-opacity duration-300">
+            @include('partials.news-grid-items', ['news' => $news])
         </div>
     </section>
 
@@ -47,10 +39,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let searchTimer;
-            const searchInput = document.getElementById('event-search');
-            const resultsContainer = document.getElementById('all-events-grid');
-            const paginationContainer = document.getElementById('pagination-container');
-            const totalCountSpan = document.getElementById('total-count');
+            const searchInput = document.getElementById('news-search');
+            const resultsContainer = document.getElementById('news-results');
 
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
@@ -58,20 +48,20 @@
                     let search = this.value;
                     
                     searchTimer = setTimeout(function() {
-                        fetchEvents(search, 1);
+                        fetchNews(search, 1);
                     }, 500);
                 });
             }
 
             document.addEventListener('click', function(e) {
-                const paginationLink = e.target.closest('#pagination-container a');
+                const paginationLink = e.target.closest('.ajax-pagination a');
                 if (paginationLink) {
                     e.preventDefault();
                     let url = new URL(paginationLink.href);
                     let page = url.searchParams.get('page');
                     let search = searchInput ? searchInput.value : '';
                     
-                    fetchEvents(search, page);
+                    fetchNews(search, page);
                     
                     window.scrollTo({
                         top: resultsContainer.offsetTop - 120,
@@ -80,10 +70,10 @@
                 }
             });
 
-            function fetchEvents(search, page) {
+            function fetchNews(search, page) {
                 resultsContainer.style.opacity = '0.5';
                 
-                let url = new URL("{{ route('tum-etkinlikler') }}");
+                let url = new URL("{{ route('tum-haberler') }}");
                 url.searchParams.append('search', search);
                 url.searchParams.append('page', page);
 
@@ -92,11 +82,9 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    resultsContainer.innerHTML = data.html;
-                    paginationContainer.innerHTML = data.pagination;
-                    if (totalCountSpan) totalCountSpan.textContent = data.total;
+                .then(response => response.text())
+                .then(html => {
+                    resultsContainer.innerHTML = html;
                     resultsContainer.style.opacity = '1';
                 })
                 .catch(error => {

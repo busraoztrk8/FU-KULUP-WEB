@@ -235,6 +235,12 @@
                                         @endif
                                         <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
                                     </div>
+                                    @if($club->president)
+                                    <div class="flex items-center gap-2 mb-3 text-sm text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-xs">person</span>
+                                        <span>Başkan: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
+                                    </div>
+                                    @endif
                                     <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
                                     <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ $club->short_description ?? strip_tags($club->description) }}</p>
                                 </div>
@@ -277,6 +283,12 @@
                                 @endif
                                 <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
                             </div>
+                            @if($club->president)
+                            <div class="flex items-center gap-2 mb-3 text-sm text-on-surface-variant">
+                                <span class="material-symbols-outlined text-xs">person</span>
+                                <span>Başkan: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
+                            </div>
+                            @endif
                             <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
                             <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ $club->short_description ?? strip_tags($club->description) }}</p>
                         </div>

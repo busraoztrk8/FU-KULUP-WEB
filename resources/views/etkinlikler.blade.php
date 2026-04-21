@@ -207,7 +207,7 @@
 
         <!-- Tab Content 2: Grid View -->
         <div id="grid-view" class="tab-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[400px]"
-            data-tab-content="all">
+            data-tab-content="all" style="display: none;">
             <div id="events-grid-container" class="contents">
                 @include('partials.event-grid-items', ['events' => $gridEvents])
             </div>
@@ -343,10 +343,12 @@
                 
                 // Hide/Show Load More button
                 const loadMore = document.getElementById('load-more-container');
-                if (target === 'calendar') {
-                    loadMore.style.display = 'none';
-                } else {
-                    loadMore.style.display = 'flex';
+                if (loadMore) {
+                    if (target === 'calendar') {
+                        loadMore.style.display = 'none';
+                    } else {
+                        loadMore.style.display = 'flex';
+                    }
                 }
 
                 document.querySelectorAll('.tab-btn').forEach(b => {

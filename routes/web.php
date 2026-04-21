@@ -30,9 +30,11 @@ Route::get('/tum-etkinlikler', [HomeController::class, 'tumEtkinlikler'])->name(
 Route::get('/etkinlikler/tarih/{date}', [HomeController::class, 'dailyEvents'])->name('etkinlikler.daily');
 
 Route::get('/duyurular', [HomeController::class, 'duyurular'])->name('duyurular');
+Route::get('/tum-duyurular', [HomeController::class, 'tumDuyurular'])->name('tum-duyurular');
 Route::get('/duyurular/{slug}', [HomeController::class, 'duyuruDetay'])->name('duyuru.detay');
 
 Route::get('/haberler', [HomeController::class, 'haberler'])->name('haberler');
+Route::get('/tum-haberler', [HomeController::class, 'tumHaberler'])->name('tum-haberler');
 Route::get('/haberler/{slug}', [HomeController::class, 'haberDetay'])->name('haber.detay');
 
 Route::get('/kulupler', [HomeController::class, 'kulupler'])->name('kulupler');
@@ -157,6 +159,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::put('/menu/{menu}', [MenuController::class, 'update'])->name('menu.update');
     Route::delete('/menu/{menu}', [MenuController::class, 'destroy'])->name('menu.destroy');
     Route::post('/menu/{menu}/toggle', [MenuController::class, 'toggle'])->name('menu.toggle');
+    Route::post('/menu/{menu}/toggle-footer', [MenuController::class, 'toggleFooter'])->name('menu.toggle-footer');
 
     // Galeri Yönetimi
     Route::get('/galeri', [GalleryController::class, 'index'])->name('gallery');

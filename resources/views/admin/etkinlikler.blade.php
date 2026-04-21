@@ -9,7 +9,8 @@
 <style>
     #etkinlikler-table { border-collapse: collapse; width: 100% !important; }
     #etkinlikler-table thead th { background: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; white-space: nowrap; }
-    #etkinlikler-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 14px; color: #334155; }
+    #etkinlikler-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 14px; color: #334155; white-space: nowrap; }
+    #etkinlikler-table tbody td:nth-child(2) { max-width: 250px; overflow: hidden; text-overflow: ellipsis; }
     #etkinlikler-table tbody tr:hover td { background: #f8fafc; }
     #etkinlikler-table tbody tr:last-child td { border-bottom: none; }
     #etkinlikler-table_wrapper .dataTables_info { font-size: 13px; color: #64748b; }
@@ -612,7 +613,7 @@ $(document).ready(function() {
             {data: 'status', name: 'events.status', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
-        order: [[4, 'asc']],
+        order: [[0, 'asc']],
         language: {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }

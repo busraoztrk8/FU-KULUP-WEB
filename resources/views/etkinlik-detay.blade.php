@@ -292,8 +292,8 @@
 <section class="bg-slate-50 py-10 md:py-20 border-t border-black/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div class="flex justify-between items-end mb-4 md:mb-8">
-            <h2 class="text-lg md:text-3xl font-headline font-bold text-on-surface">
-                Benzer <span class="text-gradient">Etkinlikler</span>
+            <h2 class="text-lg md:text-3xl font-headline font-bold text-slate-900">
+                Benzer Etkinlikler
             </h2>
             <a href="{{ route('etkinlikler') }}" class="text-primary font-bold text-[11px] md:text-sm hover:underline">Tümünü Gör</a>
         </div>

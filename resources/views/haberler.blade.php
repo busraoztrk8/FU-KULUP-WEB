@@ -42,6 +42,10 @@
                 <h2 class="text-xl md:text-2xl font-bold font-headline text-on-surface">Son Haberler</h2>
                 <p class="text-on-surface-variant text-sm mt-1">Toplam {{ $news->total() }} haber bulundu</p>
             </div>
+            <a href="{{ route('haberler') }}" class="text-on-surface font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all">
+                Tüm Haberleri Gör
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
         </div>
 
         @if($news->count() > 0)
