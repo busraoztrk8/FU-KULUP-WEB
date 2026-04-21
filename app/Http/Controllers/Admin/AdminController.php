@@ -98,4 +98,14 @@ class AdminController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+    public function reports()
+    {
+        return view('admin.raporlar');
+    }
+
+    public function settings()
+    {
+        return view('admin.ayarlar');
+    }
 }

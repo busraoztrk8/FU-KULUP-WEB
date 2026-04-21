@@ -37,6 +37,18 @@
         margin-top: 4px;
         overflow: hidden;
     }
+    #kulupler-table { border-collapse: collapse; width: 100% !important; }
+    #kulupler-table thead th { background: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; white-space: nowrap; }
+    #kulupler-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 14px; color: #334155; }
+    #kulupler-table tbody tr:hover td { background: #f8fafc; }
+    #kulupler-table tbody tr:last-child td { border-bottom: none; }
+    #kulupler-table_wrapper .dataTables_info { font-size: 13px; color: #64748b; }
+    #kulupler-table_wrapper .dataTables_paginate { display: flex; gap: 4px; }
+    #kulupler-table_wrapper .dataTables_paginate .paginate_button { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; color: #475569 !important; background: #fff; }
+    #kulupler-table_wrapper .dataTables_paginate .paginate_button.current { background: var(--primary, #5d1021) !important; color: #fff !important; border-color: var(--primary, #5d1021); }
+    #kulupler-table_wrapper .dataTables_paginate .paginate_button:hover:not(.current) { background: #f1f5f9 !important; }
+    #kulupler-table_wrapper .dataTables_paginate .paginate_button.disabled { opacity: 0.4; cursor: not-allowed; }
+    .dataTables_empty { padding: 40px 16px !important; text-align: center !important; color: #94a3b8; font-size: 14px; }
 </style>
 @endpush
 
@@ -134,22 +146,20 @@
 
 <!-- Table -->
 <div class="admin-card p-0 overflow-hidden shadow-sm">
-    <div class="admin-datatable-wrap pt-4 w-full">
-        <table class="admin-data-table w-full table-fixed min-w-[1180px]" id="kulupler-table">
+    <div class="overflow-x-auto w-full">
+        <table id="kulupler-table" class="w-full">
             <thead>
                 <tr>
-                    <th class="w-14 text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ID</th>
-                    <th class="w-[24%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KULÜP</th>
-                    <th class="w-[14%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KATEGORİ</th>
-                    <th class="w-[18%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">BAŞKAN</th>
-                    <th class="w-[5rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ÜYELER</th>
-                    <th class="w-[11rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">DURUM</th>
-                    <th class="w-[168px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">İŞLEMLER</th>
+                    <th style="width:60px">ID</th>
+                    <th>Kulüp</th>
+                    <th style="width:150px">Kategori</th>
+                    <th style="width:180px">Başkan</th>
+                    <th style="width:80px">Üyeler</th>
+                    <th style="width:120px">Durum</th>
+                    <th style="width:160px">İşlemler</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-                <!-- DataTables will fill this -->
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
@@ -582,21 +592,20 @@ $(document).ready(function() {
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center text-slate-600 font-medium'},
-            {data: 'club_info', name: 'club_info'},
-            {data: 'category_name', name: 'category_name'},
-            {data: 'president_name', name: 'president.name'},
+            {data: 'club_info', name: 'clubs.name'},
+            {data: 'category_name', name: 'categories.name'},
+            {data: 'president_name', name: 'presidents.name'},
             {data: 'members_count', name: 'members_count', orderable: false, searchable: false},
             {data: 'status', name: 'status', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
-        order: [[0, 'asc']],
+        order: [[1, 'asc']],
         language: {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"admin-dt-table-block"rt><"admin-dt-footer flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
+        dom: 'rt<"flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-slate-100"ip>',
         initComplete: function() {
-            // Columns adjusted via CSS table-fixed for perfect stability
         }
     });
 

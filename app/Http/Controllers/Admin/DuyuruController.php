@@ -35,8 +35,25 @@ class DuyuruController extends Controller
                     $query->where('clubs.category_id', $request->category_id);
                 }
 
+                // Filter by status
+                if ($request->filled('status') && $request->status !== 'all') {
+                    $query->where('announcements.is_published', (int) $request->status);
+                }
+
                 return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('announcements.created_at', 'desc'))
                     ->addIndexColumn()
+                    ->filter(function ($query) use ($request) {
+                        $search = (string) data_get($request->input('search'), 'value', '');
+                        $search = trim($search);
+                        if ($search === '') return;
+
+                        $query->where(function ($q) use ($search) {
+                            $q->where('announcements.title', 'like', "%{$search}%")
+                              ->orWhere('announcements.content', 'like', "%{$search}%")
+                              ->orWhere('clubs.name', 'like', "%{$search}%")
+                              ->orWhere('categories.name', 'like', "%{$search}%");
+                        });
+                    })
                     ->addColumn('announcement_info', function ($row) {
                         $url = $row->image_path;
                         if ($url) {
@@ -212,6 +229,10 @@ class DuyuruController extends Controller
         }
 
         $announcement->update($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Duyuru başarıyla güncellendi.']);
+        }
 
         return redirect()->route('admin.duyurular')->with('success', 'Duyuru başarıyla güncellendi.');
     }

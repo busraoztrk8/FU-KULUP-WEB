@@ -35,63 +35,13 @@ Route::get('/duyurular/{slug}', [HomeController::class, 'duyuruDetay'])->name('d
 Route::get('/haberler', [HomeController::class, 'haberler'])->name('haberler');
 Route::get('/haberler/{slug}', [HomeController::class, 'haberDetay'])->name('haber.detay');
 
-Route::get('/kulupler', function () {
-    $clubs = \App\Models\Club::with('category')
-        ->where('is_active', true)
-        ->latest()
-        ->get();
-    $categories = \App\Models\Category::all();
-    return view('kulupler', compact('clubs', 'categories'));
-})->name('kulupler');
+Route::get('/kulupler', [HomeController::class, 'kulupler'])->name('kulupler');
 
-Route::get('/etkinlikler/{slug}', function ($slug) {
-    $event = \App\Models\Event::with(['club', 'category'])
-        ->where('slug', $slug)
-        ->where('status', 'published')
-        ->firstOrFail();
+Route::get('/etkinlikler/{slug}', [HomeController::class, 'etkinlikDetay'])->name('etkinlik.detay');
 
-    $similar = \App\Models\Event::with(['club', 'category'])
-        ->where('status', 'published')
-        ->where('id', '!=', $event->id)
-        ->where('category_id', $event->category_id)
-        ->latest()
-        ->take(3)
-        ->get();
+Route::get('/kulupler/{slug}', [HomeController::class, 'kulupDetay'])->name('kulup.detay');
 
-    return view('etkinlik-detay', compact('event', 'similar'));
-})->name('etkinlik.detay');
-
-Route::get('/kulupler/{slug}', function ($slug) {
-    $club = \App\Models\Club::with([
-        'category',
-        'president',
-        'formFields',
-        'images',
-        'events' => function ($q) {
-            $q->where('status', 'published')->latest()->take(4);
-        }
-    ])
-        ->where('slug', $slug)
-        ->where('is_active', true)
-        ->firstOrFail();
-
-    $membership = auth()->check()
-        ? \App\Models\ClubMember::where('club_id', $club->id)
-            ->where('user_id', auth()->id())
-            ->first()
-        : null;
-
-    return view('kulup-detay', compact('club', 'membership'));
-})->name('kulup.detay');
-
-Route::get('/kulupler/{slug}/galeri', function ($slug) {
-    $club = \App\Models\Club::with('images')
-        ->where('slug', $slug)
-        ->where('is_active', true)
-        ->firstOrFail();
-
-    return view('kulup-galeri', compact('club'));
-})->name('kulup.galeri');
+Route::get('/kulupler/{slug}/galeri', [HomeController::class, 'kulupGaleri'])->name('kulup.galeri');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -176,11 +126,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,editor']
     Route::delete('/kullanicilar/{user}', [UserController::class, 'destroy'])->name('kullanicilar.destroy');
 
     // Settings & Reports
-    Route::get('/ayarlar', function () {
-        return view('admin.ayarlar');
-    })->name('ayarlar');
+    Route::get('/ayarlar', [AdminController::class, 'settings'])->name('ayarlar');
     Route::post('/ayarlar', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('ayarlar.update');
-    Route::get('/raporlar', fn() => view('admin.raporlar'))->name('raporlar');
+    Route::get('/raporlar', [AdminController::class, 'reports'])->name('raporlar');
 
     // Haberler
     Route::get('/haberler', [HaberController::class, 'index'])->name('haberler');

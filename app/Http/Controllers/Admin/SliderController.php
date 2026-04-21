@@ -36,7 +36,7 @@ class SliderController extends Controller
             'button_text' => $request->button_text,
             'button_url'  => $request->button_url,
             'order'       => $request->order ?? Slider::max('order') + 1,
-            'is_active'   => $request->boolean('is_active', true),
+            'is_active'   => $request->has('is_active'),
         ]);
 
         return redirect()->route('admin.slider')->with('success', 'Slide eklendi.');
@@ -55,7 +55,7 @@ class SliderController extends Controller
         ]);
 
         $data = $request->only(['title', 'subtitle', 'button_text', 'button_url', 'order']);
-        $data['is_active'] = $request->boolean('is_active', true);
+        $data['is_active'] = $request->has('is_active');
 
         if ($request->hasFile('image')) {
             // Eski dosyayı sil

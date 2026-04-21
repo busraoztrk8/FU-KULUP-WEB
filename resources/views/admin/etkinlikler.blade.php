@@ -6,6 +6,20 @@
 
 @push('styles')
 <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
+<style>
+    #etkinlikler-table { border-collapse: collapse; width: 100% !important; }
+    #etkinlikler-table thead th { background: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; white-space: nowrap; }
+    #etkinlikler-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 14px; color: #334155; }
+    #etkinlikler-table tbody tr:hover td { background: #f8fafc; }
+    #etkinlikler-table tbody tr:last-child td { border-bottom: none; }
+    #etkinlikler-table_wrapper .dataTables_info { font-size: 13px; color: #64748b; }
+    #etkinlikler-table_wrapper .dataTables_paginate { display: flex; gap: 4px; }
+    #etkinlikler-table_wrapper .dataTables_paginate .paginate_button { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; color: #475569 !important; background: #fff; }
+    #etkinlikler-table_wrapper .dataTables_paginate .paginate_button.current { background: var(--primary, #5d1021) !important; color: #fff !important; border-color: var(--primary, #5d1021); }
+    #etkinlikler-table_wrapper .dataTables_paginate .paginate_button:hover:not(.current) { background: #f1f5f9 !important; }
+    #etkinlikler-table_wrapper .dataTables_paginate .paginate_button.disabled { opacity: 0.4; cursor: not-allowed; }
+    .dataTables_empty { padding: 40px 16px !important; text-align: center !important; color: #94a3b8; font-size: 14px; }
+</style>
 @endpush
 
 @section('content')
@@ -104,24 +118,23 @@
 </div>
 
 <!-- Table -->
+<!-- Table -->
 <div class="admin-card p-0 overflow-hidden shadow-sm">
-    <div class="admin-datatable-wrap pt-4 w-full">
-        <table class="admin-data-table w-full table-fixed min-w-[1180px]" id="etkinlikler-table">
+    <div class="overflow-x-auto w-full">
+        <table id="etkinlikler-table" class="w-full">
             <thead>
                 <tr>
-                    <th class="w-14 text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ID</th>
-                    <th class="w-[26%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">ETKİNLİK</th>
-                    <th class="w-[14%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KULÜP</th>
-                    <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KATEGORİ</th>
-                    <th class="w-[12%] text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">TARİH</th>
-                    <th class="w-[7rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">KAYIT</th>
-                    <th class="w-[11rem] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">DURUM</th>
-                    <th class="w-[132px] text-center text-slate-500 font-bold uppercase text-xs tracking-wider whitespace-nowrap">İŞLEMLER</th>
+                    <th style="width:60px">ID</th>
+                    <th>Etkinlik</th>
+                    <th style="width:160px">Kulüp</th>
+                    <th style="width:130px">Kategori</th>
+                    <th style="width:130px">Tarih</th>
+                    <th style="width:70px">Kayıt</th>
+                    <th style="width:120px">Durum</th>
+                    <th style="width:120px">İşlemler</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-                <!-- DataTables will fill this -->
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
@@ -497,8 +510,65 @@
             </div>
         </form>
     </div>
-</div>
+    {{-- Sayfa Hero Alanları --}}
+    <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary text-[24px]">image</span>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold font-headline text-slate-800">Sayfa Hero Alanları</h3>
+                <p class="text-xs text-slate-500">Etkinlikler sayfasının başındaki banner alanını özelleştirin.</p>
+            </div>
+        </div>
 
+        <form action="{{ route('admin.ayarlar.update') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
+                        <input type="text" name="events_hero_title" value="{{ \App\Models\SiteSetting::getVal('events_hero_title') }}" 
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
+                        <textarea name="events_hero_subtitle" rows="3"
+                                  class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('events_hero_subtitle') }}</textarea>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Arka Plan Görseli</label>
+                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative"
+                         onclick="this.querySelector('input').click()">
+                        @php
+                            $heroImg = \App\Models\SiteSetting::getVal('events_hero_image');
+                            $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
+                        @endphp
+                        <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
+                             <img src="{{ $heroUrl }}" class="w-full h-full object-cover rounded-lg shadow-inner"/>
+                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                                 <span class="text-white text-xs font-bold">Değiştirmek için tıklayın</span>
+                             </div>
+                        </div>
+                        <div class="hero-placeholder {{ $heroUrl ? 'hidden' : '' }} flex flex-col items-center">
+                            <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
+                            <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
+                        </div>
+                        <input type="file" name="events_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2 italic text-center">* Boş bırakılırsa öne çıkan etkinliğin görseli kullanılır.</p>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end">
+                <button type="submit" class="bg-primary hover:bg-primary-dim text-white px-10 py-3 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95">
+                    Ayarları Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
 @endsection
 
 @push('scripts')
@@ -547,7 +617,7 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
             paginate: { previous: "Önceki", next: "Sonraki" }
         },
-        dom: '<"admin-dt-table-block"rt><"admin-dt-footer flex flex-col md:flex-row items-center justify-between gap-4 p-6 border-t border-slate-100"i p>',
+        dom: 'rt<"flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-slate-100"ip>',
         initComplete: function() {
             // Stability guaranteed via CSS table-fixed
         }
@@ -827,6 +897,22 @@ function addQuickCategory(btn) {
         console.error("Hata:", error);
         alert("Kategori eklenirken bir hata oluştu.");
     });
+}
+function previewHero(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        const container = input.closest('div');
+        const previewImg = container.querySelector('.hero-preview-box img');
+        const previewBox = container.querySelector('.hero-preview-box');
+        const placeholder = container.querySelector('.hero-placeholder');
+        
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewBox.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
 }
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;

@@ -21,8 +21,7 @@ class HomeController extends Controller
             ->limit(6)
             ->get();
 
-        $activeClubs = Club::where('is_active', true)
-            ->with(['category', 'members'])
+        $activeClubs = Club::with(['category', 'members'])
             ->latest()
             ->limit(8)
             ->get();
@@ -82,8 +81,9 @@ class HomeController extends Controller
         // Initial grid events - show 10 in the "Tümü" tab
         $gridEvents = Event::with(['category', 'club'])->where('status', 'published')->orderBy('start_time', 'asc')->limit(10)->get();
         $totalPublishedEvents = Event::where('status', 'published')->count();
+        $latestNews = \App\Models\News::where('is_published', true)->latest()->take(3)->get();
         
-        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date', 'totalPublishedEvents'));
+        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date', 'totalPublishedEvents', 'latestNews'));
     }
 
     public function dailyEvents($date)
@@ -118,7 +118,13 @@ class HomeController extends Controller
             ->latest('published_at')
             ->paginate(9);
 
-        return view('duyurular', compact('announcements'));
+        $latestNews = \App\Models\News::with('club')
+            ->where('is_published', true)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('duyurular', compact('announcements', 'latestNews'));
     }
 
     public function duyuruDetay($slug)
@@ -163,5 +169,65 @@ class HomeController extends Controller
             ->get();
 
         return view('haber-detay', compact('haber', 'relatedNews'));
+    }
+
+    public function kulupler(Request $request)
+    {
+        $clubs = Club::with('category')->where('is_active', true)->latest()->paginate(12);
+        \App\Models\Category::all();
+        $latestNews = \App\Models\News::where('is_published', true)->latest()->take(3)->get();
+        return view('kulupler', compact('clubs', 'latestNews'));
+    }
+
+    public function kulupDetay($slug)
+    {
+        $club = Club::with([
+            'category',
+            'president',
+            'formFields',
+            'images',
+            'events' => function ($q) {
+                $q->where('status', 'published')->latest()->take(4);
+            }
+        ])
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $membership = auth()->check()
+            ? \App\Models\ClubMember::where('club_id', $club->id)
+                ->where('user_id', auth()->id())
+                ->first()
+            : null;
+
+        return view('kulup-detay', compact('club', 'membership'));
+    }
+
+    public function kulupGaleri($slug)
+    {
+        $club = Club::with('images')
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        return view('kulup-galeri', compact('club'));
+    }
+
+    public function etkinlikDetay($slug)
+    {
+        $event = Event::with(['club', 'category'])
+            ->where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
+
+        $similar = Event::with(['club', 'category'])
+            ->where('status', 'published')
+            ->where('id', '!=', $event->id)
+            ->where('category_id', $event->category_id)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('etkinlik-detay', compact('event', 'similar'));
     }
 }

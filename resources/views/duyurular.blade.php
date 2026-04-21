@@ -3,29 +3,40 @@
 @section('data-page', 'announcements')
 
 @section('content')
+@php
+    $heroTitle = \App\Models\SiteSetting::getVal('announcements_hero_title', 'Duyurular');
+    $heroSubtitle = \App\Models\SiteSetting::getVal('announcements_hero_subtitle', 'Üniversitemizin ve kulüplerimizin önemli duyurularını takip edin.');
+    $heroImage = \App\Models\SiteSetting::getVal('announcements_hero_image');
+    $heroUrl = $heroImage ? (file_exists(public_path('uploads/' . $heroImage)) ? asset('uploads/' . $heroImage) : asset('storage/' . $heroImage)) : null;
+@endphp
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <!-- Hero — etkinlikler sayfası ile aynı yükseklik -->
-    <section class="@include('partials.site-hero-dimensions') bg-gradient-to-br from-amber-600 via-amber-700 to-slate-900">
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-        </div>
+    <section class="@include('partials.site-hero-dimensions') {{ $heroUrl ? '' : 'bg-gradient-to-br from-amber-600 via-amber-700 to-slate-900' }}">
+        @if($heroUrl)
+            <img src="{{ $heroUrl }}" alt="{{ $heroTitle }}" class="absolute inset-0 w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-black/40"></div>
+        @else
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+            </div>
+        @endif
         <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16 text-center">
             <span class="inline-block bg-white/15 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest mb-4 border border-white/20">
                 <span class="material-symbols-outlined text-[14px] align-middle mr-1">campaign</span>
                 Önemli Bilgilendirmeler
             </span>
-            <h1 class="text-lg sm:text-3xl md:text-5xl lg:text-7xl font-bold font-headline text-white mb-2 md:mb-4 tracking-tight uppercase">
-                Duyurular
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold font-headline text-white mb-4 tracking-tight">
+                {{ $heroTitle }}
             </h1>
-            <p class="text-white/70 text-xs sm:text-base md:text-xl max-w-2xl mx-auto leading-relaxed">
-                Üniversitemizin ve kulüplerimizin önemli duyurularını takip edin.
+            <p class="text-white/90 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
+                {{ $heroSubtitle }}
             </p>
         </div>
     </section>
 
     <!-- Announcements Grid -->
-    <section class="py-12 md:py-20">
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-20">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 md:mb-12 gap-4">
             <div>
                 <h2 class="text-xl md:text-2xl font-bold font-headline text-on-surface">Güncel Duyurular</h2>
@@ -96,6 +107,8 @@
         </div>
         @endif
     </section>
+    
+    @include('partials.latest-news-section')
 </div>
 
 @endsection

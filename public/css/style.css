@@ -791,6 +791,24 @@ html, body {
     background: transparent;
 }
 
+/* Keep info/pagination bar at the card bottom (even with few rows) */
+div.dataTables_wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Our custom DOM: '<"w-full"rt><"flex ... "i p>' */
+div.dataTables_wrapper > div.w-full {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 1px;
+}
+
+div.dataTables_wrapper > div.flex {
+    margin-top: auto;
+}
+
 /* Grid Layout overrides for DataTables Tailwind script defaults */
 div.dataTables_wrapper>div.grid {
     padding: 1.5rem !important;

@@ -168,14 +168,25 @@
                 if (data && data.length > 0) {
                     data.forEach(item => {
                         const div = document.createElement('div');
-                        div.className = 'bg-slate-50 p-3 rounded-lg border border-slate-100 mb-3';
-                        div.innerHTML = `
-                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">${item.label}</p>
-                            <p class="text-sm font-semibold text-slate-800">${item.value}</p>
-                        `;
+                        div.className = 'bg-white rounded-2xl p-4 border border-slate-100 shadow-none mb-3';
+                        
+                        let displayValue = item.value;
+                        if (displayValue === "1" || displayValue === "on" || displayValue === true || displayValue === "true") {
+                            displayValue = "Evet";
+                        } else if (displayValue === "0" || displayValue === "off" || displayValue === false || displayValue === "false") {
+                            displayValue = "Hayır";
+                        }
+                        
+                        // Note: Using a helper function esc() if defined, or simple template literal
+                        const labelHtml = typeof esc === 'function' ? esc(item.label) : item.label;
+                        const valueHtml = typeof esc === 'function' ? esc(displayValue || '-') : (displayValue || '-');
+                        
+                        div.innerHTML = `<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">${labelHtml}</p>
+                                         <p class="text-[15px] text-slate-800 font-bold leading-tight">${valueHtml}</p>`;
                         container.appendChild(div);
                     });
-                } else {
+                }
+ else {
                     container.innerHTML = '<p class="text-sm text-slate-500 italic">Bu üye için form verisi bulunamadı.</p>';
                 }
             } catch (e) {

@@ -40,11 +40,11 @@
         <p class="text-sm text-slate-500">Kulübe katılmak isteyenlerden alınacak bilgileri buradan yönetebilirsiniz.</p>
     </div>
     <div class="flex items-center gap-3">
-        <a href="{{ route('admin.kulupler.uyeler', $club->id) }}" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all flex items-center gap-2 active:scale-95">
-            <span class="material-symbols-outlined text-[16px]">group</span>Üyeler
+        <a href="{{ route('admin.kulupler.uyeler', $club->id) }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all flex items-center gap-2 active:scale-95 shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">group</span>Üyeler
         </a>
-        <a href="{{ route('admin.kulupler') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all flex items-center gap-2 active:scale-95">
-            <span class="material-symbols-outlined text-[16px]">arrow_back</span>Kulüplere Dön
+        <a href="{{ route('admin.kulupler') }}" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all flex items-center gap-2 active:scale-95 shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>Kulüplere Dön
         </a>
     </div>
 </div>
@@ -88,51 +88,51 @@
             </thead>
             <tbody class="divide-y divide-slate-50" id="sortable-fields">
                 @foreach($fields as $field)
-                <tr class="hover:bg-slate-50/50 transition-colors" data-id="{{ $field->id }}">
-                    <td class="px-6 py-4 text-sm text-slate-400 font-mono">{{ $field->sort_order }}</td>
-                    <td class="px-6 py-4">
-                        <div>
-                            <p class="font-semibold text-slate-800 text-sm">{{ $field->label }}</p>
+                <tr class="hover:bg-slate-50/80 transition-colors" data-id="{{ $field->id }}">
+                    <td class="px-6 py-5 text-sm text-slate-400 font-mono">{{ $field->sort_order }}</td>
+                    <td class="px-6 py-5">
+                        <div class="max-w-md">
+                            <p class="font-bold text-slate-800 text-[15px] leading-tight">{{ $field->label }}</p>
                             @if($field->options)
-                                <p class="text-xs text-slate-400 mt-0.5">Seçenekler: {{ implode(', ', $field->options) }}</p>
+                                <p class="text-[11px] text-slate-400 mt-1 font-medium italic">Seçenekler: {{ implode(', ', $field->options) }}</p>
                             @endif
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-5">
                         @php
                             $typeLabels = [
-                                'text' => ['Metin', 'bg-blue-50 text-blue-700 border-blue-200'],
-                                'email' => ['E-posta', 'bg-purple-50 text-purple-700 border-purple-200'],
-                                'tel' => ['Telefon', 'bg-green-50 text-green-700 border-green-200'],
-                                'textarea' => ['Uzun Metin', 'bg-amber-50 text-amber-700 border-amber-200'],
-                                'checkbox' => ['Onay Kutusu', 'bg-rose-50 text-rose-700 border-rose-200'],
-                                'select' => ['Seçim', 'bg-indigo-50 text-indigo-700 border-indigo-200'],
+                                'text' => ['Metin', 'bg-blue-50 text-blue-600 border-blue-100'],
+                                'email' => ['E-posta', 'bg-purple-50 text-purple-600 border-purple-100'],
+                                'tel' => ['Telefon', 'bg-green-50 text-green-600 border-green-100'],
+                                'textarea' => ['Uzun Metin', 'bg-amber-50 text-amber-600 border-amber-100'],
+                                'checkbox' => ['Onay Kutusu', 'bg-rose-50 text-rose-600 border-rose-100'],
+                                'select' => ['Seçim', 'bg-indigo-50 text-indigo-600 border-indigo-100'],
                             ];
-                            $t = $typeLabels[$field->type] ?? ['Bilinmiyor', 'bg-slate-50 text-slate-700 border-slate-200'];
+                            $t = $typeLabels[$field->type] ?? ['Bilinmiyor', 'bg-slate-50 text-slate-600 border-slate-100'];
                         @endphp
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border {{ $t[1] }}">{{ $t[0] }}</span>
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-[11px] font-bold border {{ $t[1] }}">{{ $t[0] }}</span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-5">
                         @if($field->is_required)
-                            <span class="inline-flex items-center gap-1 text-xs font-bold text-red-600"><span class="material-symbols-outlined text-[14px]">check_circle</span>Zorunlu</span>
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 shadow-sm bg-red-50/50 px-2.5 py-1.5 rounded-xl border border-red-100"><span class="material-symbols-outlined text-[16px]">check_circle</span>Zorunlu</span>
                         @else
-                            <span class="text-xs text-slate-400 font-medium">İsteğe Bağlı</span>
+                            <span class="text-xs text-slate-400 font-bold px-2.5 py-1.5 border border-slate-100 rounded-xl bg-slate-50/50">İsteğe Bağlı</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-5">
                         @if($field->is_active)
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-200">Aktif</span>
+                            <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-green-50 text-green-600 border border-green-100">Aktif</span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">Pasif</span>
+                            <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-400 border border-slate-200 opacity-60">Pasif</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
-                            <button onclick='showEditFieldModal(@json($field))' class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle">
-                                <span class="material-symbols-outlined text-[16px]">edit_square</span>
+                    <td class="px-6 py-5 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick='showEditFieldModal(@json($field))' class="w-9 h-9 flex items-center justify-center bg-white text-blue-500 rounded-xl hover:bg-blue-50 transition-all border border-slate-200 shadow-sm active:scale-90" title="Düzenle">
+                                <span class="material-symbols-outlined text-[18px]">edit_square</span>
                             </button>
-                            <button onclick="showDeleteFieldModal({{ $field->id }}, '{{ e(addslashes($field->label)) }}')" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors border border-red-100" title="Sil">
-                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                            <button onclick="showDeleteFieldModal({{ $field->id }}, '{{ e(addslashes($field->label)) }}')" class="w-9 h-9 flex items-center justify-center bg-white text-red-500 rounded-xl hover:bg-red-50 transition-all border border-slate-200 shadow-sm active:scale-90" title="Sil">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
                             </button>
                         </div>
                     </td>

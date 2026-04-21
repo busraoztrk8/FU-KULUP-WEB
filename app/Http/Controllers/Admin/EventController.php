@@ -8,12 +8,16 @@ use App\Models\Club;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
     public function index(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->ajax()) {
             try {
                 $query = Event::leftJoin('clubs', 'events.club_id', '=', 'clubs.id')
@@ -21,9 +25,9 @@ class EventController extends Controller
                     ->select('events.*')
                     ->with(['club', 'category']);
 
-                if (auth()->user()->isEditor()) {
-                    $query->where(function($q) {
-                        $q->where('events.club_id', auth()->user()->club_id)
+                if ($user->isEditor()) {
+                    $query->where(function($q) use ($user) {
+                        $q->where('events.club_id', $user->club_id)
                           ->orWhereNull('events.club_id');
                     });
                 }
@@ -45,6 +49,20 @@ class EventController extends Controller
 
                 return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('events.created_at', 'desc'))
                     ->addIndexColumn()
+                    ->filter(function ($query) use ($request) {
+                        $search = (string) data_get($request->input('search'), 'value', '');
+                        $search = trim($search);
+                        if ($search === '') return;
+
+                        $query->where(function ($q) use ($search) {
+                            $q->where('events.title', 'like', "%{$search}%")
+                              ->orWhere('events.description', 'like', "%{$search}%")
+                              ->orWhere('events.short_description', 'like', "%{$search}%")
+                              ->orWhere('events.location', 'like', "%{$search}%")
+                              ->orWhere('clubs.name', 'like', "%{$search}%")
+                              ->orWhere('categories.name', 'like', "%{$search}%");
+                        });
+                    })
                     ->addColumn('event_info', function($row) {
                         // Title and Image combo for DataTables
                         $img = $row->image;
@@ -113,7 +131,12 @@ class EventController extends Controller
                         return $btn;
                     })
                     ->filterColumn('event_info', function($query, $keyword) {
-                        $query->where('events.title', 'like', "%{$keyword}%");
+                        $query->where(function ($q) use ($keyword) {
+                            $q->where('events.title', 'like', "%{$keyword}%")
+                              ->orWhere('events.description', 'like', "%{$keyword}%")
+                              ->orWhere('events.short_description', 'like', "%{$keyword}%")
+                              ->orWhere('clubs.name', 'like', "%{$keyword}%");
+                        });
                     })
                     ->filterColumn('club_name', function($query, $keyword) {
                         $query->where('clubs.name', 'like', "%{$keyword}%");
@@ -124,21 +147,21 @@ class EventController extends Controller
                     ->rawColumns(['event_info', 'club_name', 'category_name', 'date', 'participants', 'status', 'action'])
                     ->make(true);
             } catch (\Exception $e) {
-                \Log::error("DataTables Events Error: " . $e->getMessage());
+                Log::error("DataTables Events Error: " . $e->getMessage());
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
 
         $categories = Category::all();
-        $clubs      = auth()->user()->isEditor() 
-                      ? Club::where('id', auth()->user()->club_id)->get() 
+        $clubs      = $user->isEditor() 
+                      ? Club::where('id', $user->club_id)->get() 
                       : Club::where('is_active', true)->get();
 
         // İstatistikler
         $statsQuery = Event::query();
-        if (auth()->user()->isEditor()) {
-            $statsQuery->where(function($q) {
-                $q->where('club_id', auth()->user()->club_id)
+        if ($user->isEditor()) {
+            $statsQuery->where(function($q) use ($user) {
+                $q->where('club_id', $user->club_id)
                   ->orWhereNull('club_id');
             });
         }
@@ -178,8 +201,11 @@ class EventController extends Controller
 
         $validated['is_featured'] = $request->has('is_featured');
 
-        if (auth()->user()->isEditor()) {
-            $validated['club_id'] = auth()->user()->club_id;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isEditor()) {
+            $validated['club_id'] = $user->club_id;
         }
 
         if ($request->hasFile('image')) {
@@ -196,7 +222,10 @@ class EventController extends Controller
 
     public function update(Request $request, Event $event)
     {
-        if (auth()->user()->isEditor() && $event->club_id !== auth()->user()->club_id) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isEditor() && $event->club_id !== $user->club_id) {
             abort(403, 'Bu etkinliği düzenleme yetkiniz yok.');
         }
 
@@ -218,8 +247,8 @@ class EventController extends Controller
 
         $validated['is_featured'] = $request->has('is_featured');
 
-        if (auth()->user()->isEditor()) {
-            $validated['club_id'] = auth()->user()->club_id;
+        if ($user->isEditor()) {
+            $validated['club_id'] = $user->club_id;
         }
 
         if ($request->hasFile('image')) {
@@ -245,7 +274,10 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
-        if (auth()->user()->isEditor() && $event->club_id !== auth()->user()->club_id) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isEditor() && $event->club_id !== $user->club_id) {
             abort(403, 'Bu etkinliği silme yetkiniz yok.');
         }
 
@@ -262,7 +294,10 @@ class EventController extends Controller
 
     public function registrations(Event $event)
     {
-        if (auth()->user()->isEditor() && $event->club_id !== auth()->user()->club_id) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isEditor() && $event->club_id !== $user->club_id) {
             abort(403, 'Bu etkinliğin kayıtlarını görme yetkiniz yok.');
         }
 

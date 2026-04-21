@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\News;
 use App\Models\Club;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class HaberController extends Controller
 {
     public function index(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         if ($request->ajax()) {
             try {
                 $query = News::leftJoin('clubs', 'news.club_id', '=', 'clubs.id')
@@ -19,9 +23,9 @@ class HaberController extends Controller
                     ->select('news.*')
                     ->with(['club.category']);
 
-                if (auth()->user()->isEditor()) {
-                    $query->where(function($q) {
-                        $q->where('news.club_id', auth()->user()->club_id)
+                if ($user->isEditor()) {
+                    $query->where(function($q) use ($user) {
+                        $q->where('news.club_id', $user->club_id)
                           ->orWhereNull('news.club_id');
                     });
                 }
@@ -36,8 +40,25 @@ class HaberController extends Controller
                     $query->where('clubs.category_id', $request->category_id);
                 }
 
+                // Filter by status
+                if ($request->filled('status') && $request->status !== 'all') {
+                    $query->where('news.is_published', (int) $request->status);
+                }
+
                 return \Yajra\DataTables\Facades\DataTables::of($query->orderBy('news.created_at', 'desc'))
                     ->addIndexColumn()
+                    ->filter(function ($query) use ($request) {
+                        $search = (string) data_get($request->input('search'), 'value', '');
+                        $search = trim($search);
+                        if ($search === '') return;
+
+                        $query->where(function ($q) use ($search) {
+                            $q->where('news.title', 'like', "%{$search}%")
+                              ->orWhere('news.content', 'like', "%{$search}%")
+                              ->orWhere('clubs.name', 'like', "%{$search}%")
+                              ->orWhere('categories.name', 'like', "%{$search}%");
+                        });
+                    })
                     ->addColumn('news_info', function($row) {
                         $url = $row->image_path;
                         if ($url) {
@@ -99,7 +120,11 @@ class HaberController extends Controller
                         return $btn;
                     })
                     ->filterColumn('news_info', function($query, $keyword) {
-                        $query->where('news.title', 'like', "%{$keyword}%");
+                        $query->where(function ($q) use ($keyword) {
+                            $q->where('news.title', 'like', "%{$keyword}%")
+                              ->orWhere('news.content', 'like', "%{$keyword}%")
+                              ->orWhere('clubs.name', 'like', "%{$keyword}%");
+                        });
                     })
                     ->filterColumn('club_name', function($query, $keyword) {
                         $query->where('clubs.name', 'like', "%{$keyword}%");
@@ -107,20 +132,20 @@ class HaberController extends Controller
                     ->rawColumns(['news_info', 'club_name', 'category_name', 'date', 'status', 'action'])
                     ->make(true);
             } catch (\Exception $e) {
-                \Log::error("DataTables Haber Error: " . $e->getMessage());
+                Log::error("DataTables Haber Error: " . $e->getMessage());
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
 
-        $clubs = auth()->user()->isEditor() 
-            ? Club::where('id', auth()->user()->club_id)->get() 
+        $clubs = $user->isEditor() 
+            ? Club::where('id', $user->club_id)->get() 
             : Club::where('is_active', true)->get();
 
         // İstatistikler için sorgu
         $statsQuery = News::query();
-        if (auth()->user()->isEditor()) {
-            $statsQuery->where(function($q) {
-                $q->where('club_id', auth()->user()->club_id)
+        if ($user->isEditor()) {
+            $statsQuery->where(function($q) use ($user) {
+                $q->where('club_id', $user->club_id)
                   ->orWhereNull('club_id');
             });
         }
@@ -138,16 +163,19 @@ class HaberController extends Controller
 
     public function store(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $validated = $request->validate([
             'title' => 'required|string|max:100',
             'content' => 'required|string|max:5000',
             'is_published' => 'required|in:1,0,published,draft',
-            'club_id' => auth()->user()->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
+            'club_id' => $user->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
             'image' => 'nullable|image|max:10240',
         ]);
 
         if ($request->hasFile('image')) {
-            $clubId = auth()->user()->isEditor() ? auth()->user()->club_id : $validated['club_id'];
+            $clubId = $user->isEditor() ? $user->club_id : $validated['club_id'];
             $club = $clubId ? Club::find($clubId) : null;
             $path = $club ? $club->slug : 'global';
             $validated['image_path'] = $request->file('image')->store($path . '/news', 'uploads');
@@ -160,8 +188,8 @@ class HaberController extends Controller
             $validated['published_at'] = now();
         }
 
-        if (auth()->user()->isEditor()) {
-            $validated['club_id'] = auth()->user()->club_id;
+        if ($user->isEditor()) {
+            $validated['club_id'] = $user->club_id;
         }
 
         News::create($validated);
@@ -173,7 +201,10 @@ class HaberController extends Controller
     {
         $haber = News::findOrFail($id);
 
-        if (auth()->user()->isEditor() && $haber->club_id !== auth()->user()->club_id) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isEditor() && $haber->club_id !== $user->club_id) {
             return response()->json(['error' => 'Bu haberi görme yetkiniz yok.'], 403);
         }
 
@@ -182,7 +213,10 @@ class HaberController extends Controller
 
     public function update(Request $request, News $news)
     {
-        if (auth()->user()->isEditor() && $news->club_id !== auth()->user()->club_id) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isEditor() && $news->club_id !== $user->club_id) {
             abort(403, 'Bu haberi düzenleme yetkiniz yok.');
         }
 
@@ -190,12 +224,11 @@ class HaberController extends Controller
             'title' => 'required|string|max:100',
             'content' => 'required|string|max:5000',
             'is_published' => 'required|in:1,0,published,draft',
-            'club_id' => auth()->user()->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
+            'club_id' => $user->isAdmin() ? 'required|exists:clubs,id' : 'nullable',
             'image' => 'nullable|image|max:10240',
         ]);
 
         if ($request->hasFile('image')) {
-            // Eski resmi sil
             if ($news->image_path) {
                 if (Storage::disk('uploads')->exists($news->image_path)) {
                     Storage::disk('uploads')->delete($news->image_path);
@@ -204,7 +237,7 @@ class HaberController extends Controller
                 }
             }
 
-            $clubId = auth()->user()->isEditor() ? auth()->user()->club_id : (isset($validated['club_id']) ? $validated['club_id'] : $news->club_id);
+            $clubId = $user->isEditor() ? $user->club_id : (isset($validated['club_id']) ? $validated['club_id'] : $news->club_id);
             $club = $clubId ? Club::find($clubId) : null;
             $path = $club ? $club->slug : 'global';
             $validated['image_path'] = $request->file('image')->store($path . '/news', 'uploads');
@@ -213,18 +246,25 @@ class HaberController extends Controller
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . substr(md5(\Illuminate\Support\Str::uuid()), 0, 8);
         $validated['is_published'] = ($validated['is_published'] === '1' || $validated['is_published'] === 'published');
         
-        if (auth()->user()->isEditor()) {
-            $validated['club_id'] = auth()->user()->club_id;
+        if ($user->isEditor()) {
+            $validated['club_id'] = $user->club_id;
         }
 
         $news->update($validated);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Haber başarıyla güncellendi.']);
+        }
 
         return redirect()->route('admin.haberler')->with('success', 'Haber başarıyla güncellendi.');
     }
 
     public function destroy(News $news)
     {
-        if (auth()->user()->isEditor() && $news->club_id !== auth()->user()->club_id) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user->isEditor() && $news->club_id !== $user->club_id) {
             abort(403, 'Bu haberi silme yetkiniz yok.');
         }
 

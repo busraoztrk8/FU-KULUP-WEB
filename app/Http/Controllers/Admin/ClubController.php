@@ -24,6 +24,7 @@ class ClubController extends Controller
         if ($request->ajax()) {
             try {
                 $query = Club::leftJoin('categories', 'clubs.category_id', '=', 'categories.id')
+                    ->leftJoin('users as presidents', 'clubs.president_id', '=', 'presidents.id')
                     ->select('clubs.*')
                     ->with(['category', 'president']);
 
@@ -41,6 +42,18 @@ class ClubController extends Controller
 
                 return \Yajra\DataTables\Facades\DataTables::of($query->oldest('clubs.id'))
                     ->addIndexColumn()
+                    ->filter(function ($query) use ($request) {
+                        $search = (string) data_get($request->input('search'), 'value', '');
+                        $search = trim($search);
+                        if ($search === '') return;
+
+                        $query->where(function ($q) use ($search) {
+                            $q->where('clubs.name', 'like', "%{$search}%")
+                              ->orWhere('clubs.short_description', 'like', "%{$search}%")
+                              ->orWhere('categories.name', 'like', "%{$search}%")
+                              ->orWhere('presidents.name', 'like', "%{$search}%");
+                        });
+                    })
                     ->addColumn('club_info', function($row) {
                         $img = $row->logo;
                         if ($img) {
@@ -159,7 +172,7 @@ class ClubController extends Controller
 
         $validated = $request->validate([
             'name'              => 'required|string|max:100|unique:clubs',
-            'description'       => 'nullable|string|max:800',
+            'description'       => 'nullable|string|max:3000',
             'short_description' => 'nullable|string|max:150',
             'category_id'       => 'nullable|exists:categories,id',
             'president_id'      => 'nullable|exists:users,id',
@@ -227,7 +240,7 @@ class ClubController extends Controller
 
         $validated = $request->validate([
             'name'              => 'required|string|max:100|unique:clubs,name,' . $club->id,
-            'description'       => 'nullable|string|max:800',
+            'description'       => 'nullable|string|max:3000',
             'short_description' => 'nullable|string|max:150',
             'category_id'       => 'nullable|exists:categories,id',
             'president_id'      => 'nullable|exists:users,id',

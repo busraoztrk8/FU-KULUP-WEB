@@ -111,8 +111,11 @@
                         {{ number_format($club->member_count) }} Üye
                     </div>
                 </div>
-                @if($club->short_description)
-                <p class="text-white/80 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed line-clamp-3">{{ $club->short_description }}</p>
+                @php
+                    $displayDesc = $club->description ?: $club->short_description;
+                @endphp
+                @if($displayDesc)
+                <p class="text-white/80 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed line-clamp-3 break-words">{{ strip_tags($displayDesc) }}</p>
                 @else
                 <p class="text-white/50 text-xs md:text-sm mb-4 md:mb-6 italic">Açıklama eklenmemiş.</p>
                 @endif
@@ -132,6 +135,7 @@
     @endif
 
 </div>
+    @include('partials.latest-news-section')
 @endsection
 
 @push('scripts')

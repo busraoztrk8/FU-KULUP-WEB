@@ -13,6 +13,12 @@ class SettingController extends Controller
         $settings = $request->except('_token');
 
         foreach ($settings as $key => $value) {
+            if ($request->hasFile($key)) {
+                $file = $request->file($key);
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads'), $filename);
+                $value = $filename;
+            }
             SiteSetting::setVal($key, $value);
         }
 

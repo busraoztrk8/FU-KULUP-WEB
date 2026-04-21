@@ -4,36 +4,51 @@
 @section('data-page', 'events')
 
 @section('content')
-@php $featured = $events->where('is_featured', true)->first() ?? $events->first(); @endphp
+@php
+    $customTitle = \App\Models\SiteSetting::getVal('events_hero_title');
+    $customSubtitle = \App\Models\SiteSetting::getVal('events_hero_subtitle');
+    $customImage = \App\Models\SiteSetting::getVal('events_hero_image');
+    
+    $featured = $events->where('is_featured', true)->first() ?? $events->first();
+    
+    $heroTitle = $customTitle ?: ($featured ? $featured->title : 'Etkinlikler');
+    $heroSubtitle = $customSubtitle ?: ($featured ? $featured->short_description : 'Kampüsümüzdeki en güncel etkinlikler...');
+    
+    if ($customImage) {
+        $heroUrl = file_exists(public_path('uploads/' . $customImage)) ? asset('uploads/' . $customImage) : asset('storage/' . $customImage);
+    } elseif ($featured && $featured->image) {
+        $fPath = $featured->image;
+        $heroUrl = str_starts_with($fPath, 'http') ? $fPath : (file_exists(public_path('uploads/' . $fPath)) ? asset('uploads/' . $fPath) : asset('storage/' . $fPath));
+    } else {
+        $heroUrl = null;
+    }
+@endphp
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <!-- Hero Section (duyuru/kulüp listeleri ile aynı boyut ve aynı içerik genişliği) -->
+    <!-- Hero Section -->
     <section class="@include('partials.site-hero-dimensions')">
-        @if($featured && $featured->image)
-            @php
-                $fPath = $featured->image;
-                $fUrl = str_starts_with($fPath, 'http') ? $fPath : (file_exists(public_path('uploads/' . $fPath)) ? asset('uploads/' . $fPath) : asset('storage/' . $fPath));
-            @endphp
-            <img alt="{{ $featured->title }}" class="absolute inset-0 w-full h-full object-cover"
-                src="{{ $fUrl }}" />
+        @if($heroUrl)
+            <img alt="{{ $heroTitle }}" class="absolute inset-0 w-full h-full object-cover" src="{{ $heroUrl }}" />
         @else
             <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
         @endif
-        <div class="absolute inset-0 bg-gradient-to-r from-black/90 md:from-black/80 via-black/40 to-transparent"></div>
-        <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16">
-        <div class="max-w-3xl text-center md:text-left">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/70 md:from-black/60 via-black/25 to-transparent"></div>
+        <div class="relative z-10 max-w-3xl px-4 sm:px-6 md:px-20 text-center md:text-left">
+            @if(!$customTitle && $featured && $featured->is_featured)
             <span class="bg-primary text-white px-2.5 md:px-4 py-0.5 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold mb-2 md:mb-4 inline-block uppercase tracking-widest">
                 Ana Etkinlik
             </span>
-            @if($featured)
-            <h1 class="text-lg sm:text-3xl md:text-5xl lg:text-7xl font-bold font-headline text-white mb-2 md:mb-6 leading-tight tracking-tight uppercase">
-                {{ $featured->title }}
+            @endif
+            <h1 class="text-lg sm:text-3xl md:text-5xl lg:text-5xl font-bold font-headline text-white mb-2 md:mb-6 leading-tight tracking-tight uppercase">
+                {{ $heroTitle }}
             </h1>
-            @if($featured->short_description)
-            <p class="text-xs sm:text-base md:text-xl text-slate-200 mb-4 md:mb-10 max-w-xl font-body leading-relaxed mx-auto md:mx-0">
-                {{ $featured->short_description }}
+            @if($heroSubtitle)
+            <p class="text-xs sm:text-base md:text-xl text-white mb-4 md:mb-10 max-w-xl font-body leading-relaxed mx-auto md:mx-0">
+                {{ $heroSubtitle }}
             </p>
             @endif
+            
+            @if(!$customTitle && $featured)
             <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-2 md:gap-4">
                 <a href="{{ route('kulup.detay', $featured->club->slug) }}"
                     class="bg-primary hover:bg-primary-dark text-white px-4 md:px-8 py-2 md:py-4 rounded-full font-bold transition-all flex justify-center items-center gap-2 group text-[11px] md:text-base">
@@ -45,15 +60,12 @@
                     Detayları Gör
                 </a>
             </div>
-            @else
-            <h1 class="text-3xl md:text-5xl font-bold font-headline text-white mb-4">Etkinlikler</h1>
             @endif
-        </div>
         </div>
     </section>
 
     <!-- Main Content Area -->
-    <section class="pt-6 pb-12 md:py-16">
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-12 md:py-16">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 md:mb-12 gap-3 md:gap-6">
             <div>
                 <h2 class="text-base sm:text-2xl md:text-3xl font-bold font-headline text-on-background mb-1 md:mb-2">Yaklaşan Etkinlikler</h2>
@@ -94,7 +106,7 @@
     $selectedEvents = $eventsByDate->get($currentDateStr, collect());
 @endphp
             <!-- Calendar + Kategoriler (sol kart — sağ kart ile aynı çerçeve) -->
-            <div class="lg:col-span-4 w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-6 md:p-8 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full">
+            <div class="lg:col-span-5 w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-5 md:p-6 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full">
                 <div class="flex justify-between items-center mb-3 md:mb-6">
                     <h3 class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">{{ $startOfMonth->translatedFormat('F Y') }}</h3>
                     <div class="flex gap-2">
@@ -178,7 +190,7 @@
             </div>
 
             <!-- Etkinlik alanı — sol takvim kartı ile aynı padding/köşe/gölge (eşit hiza) -->
-            <div class="lg:col-span-8 min-w-0 w-full max-w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-6 md:p-8 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full overflow-x-hidden">
+            <div class="lg:col-span-7 min-w-0 w-full max-w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-5 md:p-6 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full overflow-hidden">
                 <div class="flex items-center justify-between gap-3 mb-3 md:mb-6 shrink-0">
                     <h3 id="selected-date-title" class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">
                         {{ $currentDate->translatedFormat('j F, l') }}
@@ -248,14 +260,14 @@
 
             unifiedSwiper = new Swiper(el, {
                 slidesPerView: 1,
-                spaceBetween: 16,
+                spaceBetween: 24,
                 loop: false,
                 rewind: true,
                 grabCursor: true,
                 watchOverflow: true,
-                autoHeight: true,
+                autoHeight: false, // Stretch to match container
                 autoplay: {
-                    delay: 4000,
+                    delay: 5000, // 5 seconds
                     disableOnInteraction: false,
                     pauseOnMouseEnter: true,
                 },
@@ -264,17 +276,6 @@
                     onlyInViewport: true,
                 },
                 navigation: (prevEl && nextEl) ? { prevEl, nextEl } : undefined,
-                pagination: paginationEl ? {
-                    el: paginationEl,
-                    clickable: true,
-                    dynamicBullets: true,
-                } : undefined,
-                breakpoints: {
-                    1024: {
-                        slidesPerView: 2,
-                        spaceBetween: 16,
-                    },
-                },
             });
             unifiedSwiper.on('slideChangeTransitionEnd', function () {
                 this.updateAutoHeight(0);

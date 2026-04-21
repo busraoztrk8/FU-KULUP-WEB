@@ -5,7 +5,7 @@
 
     <!-- Hero Section with Image Slider -->
     <section
-        class="relative h-[400px] sm:h-[500px] md:h-[650px] flex items-center overflow-hidden mx-3 sm:mx-4 md:mx-8 mt-4 rounded-2xl md:rounded-3xl shadow-2xl group">
+        class="relative h-[480px] sm:h-[580px] md:h-[720px] flex items-center overflow-hidden shadow-2xl group">
         @if(isset($sliders) && $sliders->count() > 0)
                 <div class="swiper hero-swiper h-full w-full absolute inset-0 z-0">
                     <div class="swiper-wrapper">
@@ -128,7 +128,7 @@
             </div>
 
             @if($trendingEvents->count() > 0)
-            <div class="swiper events-swiper overflow-hidden !pb-12">
+            <div class="swiper events-swiper overflow-hidden">
                 <div class="swiper-wrapper">
                     @foreach($trendingEvents as $event)
                     <div class="swiper-slide !h-auto">
@@ -170,15 +170,14 @@
                                     </div>
                                 @endif
                                 <div class="card-content mt-4">
-                                    <h3 class="text-xl font-headline font-bold mb-2 line-clamp-2">{{ $event->title }}</h3>
-                                    <p class="text-on-surface-variant text-sm line-clamp-3">{{ $event->short_description ?? Str::limit(strip_tags($event->description), 120) }}</p>
+                                    <h3 class="text-xl font-headline font-bold mb-2 line-clamp-2 break-all">{{ $event->title }}</h3>
+                                    <p class="text-on-surface-variant text-sm line-clamp-3 break-all">{{ $event->short_description ?? Str::limit(strip_tags($event->description), 120) }}</p>
                                 </div>
                             </div>
                         </a>
                     </div>
                     @endforeach
                 </div>
-                <div class="swiper-pagination events-pagination mt-4"></div>
             </div>
             @else
             <div class="py-12 text-center text-slate-400">
@@ -191,21 +190,70 @@
     <!-- Active Clubs Section -->
     <section class="py-12 md:py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <div class="mb-10 md:mb-16">
-                <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Aktif Kulüpler</h2>
-                <p class="text-on-surface-variant text-center max-w-xl mx-auto text-sm md:text-base">İlgi alanlarınıza göre bir topluluk
-                    seçin ve yeteneklerinizi benzer düşünen insanlarla geliştirin.</p>
+            <div class="flex justify-between items-end mb-10 md:mb-16 gap-4">
+                <div class="flex-1 text-center">
+                    <h2 class="text-2xl md:text-4xl font-headline font-bold mb-4 text-on-surface">Aktif Kulüpler</h2>
+                    <p class="text-on-surface-variant max-w-xl mx-auto text-sm md:text-base">İlgi alanlarınıza göre bir topluluk
+                        seçin ve yeteneklerinizi benzer düşünen insanlarla geliştirin.</p>
+                </div>
+                @if($activeClubs->count() > 1)
+                <div class="flex items-center gap-2 shrink-0">
+                    <button class="clubs-swiper-prev w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-black/10 shadow-md hover:shadow-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/30 transition-all">
+                        <span class="material-symbols-outlined text-xl">chevron_left</span>
+                    </button>
+                    <button class="clubs-swiper-next w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-black/10 shadow-md hover:shadow-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/30 transition-all">
+                        <span class="material-symbols-outlined text-xl">chevron_right</span>
+                    </button>
+                </div>
+                @endif
             </div>
             @if($activeClubs->count() > 1)
-            <div class="swiper active-clubs-swiper !pb-12">
+            <div class="swiper active-clubs-swiper !pb-4">
                 <div class="swiper-wrapper">
+                    @forelse($activeClubs as $club)
+                    <div class="swiper-slide !h-auto">
+                        <a href="{{ route('kulup.detay', ['slug' => $club->slug]) }}"
+                            class="group bg-surface-container-high rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col lg:flex-row hover:shadow-xl transition-all duration-500 block text-left h-full">
+                            <div class="lg:w-1/2 relative overflow-hidden h-48 sm:h-64 lg:h-auto">
+                                @if($club->logo)
+                                    @php
+                                        $logoPath = $club->logo;
+                                        $logoUrl = str_starts_with($logoPath, 'http') ? $logoPath : (file_exists(public_path('uploads/' . $logoPath)) ? asset('uploads/' . $logoPath) : asset('storage/' . $logoPath));
+                                    @endphp
+                                    <img src="{{ $logoUrl }}" alt="{{ $club->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                @else
+                                    <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                                        <span class="material-symbols-outlined text-5xl">groups</span>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="lg:w-1/2 p-6 md:p-8 lg:p-10 flex flex-col justify-between card-content">
+                                <div>
+                                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                                        @if($club->category)
+                                        <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name }}</span>
+                                        @endif
+                                        <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
+                                    </div>
+                                    <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
+                                    <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ $club->short_description ?? strip_tags($club->description) }}</p>
+                                </div>
+                                <div class="text-primary font-bold text-sm flex items-center gap-2 mt-auto">
+                                    Kulübü Görüntüle <span class="material-symbols-outlined">arrow_right_alt</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    @empty
+                    <div class="swiper-slide">
+                        <div class="py-12 text-center text-slate-400">Henüz aktif bir kulüp bulunmuyor.</div>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
             @else
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            @endif
                 @forelse($activeClubs as $club)
-                @if($activeClubs->count() > 1)
-                <div class="swiper-slide !h-auto">
-                @endif
                 <a href="{{ route('kulup.detay', ['slug' => $club->slug]) }}"
                     class="group bg-surface-container-high rounded-2xl md:rounded-3xl overflow-hidden shadow-sm flex flex-col lg:flex-row hover:shadow-xl transition-all duration-500 block text-left h-full">
                     <div class="lg:w-1/2 relative overflow-hidden h-48 sm:h-64 lg:h-auto">
@@ -225,35 +273,22 @@
                         <div>
                             <div class="flex items-center justify-between mb-3 md:mb-4">
                                 @if($club->category)
-                                <span
-                                    class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name }}</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name }}</span>
                                 @endif
-                                <span class="text-on-surface-variant text-sm flex items-center"><span
-                                        class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
+                                <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
                             </div>
-                            <h3
-                                class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">
-                                {{ $club->name }}</h3>
-                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3">
-                                {{ $club->short_description ?? Str::limit(strip_tags($club->description), 150) }}
-                            </p>
+                            <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
+                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ $club->short_description ?? strip_tags($club->description) }}</p>
                         </div>
                         <div class="text-primary font-bold text-sm flex items-center gap-2 mt-auto">
                             Kulübü Görüntüle <span class="material-symbols-outlined">arrow_right_alt</span>
                         </div>
                     </div>
                 </a>
-                @if($activeClubs->count() > 1)
-                </div>
-                @endif
                 @empty
-                <div class="col-span-full py-12 text-center text-slate-400">
-                    Henüz aktif bir kulüp bulunmuyor.
-                </div>
+                <div class="col-span-full py-12 text-center text-slate-400">Henüz aktif bir kulüp bulunmuyor.</div>
                 @endforelse
             </div>
-            @if($activeClubs->count() > 1)
-            <div class="swiper-pagination active-clubs-pagination mt-4"></div>
             @endif
         </div>
     </section>
@@ -396,50 +431,43 @@
 
             // Events Carousel Swiper
             if (document.querySelector('.events-swiper')) {
-                new Swiper('.events-swiper', {
+                const eventsSwiper = new Swiper('.events-swiper', {
                     slidesPerView: 1.2,
                     spaceBetween: 16,
                     grabCursor: true,
-                    loop: true,
+                    loop: false,
                     autoplay: {
                         delay: 4000,
                         disableOnInteraction: false,
                     },
-                    navigation: {
-                        nextEl: '.events-swiper-next',
-                        prevEl: '.events-swiper-prev',
-                    },
-                    pagination: {
-                        el: '.events-pagination',
-                        clickable: true,
-                    },
                     breakpoints: {
                         640: {
-                            slidesPerView: 2.2,
+                            slidesPerView: 2,
                             spaceBetween: 20,
                         },
                         1024: {
-                            slidesPerView: 3.2,
+                            slidesPerView: 3,
                             spaceBetween: 24,
                         },
                     },
                 });
+
+                const eventsPrev = document.querySelector('.events-swiper-prev');
+                const eventsNext = document.querySelector('.events-swiper-next');
+                if (eventsPrev) eventsPrev.addEventListener('click', () => eventsSwiper.slidePrev());
+                if (eventsNext) eventsNext.addEventListener('click', () => eventsSwiper.slideNext());
             }
 
             // Active Clubs Swiper
             if (document.querySelector('.active-clubs-swiper')) {
-                new Swiper('.active-clubs-swiper', {
+                const clubsSwiper = new Swiper('.active-clubs-swiper', {
                     slidesPerView: 1,
                     spaceBetween: 20,
                     grabCursor: true,
-                    loop: true,
+                    loop: false,
                     autoplay: {
                         delay: 4000,
                         disableOnInteraction: false,
-                    },
-                    pagination: {
-                        el: '.active-clubs-pagination',
-                        clickable: true,
                     },
                     breakpoints: {
                         768: {
@@ -452,6 +480,11 @@
                         },
                     },
                 });
+
+                const prevBtn = document.querySelector('.clubs-swiper-prev');
+                const nextBtn = document.querySelector('.clubs-swiper-next');
+                if (prevBtn) prevBtn.addEventListener('click', () => clubsSwiper.slidePrev());
+                if (nextBtn) nextBtn.addEventListener('click', () => clubsSwiper.slideNext());
             }
         });
     </script>

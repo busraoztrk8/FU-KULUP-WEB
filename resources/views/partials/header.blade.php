@@ -1,66 +1,69 @@
 <!-- Header -->
 <header id="main-nav"
     class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5 transition-all duration-300">
-    <nav class="relative flex justify-between items-center px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto h-full">
+    <nav class="flex items-center justify-between px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto h-full relative">
 
-        <!-- Logo / Branding -->
-        <a href="{{ route('home') }}" class="flex items-center gap-2 md:gap-3 group shrink-0 relative z-10">
-            <img src="{{ asset('images/logo_orj.png') }}" alt="FIRAT ÜNİVERSİTESİ Logo"
-                class="h-8 md:h-10 w-auto object-contain">
-            <div
-                class="text-sm sm:text-base md:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight">
+        <!-- Sol: Mobilde logo+yazı, Desktopda sadece yazı -->
+        <a href="{{ route('home') }}" class="flex items-center gap-2 shrink-0 relative z-10">
+            <!-- Mobilde logo göster -->
+            <div class="lg:hidden" style="perspective: 300px; width: 46px; height: 46px; flex-shrink: 0;">
+                <div style="width:100%; height:100%; position:relative; transform-style: preserve-3d; animation: logoFlip 8s ease-in-out infinite;">
+                    <div style="position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;">
+                        <img src="{{ asset('images/logo_front.png') }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
+                    </div>
+                    <div style="position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; transform: rotateY(180deg);">
+                        <img src="{{ asset('images/logo_back.png') }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
+                    </div>
+                </div>
+            </div>
+            <div class="text-l lg:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight whitespace-nowrap">
                 FIRAT ÜNİVERSİTESİ
             </div>
         </a>
 
+        <style>
+            @keyframes logoFlip {
+                0%        { transform: rotateY(0deg); }
+                45%       { transform: rotateY(0deg); }
+                50%       { transform: rotateY(180deg); }
+                95%       { transform: rotateY(180deg); }
+                100%      { transform: rotateY(360deg); }
+            }
+        </style>
+
         <!-- Desktop Navigation (Center) -->
-        <div class="hidden lg:flex items-center space-x-8 font-headline font-bold absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div class="hidden lg:flex items-center gap-8 font-headline font-bold absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             @foreach($mainMenus as $menu)
                 @if($menu->children->count() > 0)
                     <div class="relative group">
-                        <button
-                            class="flex items-center gap-1 nav-link text-slate-500 hover:text-primary transition-colors">
+                        <button class="flex items-center gap-1 nav-link text-slate-500 hover:text-primary transition-colors">
                             {{ $menu->label }}
-                            <span
-                                class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
+                            <span class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
                         </button>
-                        <div
-                            class="absolute top-[calc(100%-10px)] left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 z-50">
-                            <div
-                                class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 p-2 min-w-[240px] overflow-hidden">
-                                {{-- Ana menü linkini alt menülerin başına ekle --}}
+                        <div class="absolute top-[calc(100%-10px)] left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 z-50">
+                            <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/20 p-2 min-w-[240px] overflow-hidden">
                                 <a href="{{ $menu->url }}" target="{{ $menu->target }}"
                                     class="flex items-center justify-between px-4 py-3 mb-1 rounded-xl bg-gradient-to-r from-primary/5 to-transparent hover:from-primary/10 transition-all group/parent">
                                     <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover/parent:scale-110 transition-transform">
+                                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover/parent:scale-110 transition-transform">
                                             <span class="material-symbols-outlined text-[20px]">grid_view</span>
                                         </div>
                                         <div class="flex flex-col text-left">
-                                            <span class="text-sm font-bold text-slate-800 leading-none">Tüm
-                                                {{ $menu->label }}</span>
-                                            <span
-                                                class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Genel
-                                                Bakış</span>
+                                            <span class="text-sm font-bold text-slate-800 leading-none">Tüm {{ $menu->label }}</span>
+                                            <span class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Genel Bakış</span>
                                         </div>
                                     </div>
-                                    <span
-                                        class="material-symbols-outlined text-slate-300 group-hover/parent:text-primary transition-colors text-[20px]">arrow_forward</span>
+                                    <span class="material-symbols-outlined text-slate-300 group-hover/parent:text-primary transition-colors text-[20px]">arrow_forward</span>
                                 </a>
-
                                 <div class="px-2 py-1 flex items-center gap-2 mb-1">
                                     <div class="h-px bg-slate-100 flex-1"></div>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alt
-                                        Sayfalar</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alt Sayfalar</span>
                                     <div class="h-px bg-slate-100 flex-1"></div>
                                 </div>
-
                                 @foreach($menu->children as $child)
                                     <a href="{{ $child->url }}" target="{{ $child->target }}"
                                         class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-all group/item">
-                                        <div
-                                            class="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover/item:bg-primary group-hover/item:scale-125 transition-all">
-                                        </div>
+                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover/item:bg-primary group-hover/item:scale-125 transition-all"></div>
                                         {{ $child->label }}
                                     </a>
                                 @endforeach
@@ -73,6 +76,22 @@
                         {{ $menu->label }}
                     </a>
                 @endif
+
+                {{-- Kulüpler'den sonra logo ekle --}}
+                @if(mb_strtolower($menu->label, 'UTF-8') == 'kulüpler')
+                    <a href="{{ route('home') }}" class="flex items-center mx-2">
+                        <div style="perspective: 300px; width: 75px; height:75px; flex-shrink: 0;">
+                            <div style="width:100%; height:100%; position:relative; transform-style: preserve-3d; animation: logoFlip 8s ease-in-out infinite;">
+                                <div style="position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;">
+                                    <img src="{{ asset('images/logo_front.png') }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
+                                </div>
+                                <div style="position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; transform: rotateY(180deg);">
+                                    <img src="{{ asset('images/logo_back.png') }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                @endif
             @endforeach
         </div>
 
@@ -80,8 +99,7 @@
         <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6 relative z-10">
             <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
 
-                <span
-                    class="text-xs font-bold cursor-pointer hover:text-primary transition-colors border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2 hidden sm:inline">TR/EN</span>
+                <span class="text-xs font-bold cursor-pointer hover:text-primary transition-colors border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2">TR/EN</span>
 
                 @auth
                     <!-- User Dropdown Component -->
@@ -134,15 +152,14 @@
                         </div>
                     </div>
                 @else
-                    <span
-                        class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors hidden sm:inline">account_circle</span>
+                    <span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">account_circle</span>
                 @endauth
             </div>
 
             @guest
-                <a href="{{ route('register') }}"
+                <a href="{{ route('login') }}"
                     class="bg-gradient-primary text-white px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm scale-95 active:scale-90 transition-transform shadow-lg shadow-primary/20 block text-center whitespace-nowrap">
-                    Kayıt Ol
+                    Giriş Yap
                 </a>
             @endguest
 

@@ -40,9 +40,10 @@
 </div>
 
 <div class="admin-card mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm">
-    <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+    <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
         @if($club->logo)
-            <img src="{{ asset('storage/' . $club->logo) }}" class="w-14 h-14 rounded-xl object-cover" alt="">
+            @php $logoUrl = str_starts_with($club->logo, 'http') ? $club->logo : (file_exists(public_path('uploads/' . $club->logo)) ? asset('uploads/' . $club->logo) : asset('storage/' . $club->logo)); @endphp
+            <img src="{{ $logoUrl }}" class="w-14 h-14 rounded-xl object-cover" alt="">
         @else
             <span class="material-symbols-outlined text-primary text-[28px]">groups</span>
         @endif
@@ -59,41 +60,41 @@
     </a>
 </div>
 
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-    <div class="admin-card flex items-center gap-3 shadow-sm">
-        <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center">
-            <span class="material-symbols-outlined text-slate-600">people</span>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white border border-slate-100 rounded-2xl md:rounded-[1.5rem] p-5 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all duration-300">
+        <div class="w-12 h-12 bg-slate-50 text-slate-500 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-[28px]">people</span>
         </div>
         <div>
-            <p class="text-2xl font-bold font-headline text-slate-800">{{ $stats['total'] }}</p>
-            <p class="text-xs text-slate-500 font-medium">Toplam</p>
+            <p class="text-2xl font-bold font-headline text-slate-800 leading-none mb-1">{{ $stats['total'] }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Toplam</p>
         </div>
     </div>
-    <div class="admin-card flex items-center gap-3 shadow-sm">
-        <div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center">
-            <span class="material-symbols-outlined text-amber-600">schedule</span>
+    <div class="bg-white border border-slate-100 rounded-2xl md:rounded-[1.5rem] p-5 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all duration-300">
+        <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-[28px]">schedule</span>
         </div>
         <div>
-            <p class="text-2xl font-bold font-headline text-amber-600">{{ $stats['pending'] }}</p>
-            <p class="text-xs text-slate-500 font-medium">Bekleyen</p>
+            <p class="text-2xl font-bold font-headline text-amber-600 leading-none mb-1">{{ $stats['pending'] }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Bekleyen</p>
         </div>
     </div>
-    <div class="admin-card flex items-center gap-3 shadow-sm">
-        <div class="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center">
-            <span class="material-symbols-outlined text-green-600">check_circle</span>
+    <div class="bg-white border border-slate-100 rounded-2xl md:rounded-[1.5rem] p-5 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all duration-300">
+        <div class="w-12 h-12 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-[28px]">check_circle</span>
         </div>
         <div>
-            <p class="text-2xl font-bold font-headline text-green-600">{{ $stats['approved'] }}</p>
-            <p class="text-xs text-slate-500 font-medium">Onaylandı</p>
+            <p class="text-2xl font-bold font-headline text-green-600 leading-none mb-1">{{ $stats['approved'] }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Onaylandı</p>
         </div>
     </div>
-    <div class="admin-card flex items-center gap-3 shadow-sm">
-        <div class="w-11 h-11 bg-red-50 rounded-xl flex items-center justify-center">
-            <span class="material-symbols-outlined text-red-600">cancel</span>
+    <div class="bg-white border border-slate-100 rounded-2xl md:rounded-[1.5rem] p-5 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all duration-300">
+        <div class="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-[28px]">cancel</span>
         </div>
         <div>
-            <p class="text-2xl font-bold font-headline text-red-600">{{ $stats['rejected'] }}</p>
-            <p class="text-xs text-slate-500 font-medium">Reddedildi</p>
+            <p class="text-2xl font-bold font-headline text-red-600 leading-none mb-1">{{ $stats['rejected'] }}</p>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Reddedildi</p>
         </div>
     </div>
 </div>
@@ -169,14 +170,24 @@
 {{-- Form Verisi Modalı --}}
 <div id="form-data-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="hideFormDataModal()"></div>
-    <div class="relative bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden max-h-[80vh] flex flex-col">
-        <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-            <h3 class="text-lg font-bold font-headline text-slate-800"><span id="form-data-name"></span> - Başvuru Formu</h3>
-            <button onclick="hideFormDataModal()" class="text-slate-400 hover:text-slate-600"><span class="material-symbols-outlined">close</span></button>
+    <div class="relative bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                    <span class="material-symbols-outlined rounded">description</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold font-headline text-slate-800 leading-none">Başvuru Formu</h3>
+                    <p class="text-xs text-slate-500 mt-1"><span id="form-data-name" class="font-semibold text-slate-700"></span> adlı öğrencinin verileri</p>
+                </div>
+            </div>
+            <button onclick="hideFormDataModal()" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
         </div>
-        <div id="form-data-content" class="p-6 space-y-3 overflow-y-auto flex-1"></div>
-        <div class="px-8 py-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
-            <button onclick="hideFormDataModal()" class="w-full py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100">Kapat</button>
+        <div id="form-data-content" class="p-6 space-y-3 overflow-y-auto flex-1 bg-slate-50/30"></div>
+        <div class="px-8 py-4 border-t border-slate-100 flex justify-end gap-3 shrink-0 bg-slate-50">
+            <button onclick="hideFormDataModal()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-xl transition-colors">Kapat</button>
         </div>
     </div>
 </div>
@@ -250,8 +261,16 @@ function showFormData(data, name) {
     if (data && data.length > 0) {
         data.forEach(function(item) {
             var div = document.createElement('div');
-            div.className = 'bg-slate-50 rounded-xl p-4 border border-slate-100';
-            div.innerHTML = '<p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">' + esc(item.label) + '</p><p class="text-sm text-slate-800 font-medium">' + esc(item.value || '-') + '</p>';
+            div.className = 'bg-white rounded-2xl p-4 border border-slate-100 shadow-none mb-3';
+            
+            var displayValue = item.value;
+            if (displayValue === "1" || displayValue === "on" || displayValue === true || displayValue === "true") {
+                displayValue = "Evet";
+            } else if (displayValue === "0" || displayValue === "off" || displayValue === false || displayValue === "false") {
+                displayValue = "Hayır";
+            }
+            
+            div.innerHTML = '<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">' + esc(item.label) + '</p><p class="text-[15px] text-slate-800 font-bold leading-tight">' + esc(displayValue || '-') + '</p>';
             container.appendChild(div);
         });
     } else {

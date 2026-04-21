@@ -5,22 +5,22 @@
     @endphp
 
     <div class="unified-event-list-root mb-0 relative w-full max-w-full min-w-0 {{ $isSlider ? '' : 'h-full min-h-0 flex flex-col' }}" data-event-count="{{ $count }}">
-    <div class="{{ $isSlider ? 'swiper unified-events-swiper calendar-events-swiper relative pb-10 md:pb-12 pl-9 pr-9 sm:pl-10 sm:pr-10' : 'flex-1 min-h-0 flex flex-col' }} relative w-full max-w-full min-w-0">
-        <div class="{{ $isSlider ? 'swiper-wrapper' : 'flex-1 min-h-0 flex flex-col space-y-4' }}">
+    <div class="{{ $isSlider ? 'swiper h-full unified-events-swiper calendar-events-swiper relative pb-10 md:pb-12' : 'flex-1 min-h-0 flex flex-col' }} relative w-full max-w-full min-w-0 overflow-hidden">
+        <div class="{{ $isSlider ? 'swiper-wrapper h-full' : 'flex-1 min-h-0 flex flex-col space-y-4' }}">
             @foreach($selectedEvents as $event)
                 @php
                     $club = $event->club;
                 @endphp
-                <div class="{{ $isSlider ? 'swiper-slide !h-auto flex min-w-0 max-w-full' : 'flex-1 min-h-0 flex flex-col' }}">
+                <div class="{{ $isSlider ? 'swiper-slide h-full flex flex-col min-w-0' : 'flex-1 min-h-0 flex flex-col' }}">
                     @php
                         $eImg = $event->image;
                         $eUrl = ($eImg && str_starts_with($eImg, 'http')) ? $eImg : ($eImg && file_exists(public_path('uploads/' . $eImg)) ? asset('uploads/' . $eImg) : ($eImg ? asset('storage/' . $eImg) : null));
                     @endphp
                     {{-- Duyurular kartıyla benzer görsel yüksekliği; lg: yatay düzen → toplam yükseklik kısalır, takvimle hiza --}}
-                    <div class="bg-slate-50/50 border border-slate-100 rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col lg:flex-row lg:items-stretch lg:gap-4 xl:gap-5 w-full max-w-full min-w-0 {{ $isSlider ? 'h-auto' : 'flex-1 min-h-0' }} group">
+                    <div class="bg-slate-50/50 border border-slate-100 rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col lg:flex-row lg:items-stretch lg:gap-4 xl:gap-5 w-full max-w-full min-w-0 flex-1 min-h-0 group">
                         @if($eUrl)
-                        <div class="w-full lg:w-[min(42%,260px)] xl:w-[min(40%,280px)] shrink-0 lg:min-h-0 lg:self-stretch max-w-full min-w-0">
-                            <div class="relative h-40 sm:h-44 md:h-48 {{ $isSlider ? 'lg:h-52 lg:max-h-56' : 'lg:h-full lg:min-h-[11rem]' }} rounded-xl overflow-hidden">
+                        <div class="w-full lg:w-[min(45%,290px)] xl:w-[min(43%,310px)] shrink-0 lg:min-h-0 lg:self-stretch max-w-full min-w-0">
+                            <div class="relative h-40 sm:h-44 md:h-48 lg:h-full lg:min-h-[26rem] rounded-xl overflow-hidden">
                                 <img src="{{ $eUrl }}" alt="{{ $event->title }}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500">
                             </div>
                         </div>
@@ -104,7 +104,7 @@
                             @if($club)
                             <a href="{{ route('kulup.detay', $club->slug) }}" 
                                class="bg-primary text-white text-center py-2.5 rounded-lg font-bold text-[11px] md:text-xs hover:shadow-md transition-all flex items-center justify-center gap-1 min-w-0">
-                                Kulübe Üye Ol <span class="material-symbols-outlined text-sm">person_add</span>
+                                 Kulübe Üye Ol <span class="material-symbols-outlined text-[16px] md:text-[18px]">person_add</span>
                             </a>
                             @endif
                         </div>
@@ -116,16 +116,15 @@
         
         @if($isSlider)
             <button type="button"
-                class="unified-events-prev swiper-nav-btn absolute left-0 top-1/2 z-10 flex h-10 w-10 sm:h-11 sm:w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/80 bg-white text-primary shadow-md transition-all hover:border-primary hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary/30 [&.swiper-button-disabled]:pointer-events-none [&.swiper-button-disabled]:opacity-35"
+                class="unified-events-prev swiper-nav-btn absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/80 bg-white/90 text-primary shadow-md backdrop-blur-sm transition-all hover:bg-primary hover:text-white focus:outline-none [&.swiper-button-disabled]:opacity-0"
                 aria-label="Önceki etkinlikler">
                 <span class="material-symbols-outlined text-[22px] sm:text-[24px]">chevron_left</span>
             </button>
             <button type="button"
-                class="unified-events-next swiper-nav-btn absolute right-0 top-1/2 z-10 flex h-10 w-10 sm:h-11 sm:w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/80 bg-white text-primary shadow-md transition-all hover:border-primary hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary/30 [&.swiper-button-disabled]:pointer-events-none [&.swiper-button-disabled]:opacity-35"
+                class="unified-events-next swiper-nav-btn absolute right-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/80 bg-white/90 text-primary shadow-md backdrop-blur-sm transition-all hover:bg-primary hover:text-white focus:outline-none [&.swiper-button-disabled]:opacity-0"
                 aria-label="Sonraki etkinlikler">
                 <span class="material-symbols-outlined text-[22px] sm:text-[24px]">chevron_right</span>
             </button>
-            <div class="swiper-pagination unified-pagination !bottom-0 !left-0 !w-full pt-2"></div>
         @endif
     </div>
     </div>
