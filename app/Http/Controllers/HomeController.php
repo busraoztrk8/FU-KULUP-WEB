@@ -120,7 +120,7 @@ class HomeController extends Controller
         if ($request->ajax()) {
             $html = view('partials.event-grid-list', compact('events'))->render();
             /** @var \Illuminate\Pagination\LengthAwarePaginator $events */
-            $pagination = $events->links('partials.custom-pagination')->render();
+            $pagination = $events->links('partials.custom-pagination')->toHtml();
             
             if ($events->isEmpty()) {
                 $html = '<div class="col-span-full text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
