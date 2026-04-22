@@ -340,7 +340,16 @@ class ClubController extends Controller
 
         if (request()->ajax()) {
             $query = ClubMember::with(['user', 'registrationData.formField'])
-                ->where('club_members.club_id', $club->id);
+                ->where('club_members.club_id', $club->id)
+                ->orderByRaw("CASE 
+                    WHEN user_id = " . ($club->president_id ?? 0) . " THEN 0 
+                    WHEN title = 'Başkan' THEN 1 
+                    WHEN title = 'Başkan Yardımcısı' THEN 2 
+                    WHEN title LIKE '%Başkan Yardımcısı%' THEN 3 
+                    WHEN title LIKE '%Başkan%' THEN 4
+                    ELSE 5 
+                END")
+                ->orderBy('title');
 
             $filter = request('status', 'all');
             if ($filter !== 'all') {

@@ -15,20 +15,20 @@
                                      src="{{ str_starts_with($slider->image_path, 'http') ? $slider->image_path : (file_exists(public_path('uploads/' . $slider->image_path)) ? asset('uploads/' . $slider->image_path) : asset('storage/' . $slider->image_path)) }}" />
                                 <div class="absolute inset-0 flex items-center justify-center">
                                     <div class="container mx-auto px-4 sm:px-6 relative z-10 text-center">
-                                        <div class="glass-card inline-block px-5 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
+                                        <div class="glass-card block w-[92%] sm:inline-block px-4 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
                                             @if($slider->title)
-                                                <h1 class="font-headline text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight text-on-surface">
-                                                    {{ $slider->title }}
+                                                <h1 class="font-headline text-xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-3 md:mb-6 leading-tight text-on-surface px-2 break-all sm:break-normal">
+                                                    {{ \Illuminate\Support\Str::words($slider->title, 10, '...') }}
                                                 </h1>
                                             @endif
                                             @if($slider->subtitle)
-                                                <p class="font-body text-sm sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed">
-                                                    {{ $slider->subtitle }}
+                                                <p class="font-body text-xs sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-4 md:mb-10 leading-relaxed px-4 break-all sm:break-normal">
+                                                    {{ \Illuminate\Support\Str::words($slider->subtitle, 15, '...') }}
                                                 </p>
                                             @endif
                                             @if($slider->button_text && $slider->button_url)
-                                                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
-                                                    <a href="{{ $slider->button_url }}" class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-sm md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
+                                                <div class="flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-4">
+                                                    <a href="{{ $slider->button_url }}" class="w-full sm:w-auto px-5 md:px-8 py-2.5 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-xs md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
                                                         {{ $slider->button_text }}
                                                     </a>
                                                 </div>
@@ -42,10 +42,14 @@
                     
                     @if($sliders->count() > 1)
                         <!-- Navigation -->
-                        <div class="swiper-button-next !text-white !right-4 !w-12 !h-12 !bg-black/20 hover:!bg-black/40 rounded-full backdrop-blur opacity-0 group-hover:opacity-100 transition-all after:!text-xl z-20"></div>
-                        <div class="swiper-button-prev !text-white !left-4 !w-12 !h-12 !bg-black/20 hover:!bg-black/40 rounded-full backdrop-blur opacity-0 group-hover:opacity-100 transition-all after:!text-xl z-20"></div>
+                        <div class="swiper-button-next !text-white !right-1 sm:!right-4 !w-8 !h-8 sm:!w-12 sm:!h-12 !bg-black/30 hover:!bg-black/50 rounded-full backdrop-blur transition-all z-20 after:hidden flex items-center justify-center">
+                            <span class="material-symbols-outlined !text-xl sm:!text-3xl">chevron_right</span>
+                        </div>
+                        <div class="swiper-button-prev !text-white !left-1 sm:!left-4 !w-8 !h-8 sm:!w-12 sm:!h-12 !bg-black/30 hover:!bg-black/50 rounded-full backdrop-blur transition-all z-20 after:hidden flex items-center justify-center">
+                            <span class="material-symbols-outlined !text-xl sm:!text-3xl">chevron_left</span>
+                        </div>
                         <!-- Pagination -->
-                        <div class="swiper-pagination !bottom-6 swiper-pagination-white z-20"></div>
+                        <div class="swiper-pagination !bottom-4 sm:!bottom-6 swiper-pagination-white z-20 scale-75 sm:scale-100"></div>
                     @endif
                 </div>
             @else
@@ -112,12 +116,12 @@
     <!-- Trending Events Section - Single Row Carousel -->
     <section class="py-12 md:py-16 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-            <div class="flex justify-between items-end mb-8 md:mb-12 gap-4">
-                <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 md:mb-12 gap-6 sm:gap-4">
+                <div class="w-full sm:w-auto">
                     <h2 class="text-2xl md:text-3xl font-headline font-bold mb-2 text-on-surface">Trend Etkinlikler</h2>
                     <div class="h-1.5 w-20 bg-primary rounded-full"></div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3 self-end sm:self-auto">
                     <button class="events-swiper-prev w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-black/10 shadow-md hover:shadow-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/30 transition-all">
                         <span class="material-symbols-outlined text-xl">chevron_left</span>
                     </button>
@@ -137,17 +141,17 @@
                             <div class="p-4 md:p-6">
                                 <div class="flex gap-3 md:gap-4 mb-3 md:mb-4">
                                     <div
-                                        class="bg-surface-container rounded-lg p-2 md:p-3 text-center min-w-[50px] md:min-w-[60px] flex flex-col justify-center items-center">
-                                        <span class="text-xs font-bold text-primary uppercase">{{ $event->start_time->translatedFormat('M') }}</span>
-                                        <span class="text-xl md:text-2xl font-bold text-on-surface">{{ $event->start_time->format('d') }}</span>
+                                        class="bg-surface-container rounded-lg p-2 md:p-3 text-center min-w-[45px] sm:min-w-[50px] md:min-w-[60px] flex flex-col justify-center items-center h-fit">
+                                        <span class="text-[10px] sm:text-xs font-bold text-primary uppercase leading-none mb-1">{{ $event->start_time->translatedFormat('M') }}</span>
+                                        <span class="text-lg sm:text-xl md:text-2xl font-bold text-on-surface leading-none">{{ $event->start_time->format('d') }}</span>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <h3
-                                            class="text-lg md:text-xl font-headline font-bold mb-1 group-hover:text-primary transition-colors text-on-surface truncate">
+                                            class="text-base sm:text-lg md:text-xl font-headline font-bold mb-1 group-hover:text-primary transition-colors text-on-surface line-clamp-1 break-all">
                                             {{ $event->title }}</h3>
-                                        <div class="flex items-center text-sm text-on-surface-variant">
-                                            <span class="material-symbols-outlined text-sm mr-1">location_on</span>
-                                            {{ $event->location ?? 'Yer Belirtilmedi' }}
+                                        <div class="flex items-center text-xs sm:text-sm text-on-surface-variant">
+                                            <span class="material-symbols-outlined text-xs sm:text-sm mr-1">location_on</span>
+                                            <span class="truncate">{{ $event->location ?? 'Yer Belirtilmedi' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -444,12 +448,12 @@
             // Events Carousel Swiper
             if (document.querySelector('.events-swiper')) {
                 const eventsSwiper = new Swiper('.events-swiper', {
-                    slidesPerView: 1.2,
+                    slidesPerView: 1.1,
                     spaceBetween: 16,
                     grabCursor: true,
-                    loop: false,
+                    loop: true,
                     autoplay: {
-                        delay: 4000,
+                        delay: 5000,
                         disableOnInteraction: false,
                     },
                     breakpoints: {

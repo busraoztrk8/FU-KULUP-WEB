@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\GalleryImage;
 use App\Models\Club;
 use App\Models\Event;
+use App\Models\Slider;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
     public function index()
     {
+        $sliders = Slider::active()->get();
+
         $galleryImages = GalleryImage::where('is_active', true)
             ->orderBy('order')
             ->get();
@@ -34,7 +37,7 @@ class HomeController extends Controller
             'events' => Event::count(),
         ];
 
-        return view('welcome', compact('galleryImages', 'stats', 'trendingEvents', 'activeClubs'));
+        return view('welcome', compact('sliders', 'galleryImages', 'stats', 'trendingEvents', 'activeClubs'));
     }
 
     public function etkinlikler(Request $request)
