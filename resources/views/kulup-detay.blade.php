@@ -103,7 +103,7 @@
             </div>
             <div class="flex-1">
                 <h1 class="font-headline text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4 drop-shadow-lg break-words">
-                    {{ $club->name }}
+                    {{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}
                 </h1>
                 <div class="flex flex-wrap gap-3">
                     @if($club->category)
@@ -112,7 +112,7 @@
                     </span>
                     @endif
                     <span class="px-4 py-1.5 bg-white/20 backdrop-blur-md text-white rounded-full text-[11px] font-bold border border-white/10">
-                        {{ number_format($club->member_count) }} Üye
+                        {{ number_format($club->member_count) }} {{ __('site.members') }}
                     </span>
                 </div>
             </div>
@@ -129,11 +129,11 @@
             <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
                 <div class="flex items-center gap-4 mb-8">
                     <span class="w-1.5 h-10 bg-primary rounded-full"></span>
-                    <h2 class="font-headline text-3xl font-bold text-slate-800">Hakkımızda</h2>
+                    <h2 class="font-headline text-3xl font-bold text-slate-800">{{ __('site.about_us') }}</h2>
                 </div>
                 
                 <div class="prose prose-slate max-w-none mb-10 text-slate-600 leading-relaxed text-lg break-words">
-                    {!! nl2br(e($club->description ?? 'Bu kulüp hakkında henüz detaylı bir açıklama girilmemiş.')) !!}
+                    {!! nl2br(e(app()->getLocale() == 'en' && $club->description_en ? $club->description_en : ($club->description ?? __('site.no_club_desc')))) !!}
                 </div>
 
                 {{-- Mission & Vision Cards --}}
@@ -143,9 +143,9 @@
                         <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                             <span class="material-symbols-outlined text-primary text-[28px]">rocket_launch</span>
                         </div>
-                        <h4 class="font-bold text-slate-800 mb-2">Misyonumuz</h4>
+                        <h4 class="font-bold text-slate-800 mb-2">{{ __('site.our_mission') }}</h4>
                         <p class="text-sm text-slate-500 leading-relaxed italic break-words">
-                            {{ $club->mission ?? 'Öğrencilerimize sosyal ve teknik alanlarda değer katmak, üniversite vizyonunu ileriye taşımak.' }}
+                            {{ $club->mission ?? __('site.default_mission') }}
                         </p>
                     </div>
                     {{-- Vision --}}
@@ -153,9 +153,9 @@
                         <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
                             <span class="material-symbols-outlined text-amber-500 text-[28px]">visibility</span>
                         </div>
-                        <h4 class="font-bold text-slate-800 mb-2">Vizyonumuz</h4>
+                        <h4 class="font-bold text-slate-800 mb-2">{{ __('site.our_vision') }}</h4>
                         <p class="text-sm text-slate-500 leading-relaxed italic break-words">
-                            {{ $club->vision ?? 'Alanında öncü, disiplinler arası çalışmalara odaklanan sürdürülebilir bir topluluk olmak.' }}
+                            {{ $club->vision ?? __('site.default_vision') }}
                         </p>
                     </div>
                 </div>
@@ -166,7 +166,7 @@
             <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
                 <div class="flex items-center gap-4 mb-6">
                     <span class="w-1.5 h-10 bg-primary rounded-full"></span>
-                    <h2 class="font-headline text-2xl font-bold text-slate-800 uppercase tracking-tight">Kulüp Faaliyetleri</h2>
+                    <h2 class="font-headline text-2xl font-bold text-slate-800 uppercase tracking-tight">{{ __('site.club_activities') }}</h2>
                 </div>
                 <div class="prose prose-slate max-w-none text-slate-600 leading-relaxed break-words">
                     {!! nl2br(e($club->activities)) !!}
@@ -180,7 +180,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
                         <span class="material-symbols-outlined text-primary">photo_library</span>
-                        Kulüp Galerisi
+                        {{ __('site.club_gallery') }}
                     </h2>
                     <div class="flex items-center gap-4 sm:gap-6">
                         {{-- Slider Nav --}}
@@ -193,7 +193,7 @@
                             </button>
                         </div>
                         <div class="hidden sm:block w-px h-6 bg-slate-200"></div>
-                        <a href="{{ route('kulup.galeri', $club->slug) }}" class="text-primary text-sm font-bold hover:underline whitespace-nowrap">Tümünü Gör</a>
+                        <a href="{{ route('kulup.galeri', $club->slug) }}" class="text-primary text-sm font-bold hover:underline whitespace-nowrap">{{ __('site.see_all') }}</a>
                     </div>
                 </div>
                 
@@ -227,11 +227,11 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <span class="w-1.5 h-10 bg-primary rounded-full"></span>
-                        <h2 class="font-headline text-2xl font-bold text-slate-800">Yaklaşan Etkinlikler</h2>
+                        <h2 class="font-headline text-2xl font-bold text-slate-800">{{ __('site.upcoming_events') }}</h2>
                     </div>
                     @if($upcomingEvents->count() > 1)
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('etkinlikler') }}?club={{ $club->slug }}" class="text-xs font-bold text-primary hover:underline mr-2">Tümünü Gör</a>
+                        <a href="{{ route('etkinlikler') }}?club={{ $club->slug }}" class="text-xs font-bold text-primary hover:underline mr-2">{{ __('site.see_all') }}</a>
                         <button class="club-events-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
                             <span class="material-symbols-outlined text-[20px]">chevron_left</span>
                         </button>
@@ -267,7 +267,7 @@
                             </div>
                             <div class="md:w-3/5 p-8 md:p-10 flex flex-col justify-center">
                                 <div class="flex items-center gap-3 mb-4">
-                                    <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-lg border border-primary/5">Açık Etkinlik</span>
+                                    <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-lg border border-primary/5">{{ __('site.open_event') }}</span>
                                     <span class="text-slate-400 text-xs flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">schedule</span>{{ $event->start_time->format('H:i') }}</span>
                                 </div>
                                 <h3 class="text-2xl md:text-3xl font-headline font-bold text-slate-800 mb-4 group-hover:text-primary transition-colors leading-tight">{{ $event->title }}</h3>
@@ -277,10 +277,10 @@
                                         <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
                                             <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
                                         </div>
-                                        <span class="font-medium truncate max-w-[150px]">{{ $event->location ?? 'Belirtilmedi' }}</span>
+                                        <span class="font-medium truncate max-w-[150px]">{{ $event->location ?? __('site.not_specified') }}</span>
                                     </div>
                                     <div class="text-primary font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all ml-auto">
-                                        Detaylar <span class="material-symbols-outlined text-[18px]">arrow_right_alt</span>
+                                        {{ __('site.details') }} <span class="material-symbols-outlined text-[18px]">arrow_right_alt</span>
                                     </div>
                                 </div>
                             </div>
@@ -314,7 +314,7 @@
                                     <div class="p-6 card-content">
                                         <h3 class="font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors line-clamp-2">{{ $event->title }}</h3>
                                         <div class="flex items-center gap-4 text-slate-400 text-[11px] font-medium mt-auto pt-4 border-t border-slate-50">
-                                            <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">location_on</span>{{ Str::limit($event->location ?? 'Belirtilmedi', 20) }}</span>
+                                            <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">location_on</span>{{ Str::limit($event->location ?? __('site.not_specified'), 20) }}</span>
                                             <span class="flex items-center gap-1.5 ml-auto"><span class="material-symbols-outlined text-[14px]">schedule</span>{{ $event->start_time->format('H:i') }}</span>
                                         </div>
                                     </div>
@@ -350,8 +350,8 @@
                             @endif
                         </div>
                         <div>
-                            <h3 class="font-headline text-xl font-bold text-slate-800 line-clamp-1">{{ $club->name }}</h3>
-                            <p class="text-[10px] font-bold text-primary uppercase tracking-widest mt-0.5">{{ $club->category->name ?? 'Genel' }}</p>
+                            <h3 class="font-headline text-xl font-bold text-slate-800 line-clamp-1">{{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}</h3>
+                            <p class="text-[10px] font-bold text-primary uppercase tracking-widest mt-0.5">{{ $club->category->name ?? __('site.general') }}</p>
                         </div>
                     </div>
                     
@@ -359,21 +359,21 @@
                         <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 group/item hover:bg-slate-100 transition-colors">
                             <div class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-primary/60 text-[20px]">person</span>
-                                <span class="text-slate-500 text-xs font-semibold">Kurucu</span>
+                                <span class="text-slate-500 text-xs font-semibold">{{ __('site.founder') }}</span>
                             </div>
                             <span class="font-bold text-slate-800 text-xs text-right">{{ $club->founder_name ?? ($club->president->name ?? '-') }}</span>
                         </div>
                         <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 group/item hover:bg-slate-100 transition-colors">
                             <div class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-primary/60 text-[20px]">groups</span>
-                                <span class="text-slate-500 text-xs font-semibold">Üye Sayısı</span>
+                                <span class="text-slate-500 text-xs font-semibold">{{ __('site.member_count_label') }}</span>
                             </div>
                             <span class="font-bold text-slate-800 text-xs">{{ number_format($club->member_count) }}</span>
                         </div>
                         <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 group/item hover:bg-slate-100 transition-colors">
                             <div class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-primary/60 text-[20px]">calendar_today</span>
-                                <span class="text-slate-500 text-xs font-semibold">Kuruluş</span>
+                                <span class="text-slate-500 text-xs font-semibold">{{ __('site.established') }}</span>
                             </div>
                             <span class="font-bold text-slate-800 text-xs">{{ $club->established_year ?? $club->created_at->format('Y') }}</span>
                         </div>
@@ -391,12 +391,12 @@
                         @if(!$membership)
                             <button type="button" onclick="openRegistrationModal()" class="w-full py-4 bg-[#5d1021] text-white rounded-2xl font-bold text-base hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
                                 <span class="material-symbols-outlined text-[20px]">person_add</span>
-                                Kulübe Katıl
+                                {{ __('site.join_club') }}
                             </button>
                         @elseif($membership->status === 'pending')
-                            <div class="w-full py-4 bg-amber-50 text-amber-700 rounded-2xl font-bold text-xs text-center border border-amber-100 italic">Başvuru Onay Bekliyor</div>
+                            <div class="w-full py-4 bg-amber-50 text-amber-700 rounded-2xl font-bold text-xs text-center border border-amber-100 italic">{{ __('site.application_pending') }}</div>
                         @else
-                            <div class="w-full py-4 bg-green-50 text-green-700 rounded-2xl font-bold text-sm text-center border border-green-100 mb-4 tracking-tight">Kulüp Üyesisiniz</div>
+                            <div class="w-full py-4 bg-green-50 text-green-700 rounded-2xl font-bold text-sm text-center border border-green-100 mb-4 tracking-tight">{{ __('site.club_member') }}</div>
                             
                             {{-- Member Exclusive Links --}}
                             @if($club->whatsapp_url || $club->channel_url)
@@ -410,7 +410,7 @@
                                     @if($club->channel_url)
                                     <a href="{{ $club->channel_url }}" target="_blank" class="flex flex-col items-center justify-center gap-1 p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-all shadow-sm">
                                         <span class="material-symbols-outlined text-base">campaign</span>
-                                        <span class="text-[9px] font-bold">Duyuru Kanalı</span>
+                                        <span class="text-[9px] font-bold">{{ __('site.announcement_channel') }}</span>
                                     </a>
                                     @endif
                                 </div>
@@ -419,17 +419,17 @@
                             {{-- Kulüpten Çık --}}
                             <button onclick="document.getElementById('leave-modal').classList.remove('hidden')"
                                 class="w-full py-3 mt-2 bg-red-50 text-red-600 rounded-2xl font-bold text-sm hover:bg-red-100 transition-all border border-red-100 flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined text-[18px]">logout</span> Kulüpten Çık
+                                <span class="material-symbols-outlined text-[18px]">logout</span> {{ __('site.leave_club') }}
                             </button>
                         @endif
                     @else
                         <a href="{{ route('login') }}" class="w-full py-4 bg-[#5d1021] text-white rounded-2xl font-bold text-base hover:opacity-90 flex items-center justify-center gap-2 shadow-xl shadow-black/10">
-                            <span class="material-symbols-outlined text-[20px]">login</span> Giriş Yap ve Katıl
+                            <span class="material-symbols-outlined text-[20px]">login</span> {{ __('site.login_and_join') }}
                         </a>
                     @endauth
 
                     <div class="mt-10 pt-8 border-t border-slate-100">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-6">Sosyal Medya & Paylaş</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-6">{{ __('site.social_share') }}</p>
                         <div class="flex flex-wrap justify-center gap-3">
                             @if($club->website_url)
                                 <a href="{{ $club->website_url }}" target="_blank" class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm" title="Web Sitesi">
@@ -499,7 +499,7 @@
             @endphp
             @if($activeMembers->count() > 0)
             <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">
-                <h3 class="font-headline text-2xl font-bold mb-8 text-slate-800">Aktif Üyeler</h3>
+                <h3 class="font-headline text-2xl font-bold mb-8 text-slate-800">{{ __('site.active_members') }}</h3>
                 <div class="space-y-6">
                     @foreach($activeMembers as $member)
                     <div class="flex items-center gap-4 group">
@@ -525,7 +525,7 @@
                 </div>
                 {{-- See all link --}}
                 <div class="mt-8 pt-6 border-t border-slate-50">
-                    <button class="w-full py-3.5 bg-white text-slate-500 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all border border-slate-100">Tüm Üyeleri Görüntüle</button>
+                    <button class="w-full py-3.5 bg-white text-slate-500 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all border border-slate-100">{{ __('site.view_all_members') }}</button>
                 </div>
             </div>
             @endif
@@ -545,18 +545,18 @@
         <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span class="material-symbols-outlined text-red-500 text-[32px]">logout</span>
         </div>
-        <h3 class="font-headline text-xl font-bold text-slate-800 mb-2">Kulüpten Çık</h3>
-        <p class="text-slate-500 text-sm mb-6"><strong>{{ $club->name }}</strong> kulübünden ayrılmak istediğinize emin misiniz?</p>
+        <h3 class="font-headline text-xl font-bold text-slate-800 mb-2">{{ __('site.leave_club_confirm') }}</h3>
+        <p class="text-slate-500 text-sm mb-6">{{ __('site.leave_club_message', ['name' => '<strong>' . (app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name) . '</strong>']) }}</p>
         <div class="flex gap-3">
             <button onclick="document.getElementById('leave-modal').classList.add('hidden')"
                 class="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">
-                Vazgeç
+                {{ __('site.cancel') }}
             </button>
             <form method="POST" action="{{ route('kulup.ayril', $club) }}" class="flex-1">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="w-full py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-all">
-                    Evet, Çık
+                    {{ __('site.yes_leave') }}
                 </button>
             </form>
         </div>
@@ -595,20 +595,20 @@
                     @endif
                     <div>
                         <h3 class="text-xl font-bold font-headline leading-tight">{{ $club->name }}</h3>
-                        <p class="text-white/70 text-xs font-medium">Üye Kayıt Formu</p>
+                        <p class="text-white/70 text-xs font-medium">{{ __('site.registration_form') }}</p>
                     </div>
                 </div>
                 <button onclick="closeRegistrationModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all">
                     <span class="material-symbols-outlined text-[22px]">close</span>
                 </button>
             </div>
-            <p class="text-white/80 text-sm leading-relaxed">Kulübümüze katılmak için aşağıdaki formu doldurunuz. Başvurunuz yönetim kurulu tarafından değerlendirilecektir.</p>
+            <p class="text-white/80 text-sm leading-relaxed">{{ __('site.registration_desc') }}</p>
         </div>
 
         {{-- Zorunlu Alan Bilgisi --}}
         <div class="px-8 py-3 bg-red-50/80 border-b border-red-100 shrink-0">
             <p class="text-red-500 text-xs font-medium flex items-center gap-1.5">
-                <span class="text-red-400">*</span> Zorunlu soruyu belirtir
+                <span class="text-red-400">*</span> {{ __('site.required_field') }}
             </p>
         </div>
 
@@ -617,7 +617,7 @@
         <div class="px-8 pt-4 shrink-0">
             <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
                 <p class="text-red-700 text-sm font-bold mb-2 flex items-center gap-1.5">
-                    <span class="material-symbols-outlined text-[16px]">error</span> Lütfen aşağıdaki hataları düzeltin:
+                    <span class="material-symbols-outlined text-[16px]">error</span> {{ __('site.fix_errors') }}
                 </p>
                 <ul class="text-red-600 text-xs space-y-1 pl-5 list-disc">
                     @foreach($errors->all() as $error)
@@ -660,12 +660,12 @@
                             <input type="{{ $isStudentNo ? 'number' : 'text' }}"
                                    name="field_{{ $field->id }}"
                                    value="{{ old('field_' . $field->id) }}"
-                                   placeholder="{{ $field->placeholder ?? 'Yanıtınız' }}"
+                                   placeholder="{{ $field->placeholder ?? __('site.your_answer') }}"
                                    @if($isStudentNo) min="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')" @endif
                                    class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors"
                                    {{ $field->is_required ? 'required' : '' }}>
                             @if($isStudentNo)
-                                <p class="text-xs text-slate-400 mt-1">Sadece rakam giriniz.</p>
+                                <p class="text-xs text-slate-400 mt-1">{{ __('site.only_numbers') }}</p>
                             @endif
 
                         @elseif($field->type === 'email')
@@ -682,11 +682,11 @@
                                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
                                    class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors"
                                    {{ $field->is_required ? 'required' : '' }}>
-                            <p class="text-xs text-slate-400 mt-1">10-11 haneli, sadece rakam (örn: 05XXXXXXXXX)</p>
+                            <p class="text-xs text-slate-400 mt-1">{{ __('site.phone_format') }}</p>
 
                         @elseif($field->type === 'textarea')
                             <textarea name="field_{{ $field->id }}" rows="3"
-                                      placeholder="{{ $field->placeholder ?? 'Yanıtınız' }}"
+                                      placeholder="{{ $field->placeholder ?? __('site.your_answer') }}"
                                       class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors resize-none"
                                       {{ $field->is_required ? 'required' : '' }}>{{ old('field_' . $field->id) }}</textarea>
 
@@ -694,7 +694,7 @@
                             <select name="field_{{ $field->id }}"
                                     class="w-full bg-white border border-slate-200 focus:border-[#5d1021] focus:ring-2 focus:ring-[#5d1021]/10 rounded-xl text-sm text-slate-700 px-4 py-2.5 transition-all"
                                     {{ $field->is_required ? 'required' : '' }}>
-                                <option value="">Seçiniz...</option>
+                                <option value="">{{ __('site.select_option') }}</option>
                                 @if($field->options)
                                     @foreach($field->options as $option)
                                         <option value="{{ $option }}" {{ old('field_' . $field->id) === $option ? 'selected' : '' }}>{{ $option }}</option>
@@ -711,15 +711,15 @@
             <div class="px-8 py-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-4 shrink-0">
                 <button type="button" onclick="resetRegistrationForm()" class="text-[#5d1021] text-sm font-bold hover:underline transition-all flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-[16px]">refresh</span>
-                    Formu temizle
+                    {{ __('site.clear_form') }}
                 </button>
                 <div class="flex items-center gap-3">
                     <button type="button" onclick="closeRegistrationModal()" class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition-all active:scale-95">
-                        İptal
+                        {{ __('site.cancel') }}
                     </button>
                     <button type="submit" class="px-8 py-2.5 rounded-xl bg-[#5d1021] hover:bg-[#4a0c1a] text-white font-bold text-sm transition-all shadow-lg shadow-[#5d1021]/20 active:scale-95 flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">send</span>
-                        Gönder
+                        {{ __('site.submit') }}
                     </button>
                 </div>
             </div>

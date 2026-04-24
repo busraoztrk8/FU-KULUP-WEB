@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Menu extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \App\Traits\Translatable;
     protected $fillable = [
-        'label', 'url', 'location', 'target', 'order', 'is_active', 'show_in_footer', 'parent_id',
+        'label', 'label_en', 'url', 'location', 'target', 'order', 'is_active', 'show_in_footer', 'parent_id',
     ];
 
     protected $casts = [

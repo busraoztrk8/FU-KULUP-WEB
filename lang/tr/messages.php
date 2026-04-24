@@ -6,4 +6,5 @@ return [
     'edit' => 'Haber Düzenle',
     'delete' => 'Haber Sil',
     'success' => 'İşlem başarıyla gerçekleştirildi.',
+    'welcome' => 'Hoş geldiniz',
 ];

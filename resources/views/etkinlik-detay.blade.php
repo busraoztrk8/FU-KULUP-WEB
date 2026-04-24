@@ -58,7 +58,7 @@
             <div>
                 <h2 class="text-lg md:text-2xl font-headline font-bold text-on-surface flex items-center mb-3 md:mb-5">
                     <span class="w-1.5 h-6 md:h-8 bg-primary rounded-full mr-3 md:mr-4"></span>
-                    Etkinlik Hakkında
+                    {{ __('site.about_event') }}
                 </h2>
                 <div class="text-on-surface-variant leading-relaxed text-base space-y-4 break-words">
                     {!! nl2br(e($event->description)) !!}
@@ -70,7 +70,7 @@
             <div data-animate>
                 <h2 class="text-lg md:text-2xl font-headline font-bold text-on-surface flex items-center mb-4 md:mb-8 text-[#5d1021]">
                     <span class="w-1.5 h-6 md:h-8 bg-primary rounded-full mr-3 md:mr-4"></span>
-                    Konuşmacılar
+                    {{ __('site.speakers') }}
                 </h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
                     @foreach($event->speakers as $speaker)
@@ -101,7 +101,7 @@
             <div data-animate>
                 <h2 class="text-lg md:text-2xl font-headline font-bold text-on-surface flex items-center mb-6 md:mb-10 text-[#5d1021]">
                     <span class="w-1.5 h-6 md:h-8 bg-primary rounded-full mr-3 md:mr-4"></span>
-                    Program Akışı
+                    {{ __('site.program_flow') }}
                 </h2>
                 <div class="space-y-0 relative">
                     <!-- Timeline Line -->
@@ -148,7 +148,7 @@
                     @endif
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Düzenleyen Kulüp</p>
+                    <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">{{ __('site.organizing_club') }}</p>
                     <h3 class="text-sm md:text-lg font-bold text-slate-800 truncate">{{ $event->club->name }}</h3>
                     @if($event->club->short_description)
                         <p class="text-xs md:text-sm text-slate-500 mt-1 line-clamp-1">{{ $event->club->short_description }}</p>
@@ -156,7 +156,7 @@
                 </div>
                 <a href="{{ route('kulup.detay', $event->club->slug) }}"
                     class="shrink-0 w-full sm:w-auto text-center px-4 md:px-5 py-2 md:py-2.5 bg-primary text-white rounded-xl font-bold text-[11px] md:text-sm hover:bg-primary-dark transition-all active:scale-95">
-                    Kulübü Gör
+                    {{ __('site.view_club_btn') }}
                 </a>
             </div>
             @endif
@@ -166,13 +166,13 @@
             <div>
                 <h2 class="text-lg md:text-2xl font-headline font-bold text-on-surface flex items-center mb-3 md:mb-5">
                     <span class="w-1.5 h-6 md:h-8 bg-primary rounded-full mr-3 md:mr-4"></span>
-                    Konum
+                    {{ __('site.location') }}
                 </h2>
                 <div class="bg-slate-100 rounded-xl md:rounded-2xl overflow-hidden h-32 md:h-48 flex items-center justify-center">
                     <a href="{{ $event->location_url }}" target="_blank"
                         class="flex flex-col items-center gap-1 md:gap-2 text-primary hover:text-primary-dark transition-colors">
                         <span class="material-symbols-outlined text-[32px] md:text-[48px]">map</span>
-                        <span class="font-bold text-xs md:text-sm">Haritada Görüntüle</span>
+                        <span class="font-bold text-xs md:text-sm">{{ __('site.view_on_map') }}</span>
                     </a>
                 </div>
             </div>
@@ -185,14 +185,14 @@
 
             {{-- Detay Kartı --}}
             <div class="bg-white p-4 md:p-8 rounded-2xl border border-black/5 shadow-xl shadow-primary/5 relative overflow-hidden">
-                <h3 class="text-lg md:text-xl font-headline font-bold text-on-surface mb-4 md:mb-6">Etkinlik Detayları</h3>
+                <h3 class="text-lg md:text-xl font-headline font-bold text-on-surface mb-4 md:mb-6">{{ __('site.event_details') }}</h3>
                 <div class="space-y-4 md:space-y-5">
                     <div class="flex items-start gap-3 md:gap-4">
                         <div class="p-2 md:p-2.5 bg-primary/5 rounded-xl text-primary shrink-0">
                             <span class="material-symbols-outlined text-sm md:text-base">event</span>
                         </div>
                         <div>
-                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Tarih</p>
+                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.date') }}</p>
                             <p class="font-bold text-slate-800 text-xs md:text-base">{{ $event->start_time->format('d M Y, l') }}</p>
                         </div>
                     </div>
@@ -201,7 +201,7 @@
                             <span class="material-symbols-outlined text-sm md:text-base">schedule</span>
                         </div>
                         <div>
-                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Saat</p>
+                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.time') }}</p>
                             <p class="font-bold text-slate-800 text-xs md:text-base">
                                 {{ $event->start_time->format('H:i') }}
                                 @if($event->end_time) — {{ $event->end_time->format('H:i') }} @endif
@@ -214,7 +214,7 @@
                             <span class="material-symbols-outlined text-sm md:text-base">map</span>
                         </div>
                         <div>
-                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Konum</p>
+                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.location') }}</p>
                             <p class="font-bold text-slate-800 text-xs md:text-base leading-snug">{{ $event->location }}</p>
                         </div>
                     </div>
@@ -225,7 +225,7 @@
                             <span class="material-symbols-outlined text-sm md:text-base">category</span>
                         </div>
                         <div>
-                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Kategori</p>
+                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.category') }}</p>
                             <p class="font-bold text-slate-800 text-xs md:text-base">{{ $event->category->name }}</p>
                         </div>
                     </div>
@@ -235,11 +235,11 @@
 
                 {{-- Durum badge --}}
                 @php
-                    $statusMap = ['published' => ['Aktif', 'bg-green-100 text-green-700'], 'draft' => ['Taslak', 'bg-slate-100 text-slate-600'], 'cancelled' => ['İptal Edildi', 'bg-red-100 text-red-600'], 'completed' => ['Tamamlandı', 'bg-blue-100 text-blue-700']];
-                    [$statusLabel, $statusClass] = $statusMap[$event->status] ?? ['Bilinmiyor', 'bg-slate-100 text-slate-600'];
+                    $statusMap = ['published' => [__('site.status_active'), 'bg-green-100 text-green-700'], 'draft' => [__('site.status_draft'), 'bg-slate-100 text-slate-600'], 'cancelled' => [__('site.status_cancelled'), 'bg-red-100 text-red-600'], 'completed' => [__('site.status_completed'), 'bg-blue-100 text-blue-700']];
+                    [$statusLabel, $statusClass] = $statusMap[$event->status] ?? [__('site.status_unknown'), 'bg-slate-100 text-slate-600'];
                 @endphp
                 <div class="mt-6 flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Durum</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ __('site.status') }}</span>
                     <span class="px-3 py-1 rounded-full text-xs font-bold {{ $statusClass }}">{{ $statusLabel }}</span>
                 </div>
 
@@ -247,15 +247,15 @@
                     <a href="{{ route('kulup.detay', $event->club->slug) }}"
                         class="w-full mt-4 md:mt-6 bg-primary hover:bg-primary-dark text-white py-3 md:py-4 rounded-xl font-bold text-sm md:text-base shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-sm md:text-base">person_add</span>
-                        Kulübe Üye Ol
+                        {{ __('site.join_club_btn') }}
                     </a>
                 @elseif($event->status === 'completed')
                 <div class="w-full mt-6 bg-slate-100 text-slate-500 py-4 rounded-xl font-bold text-base text-center">
-                    Etkinlik Tamamlandı
+                    {{ __('site.event_completed') }}
                 </div>
                 @elseif($event->status === 'cancelled')
                 <div class="w-full mt-6 bg-red-50 text-red-500 py-4 rounded-xl font-bold text-base text-center">
-                    Etkinlik İptal Edildi
+                    {{ __('site.event_cancelled') }}
                 </div>
                 @endif
 
@@ -264,7 +264,7 @@
 
             {{-- Paylaş --}}
             <div class="bg-slate-50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-100">
-                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 md:mb-4 text-center">Paylaş</p>
+                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 md:mb-4 text-center">{{ __('site.share') }}</p>
                 <div class="flex justify-center gap-3">
                     <a href="https://twitter.com/intent/tweet?text={{ urlencode($event->title) }}&url={{ urlencode(request()->url()) }}"
                         target="_blank"
@@ -276,7 +276,7 @@
                         class="w-10 h-10 rounded-xl bg-white flex items-center justify-center hover:bg-primary hover:text-white transition-all text-primary shadow-sm">
                         <span class="material-symbols-outlined text-[18px]">chat</span>
                     </a>
-                    <button onclick="navigator.clipboard.writeText('{{ request()->url() }}'); alert('Link kopyalandı!')"
+                    <button onclick="navigator.clipboard.writeText('{{ request()->url() }}'); alert('{{ __('site.link_copied') }}')"
                         class="w-10 h-10 rounded-xl bg-white flex items-center justify-center hover:bg-primary hover:text-white transition-all text-primary shadow-sm">
                         <span class="material-symbols-outlined text-[18px]">link</span>
                     </button>
@@ -293,9 +293,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div class="flex justify-between items-end mb-4 md:mb-8">
             <h2 class="text-lg md:text-3xl font-headline font-bold text-slate-900">
-                Benzer Etkinlikler
+                {{ __('site.similar_events') }}
             </h2>
-            <a href="{{ route('etkinlikler') }}" class="text-primary font-bold text-[11px] md:text-sm hover:underline">Tümünü Gör</a>
+            <a href="{{ route('etkinlikler') }}" class="text-primary font-bold text-[11px] md:text-sm hover:underline">{{ __('site.see_all') }}</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             @foreach($similar as $s)
@@ -361,9 +361,9 @@
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="hideRegistrationModal()"></div>
     <div class="relative bg-white rounded-3xl w-full max-w-lg mx-4 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
         <div class="bg-primary p-8 text-white relative">
-            <h3 class="text-2xl font-headline font-bold mb-2">Etkinliğe Kayıt Ol</h3>
+            <h3 class="text-2xl font-headline font-bold mb-2">{{ __('site.register_event') }}</h3>
             <p class="text-white/80 text-sm leading-relaxed">
-                Bu etkinliğe kayıt olarak aynı zamanda <strong>{{ $event->club->name }}</strong> kulübüne üyelik başvurusunda bulunmuş olacaksınız.
+                {{ __('site.register_event_desc', ['club' => $event->club->name]) }}
             </p>
             <button onclick="hideRegistrationModal()" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
                 <span class="material-symbols-outlined font-bold">close</span>
@@ -374,9 +374,9 @@
         <form action="{{ route('etkinlik.kayit', $event) }}" method="POST" class="p-8 space-y-6">
             @csrf
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">Başvuru Notu (İsteğe Bağlı)</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2">{{ __('site.application_note') }}</label>
                 <textarea name="note" rows="4" 
-                    placeholder="Kulüp yönetimine veya etkinlik düzenleyicisine iletmek istediğiniz bir not varsa buraya yazabilirsiniz..."
+                    placeholder="{{ __('site.application_note_placeholder') }}"
                     class="w-full bg-slate-50 border border-slate-200 rounded-2xl text-sm px-4 py-3 focus:bg-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all resize-none shadow-inner"></textarea>
             </div>
             
@@ -384,11 +384,11 @@
                 <button type="submit" 
                     class="w-full bg-primary hover:bg-primary-dark text-white py-4 rounded-2xl font-bold text-base shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3">
                     <span class="material-symbols-outlined">check_circle</span>
-                    Kaydımı Tamamla
+                    {{ __('site.complete_registration') }}
                 </button>
                 <button type="button" onclick="hideRegistrationModal()"
                     class="w-full py-3 text-slate-500 font-bold text-sm hover:bg-slate-50 rounded-2xl transition-all">
-                    Vazgeç
+                    {{ __('site.cancel') }}
                 </button>
             </div>
         </form>

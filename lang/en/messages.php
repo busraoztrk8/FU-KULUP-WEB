@@ -6,4 +6,5 @@ return [
     'edit' => 'Edit News',
     'delete' => 'Delete News',
     'success' => 'Operation successful.',
+    'welcome' => 'Welcome',
 ];

@@ -9,17 +9,21 @@ use Illuminate\Support\Str;
 
 class Event extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \App\Traits\Translatable;
 
     protected $fillable = [
         'title',
+        'title_en',
         'slug',
         'description',
+        'description_en',
         'short_description',
+        'short_description_en',
         'image',
         'start_time',
         'end_time',
         'location',
+        'location_en',
         'location_url',
         'club_id',
         'category_id',

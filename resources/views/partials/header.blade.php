@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div class="text-l lg:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight whitespace-nowrap">
-                FIRAT ÜNİVERSİTESİ
+                {{ __('site.university_name') }}
             </div>
         </a>
 
@@ -37,7 +37,7 @@
                 @if($menu->children->count() > 0)
                     <div class="relative group">
                         <button class="flex items-center gap-1 nav-link text-slate-500 hover:text-primary transition-colors">
-                            {{ $menu->label }}
+                            {{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}
                             <span class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
                         </button>
                         <div class="absolute top-[calc(100%-10px)] left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 z-50">
@@ -49,22 +49,22 @@
                                             <span class="material-symbols-outlined text-[20px]">grid_view</span>
                                         </div>
                                         <div class="flex flex-col text-left">
-                                            <span class="text-sm font-bold text-slate-800 leading-none">Tüm {{ $menu->label }}</span>
-                                            <span class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Genel Bakış</span>
+                                            <span class="text-sm font-bold text-slate-800 leading-none">{{ __('site.all_pages', ['label' => app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label]) }}</span>
+                                            <span class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">{{ __('site.general_view') }}</span>
                                         </div>
                                     </div>
                                     <span class="material-symbols-outlined text-slate-300 group-hover/parent:text-primary transition-colors text-[20px]">arrow_forward</span>
                                 </a>
                                 <div class="px-2 py-1 flex items-center gap-2 mb-1">
                                     <div class="h-px bg-slate-100 flex-1"></div>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Alt Sayfalar</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">{{ __('site.sub_pages') }}</span>
                                     <div class="h-px bg-slate-100 flex-1"></div>
                                 </div>
                                 @foreach($menu->children as $child)
                                     <a href="{{ $child->url }}" target="{{ $child->target }}"
                                         class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-all group/item">
                                         <div class="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover/item:bg-primary group-hover/item:scale-125 transition-all"></div>
-                                        {{ $child->label }}
+                                        {{ app()->getLocale() == 'en' && $child->label_en ? $child->label_en : $child->label }}
                                     </a>
                                 @endforeach
                             </div>
@@ -73,12 +73,12 @@
                 @else
                     <a href="{{ $menu->url }}" target="{{ $menu->target }}"
                         class="nav-link {{ request()->url() == url($menu->url) ? 'active text-primary' : 'text-slate-500' }}">
-                        {{ $menu->label }}
+                        {{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}
                     </a>
                 @endif
 
                 {{-- Kulüpler'den sonra logo ekle --}}
-                @if(mb_strtolower($menu->label, 'UTF-8') == 'kulüpler')
+                @if(mb_strtolower($menu->label, 'UTF-8') == 'kulüpler' || mb_strtolower($menu->label_en ?? '', 'UTF-8') == 'clubs')
                     <a href="{{ route('home') }}" class="flex items-center mx-2">
                         <div style="perspective: 300px; width: 75px; height:75px; flex-shrink: 0;">
                             <div style="width:100%; height:100%; position:relative; transform-style: preserve-3d; animation: logoFlip 8s ease-in-out infinite;">
@@ -99,7 +99,14 @@
         <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6 relative z-10">
             <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
 
-                <span class="text-xs font-bold cursor-pointer hover:text-primary transition-colors border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2">TR/EN</span>
+                <div class="flex items-center gap-1 border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2">
+                    @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                        <a href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}" 
+                           class="text-[10px] font-bold px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors {{ App::getLocale() == $localeCode ? 'text-primary bg-primary/5' : 'text-slate-400' }}">
+                            {{ strtoupper($localeCode) }}
+                        </a>
+                    @endforeach
+                </div>
 
                 @auth
                     <!-- User Dropdown Component -->
@@ -129,13 +136,12 @@
                             <div class="p-2 space-y-1">
                                 <a href="{{ route('profile.edit') }}"
                                     class="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-slate-700 rounded-xl hover:bg-slate-50 hover:text-primary transition-all">
-                                    <span class="material-symbols-outlined text-[20px]">person</span> Profilim
+                                    <span class="material-symbols-outlined text-[20px]">person</span> {{ __('site.profile') }}
                                 </a>
                                 @if(auth()->user()->isAdmin() || auth()->user()->isEditor())
                                     <a href="/admin"
                                         class="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-white bg-primary rounded-xl hover:bg-primary-dim transition-all shadow-sm shadow-primary/20">
-                                        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> Yönetim
-                                        Paneli
+                                        <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> {{ __('site.management_panel') }}
                                     </a>
                                 @endif
                             </div>
@@ -145,7 +151,7 @@
                                     @csrf
                                     <button type="submit"
                                         class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-500 rounded-xl hover:bg-red-50 transition-colors text-left">
-                                        <span class="material-symbols-outlined text-[20px]">logout</span> Çıkış Yap
+                                        <span class="material-symbols-outlined text-[20px]">logout</span> {{ __('site.logout') }}
                                     </button>
                                 </form>
                             </div>
@@ -157,7 +163,7 @@
             @guest
                 <a href="{{ route('login') }}"
                     class="bg-gradient-primary text-white px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm scale-95 active:scale-90 transition-transform shadow-lg shadow-primary/20 block text-center whitespace-nowrap">
-                    Giriş Yap
+                    {{ __('site.login') }}
                 </a>
             @endguest
 
@@ -181,7 +187,7 @@
     <div class="p-6 flex items-center justify-between shrink-0 bg-white/40 border-b border-black/5">
         <div class="flex items-center gap-3">
             <div class="w-1.5 h-6 bg-primary rounded-full"></div>
-            <span class="text-xl font-bold font-headline tracking-tight text-slate-800">Menü</span>
+            <span class="text-xl font-bold font-headline tracking-tight text-slate-800">{{ __('site.menu') }}</span>
         </div>
         <button id="mob-close"
             class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100/50 hover:text-primary transition-all">
@@ -214,7 +220,7 @@
                                 <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
                                     <span class="material-symbols-outlined text-[22px]">{{ $icon }}</span>
                                 </div>
-                                <span class="text-sm font-headline lowercase first-letter:uppercase">{{ $menu->label }}</span>
+                                <span class="text-sm font-headline lowercase first-letter:uppercase">{{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}</span>
                             </div>
                             <span class="material-symbols-outlined text-[18px] opacity-40 transition-transform"
                                 :class="open ? 'rotate-180' : ''">expand_more</span>
@@ -224,7 +230,7 @@
                             @foreach($menu->children as $child)
                                 <a href="{{ $child->url }}" target="{{ $child->target }}"
                                     class="flex items-center gap-3 p-3 rounded-xl font-bold text-[13px] text-slate-500 hover:text-primary hover:bg-primary/5 transition-all">
-                                    {{ $child->label }}
+                                    {{ app()->getLocale() == 'en' && $child->label_en ? $child->label_en : $child->label }}
                                 </a>
                             @endforeach
                         </div>
@@ -235,7 +241,7 @@
                         <div class="w-10 h-10 rounded-xl {{ request()->url() == url($menu->url) ? 'bg-primary/10 text-primary' : 'bg-slate-50 text-slate-400' }} flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
                             <span class="material-symbols-outlined text-[20px]">{{ $icon }}</span>
                         </div>
-                        <span class="text-sm font-headline lowercase first-letter:uppercase">{{ $menu->label }}</span>
+                        <span class="text-sm font-headline lowercase first-letter:uppercase">{{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}</span>
                     </a>
                 @endif
             @endforeach
@@ -264,7 +270,7 @@
                         </div>
                     </div>
                     <div class="overflow-hidden">
-                        <p class="text-[10px] font-bold text-primary/60 uppercase tracking-widest leading-none mb-1">Hesabım</p>
+                        <p class="text-[10px] font-bold text-primary/60 uppercase tracking-widest leading-none mb-1">{{ __('site.my_account') }}</p>
                         <p class="text-sm font-bold text-slate-800 truncate font-headline">{{ auth()->user()->name }}</p>
                     </div>
                 </div>
@@ -272,7 +278,7 @@
                 @if(auth()->user()->isAdmin() || auth()->user()->isEditor())
                     <a href="/admin"
                         class="flex items-center justify-center gap-2 w-full py-3 bg-gradient-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                        <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Yönetim Paneli
+                        <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> {{ __('site.management_panel') }}
                     </a>
                 @endif
             </div>
@@ -281,18 +287,18 @@
                 @csrf
                 <button type="submit"
                     class="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-red-50 text-red-600 text-xs font-black uppercase tracking-widest hover:bg-red-100 transition-all">
-                    <span class="material-symbols-outlined text-[20px]">logout</span> Çıkış Yap
+                    <span class="material-symbols-outlined text-[20px]">logout</span> {{ __('site.logout') }}
                 </button>
             </form>
         @else
             <div class="grid grid-cols-2 gap-3">
                 <a href="{{ route('login') }}"
                     class="flex items-center justify-center py-4 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors uppercase tracking-widest">
-                    Giriş
+                    {{ __('site.login') }}
                 </a>
                 <a href="{{ route('register') }}"
                     class="flex items-center justify-center py-4 rounded-2xl bg-gradient-primary text-white text-xs font-bold hover:shadow-xl hover:shadow-primary/30 transition-all uppercase tracking-widest">
-                    Kayıt
+                    {{ __('site.register') }}
                 </a>
             </div>
         @endauth

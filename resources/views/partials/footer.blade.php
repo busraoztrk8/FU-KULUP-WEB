@@ -7,20 +7,20 @@
             <div class="space-y-4 text-center lg:text-left">
                 <a href="{{ route('home') }}"
                     class="font-headline font-bold text-primary text-xl md:text-2xl block hover:opacity-80 transition-opacity uppercase tracking-tighter">
-                    Fırat Üniversitesi
+                    {{ __('site.footer_university') }}
                 </a>
                 <p class="font-body text-sm text-on-surface-variant leading-relaxed opacity-90 max-w-md mx-auto lg:mx-0">
-                    Üniversitemizin aktif topluluk ve etkinlik ekosistemi. Öğrencileri, akademisyenleri ve kulüpleri dijital bir platformda buluşturuyoruz.
+                    {{ __('site.footer_desc') }}
                 </p>
                 <p class="font-body text-xs text-on-surface-variant/80 font-bold">
-                    © {{ date('Y') }} {{ \App\Models\SiteSetting::getVal('site_name', 'Fırat Üniversitesi') }}. Tüm hakları saklıdır.
+                    © {{ date('Y') }} {{ \App\Models\SiteSetting::getVal('site_name', __('site.footer_university')) }}. {{ __('site.all_rights') }}
                 </p>
             </div>
 
             <!-- Orta: Hızlı Bağlantılar -->
             <div class="space-y-3 text-center lg:text-left lg:pl-24">
                 <h4 class="text-primary font-headline font-extrabold text-base uppercase tracking-widest border-b-2 border-primary/10 pb-2 inline-block">
-                    HIZLI BAĞLANTILAR
+                    {{ __('site.quick_links') }}
                 </h4>
                 @php
                     $footerMenus = \App\Models\Menu::where('show_in_footer', true)->active()->get();
@@ -29,10 +29,10 @@
                     @forelse($footerMenus as $fMenu)
                         <li><a class="hover:text-primary transition-colors" href="{{ $fMenu->url }}" target="{{ $fMenu->target }}">{{ $fMenu->label }}</a></li>
                     @empty
-                        <li><a class="hover:text-primary transition-colors" href="{{ route('home') }}">Ana Sayfa</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{{ route('etkinlikler') }}">Etkinlikler</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{{ route('duyurular') }}">Duyurular</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{{ route('kulupler') }}">Kulüpler</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('home') }}">{{ __('site.home') }}</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('etkinlikler') }}">{{ __('site.events_page_title') }}</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('duyurular') }}">{{ __('site.announcements_page_title') }}</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('kulupler') }}">{{ __('site.clubs_page_title') }}</a></li>
                     @endforelse
                 </ul>
             </div>
@@ -40,7 +40,7 @@
             <!-- Sağ: Bizi Takip Edin -->
             <div class="space-y-4 text-center lg:text-left lg:items-start flex flex-col">
                 <h4 class="text-primary font-headline font-extrabold text-base uppercase tracking-widest border-b-2 border-primary/10 pb-2 inline-block">
-                    BİZİ TAKİP EDİN
+                    {{ __('site.follow_us') }}
                 </h4>
                 @php
                     $instagram = \App\Models\SiteSetting::getVal('social_instagram');

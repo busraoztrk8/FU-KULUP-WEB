@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class News extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \App\Traits\Translatable;
     
     protected $fillable = [
         'title',
+        'title_en',
         'slug',
         'content',
+        'content_en',
         'image_path',
         'club_id',
         'is_published',

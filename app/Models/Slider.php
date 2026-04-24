@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Slider extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \App\Traits\Translatable;
     protected $fillable = [
-        'title', 'subtitle', 'image_path',
-        'button_text', 'button_url', 'order', 'is_active',
+        'title', 'title_en', 'subtitle', 'subtitle_en', 'image_path',
+        'button_text', 'button_text_en', 'button_url', 'order', 'is_active',
     ];
 
     protected $casts = ['is_active' => 'boolean'];

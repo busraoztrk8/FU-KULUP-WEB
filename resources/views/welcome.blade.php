@@ -18,18 +18,18 @@
                                         <div class="glass-card block w-[92%] sm:inline-block px-4 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
                                             @if($slider->title)
                                                 <h1 class="font-headline text-xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-3 md:mb-6 leading-tight text-on-surface px-2 break-all sm:break-normal">
-                                                    {{ \Illuminate\Support\Str::words($slider->title, 10, '...') }}
+                                                    {{ \Illuminate\Support\Str::words(app()->getLocale() == 'en' && $slider->title_en ? $slider->title_en : $slider->title, 10, '...') }}
                                                 </h1>
                                             @endif
                                             @if($slider->subtitle)
                                                 <p class="font-body text-xs sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-4 md:mb-10 leading-relaxed px-4 break-all sm:break-normal">
-                                                    {{ \Illuminate\Support\Str::words($slider->subtitle, 15, '...') }}
+                                                    {{ \Illuminate\Support\Str::words(app()->getLocale() == 'en' && $slider->subtitle_en ? $slider->subtitle_en : $slider->subtitle, 15, '...') }}
                                                 </p>
                                             @endif
                                             @if($slider->button_text && $slider->button_url)
                                                 <div class="flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-4">
                                                     <a href="{{ $slider->button_url }}" class="w-full sm:w-auto px-5 md:px-8 py-2.5 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-xs md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
-                                                        {{ $slider->button_text }}
+                                                        {{ app()->getLocale() == 'en' && $slider->button_text_en ? $slider->button_text_en : $slider->button_text }}
                                                     </a>
                                                 </div>
                                             @endif
@@ -63,20 +63,19 @@
                 <div class="container mx-auto px-4 sm:px-6 relative z-10 text-center">
                     <div class="glass-card inline-block px-5 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
                         <h1 class="font-headline text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 md:mb-6 leading-tight text-on-surface">
-                            Üniversite Hayatını <span class="text-gradient">Keşfedin</span>
+                            {{ __('site.hero_title') }} <span class="text-gradient">{{ __('site.hero_highlight') }}</span>
                         </h1>
                         <p class="font-body text-sm sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed">
-                            Etkinlikleri keşfedin, kulüplere katılın ve kampüs topluluğunuzla ağ oluşturun. Geleceğin
-                            akademik ekosistemine bugün adım atın.
+                            {{ __('site.hero_description') }}
                         </p>
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4">
                             <a href="{{ route('etkinlikler') }}"
                                 class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-sm md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
-                                Etkinlikleri Keşfedin
+                                {{ __('site.discover_events') }}
                             </a>
                             <a href="{{ route('kulupler') }}"
                                 class="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-white border border-outline-variant text-on-surface rounded-full font-bold text-sm md:text-lg hover:bg-surface-container transition-all text-center">
-                                Kulüpleri Keşfedin
+                                {{ __('site.discover_clubs') }}
                             </a>
                         </div>
                     </div>
@@ -92,22 +91,22 @@
                     <div class="text-4xl md:text-5xl font-headline font-extrabold text-gradient mb-1 flex items-center justify-center tabular-nums">
                         <span class="stat-counter" data-target="100">0</span><span>+</span>
                     </div>
-                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">Kulüp</div>
-                    <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">Aktif Topluluk</div>
+                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">{{ __('site.club') }}</div>
+                    <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">{{ __('site.active_club') }}</div>
                 </div>
                 <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors flex flex-col items-center justify-center h-full" data-animate>
                     <div class="text-4xl md:text-5xl font-headline font-extrabold text-gradient mb-1 flex items-center justify-center tabular-nums">
                         <span class="stat-counter" data-target="10">0</span><span>K+</span>
                     </div>
-                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">Öğrenci</div>
-                    <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">Kayıtlı Üye</div>
+                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">{{ __('site.participants') }}</div>
+                    <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">{{ __('site.registered') }}</div>
                 </div>
                 <div class="p-4 md:p-6 rounded-2xl hover:bg-slate-50 transition-colors flex flex-col items-center justify-center h-full" data-animate>
                     <div class="text-4xl md:text-5xl font-headline font-extrabold text-gradient mb-1 flex items-center justify-center tabular-nums">
                         <span class="stat-counter" data-target="50">0</span><span>+</span>
                     </div>
-                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">Günlük Etkinlik</div>
-                    <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">Sürekli Hareketlilik</div>
+                    <div class="text-lg md:text-xl font-bold text-on-surface mb-1">{{ __('site.events') }}</div>
+                    <div class="text-on-surface-variant font-medium tracking-wide uppercase text-[10px] md:text-xs">{{ __('site.total_events') }}</div>
                 </div>
             </div>
         </div>
@@ -118,7 +117,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 md:mb-12 gap-6 sm:gap-4">
                 <div class="w-full sm:w-auto">
-                    <h2 class="text-2xl md:text-3xl font-headline font-bold mb-2 text-on-surface">Trend Etkinlikler</h2>
+                    <h2 class="text-2xl md:text-3xl font-headline font-bold mb-2 text-on-surface">{{ __('site.trending_events') }}</h2>
                     <div class="h-1.5 w-20 bg-primary rounded-full"></div>
                 </div>
                 <div class="flex items-center gap-3 self-end sm:self-auto">
@@ -148,10 +147,10 @@
                                     <div class="flex-1 min-w-0">
                                         <h3
                                             class="text-base sm:text-lg md:text-xl font-headline font-bold mb-1 group-hover:text-primary transition-colors text-on-surface line-clamp-1 break-all">
-                                            {{ $event->title }}</h3>
+                                            {{ app()->getLocale() == 'en' && $event->title_en ? $event->title_en : $event->title }}</h3>
                                         <div class="flex items-center text-xs sm:text-sm text-on-surface-variant">
                                             <span class="material-symbols-outlined text-xs sm:text-sm mr-1">location_on</span>
-                                            <span class="truncate">{{ $event->location ?? 'Yer Belirtilmedi' }}</span>
+                                            <span class="truncate">{{ (app()->getLocale() == 'en' && $event->location_en ? $event->location_en : $event->location) ?? __('site.location') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -174,8 +173,8 @@
                                     </div>
                                 @endif
                                 <div class="card-content mt-4">
-                                    <h3 class="text-xl font-headline font-bold mb-2 line-clamp-2 break-all">{{ $event->title }}</h3>
-                                    <p class="text-on-surface-variant text-sm line-clamp-3 break-all">{{ $event->short_description ?? Str::limit(strip_tags($event->description), 120) }}</p>
+                                    <h3 class="text-xl font-headline font-bold mb-2 line-clamp-2 break-all">{{ app()->getLocale() == 'en' && $event->title_en ? $event->title_en : $event->title }}</h3>
+                                    <p class="text-on-surface-variant text-sm line-clamp-3 break-all">{{ app()->getLocale() == 'en' && $event->short_description_en ? $event->short_description_en : ($event->short_description ?? Str::limit(strip_tags($event->description), 120)) }}</p>
                                 </div>
                             </div>
                         </a>
@@ -185,7 +184,7 @@
             </div>
             @else
             <div class="py-12 text-center text-slate-400">
-                Henüz öne çıkarılan bir etkinlik bulunmuyor.
+                {{ __('site.no_events') }}
             </div>
             @endif
         </div>
@@ -196,9 +195,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div class="flex justify-between items-end mb-10 md:mb-16 gap-4">
                 <div class="flex-1 text-center">
-                    <h2 class="text-2xl md:text-4xl font-headline font-bold mb-4 text-on-surface">Aktif Kulüpler</h2>
-                    <p class="text-on-surface-variant max-w-xl mx-auto text-sm md:text-base">İlgi alanlarınıza göre bir topluluk
-                        seçin ve yeteneklerinizi benzer düşünen insanlarla geliştirin.</p>
+                    <h2 class="text-2xl md:text-4xl font-headline font-bold mb-4 text-on-surface">{{ __('site.active_clubs_title') }}</h2>
+                    <p class="text-on-surface-variant max-w-xl mx-auto text-sm md:text-base">{{ __('site.active_clubs_desc') }}</p>
                 </div>
                 @if($activeClubs->count() > 1)
                 <div class="flex items-center gap-2 shrink-0">
@@ -237,26 +235,26 @@
                                         @if($club->category)
                                         <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name }}</span>
                                         @endif
-                                        <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
+                                        <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} {{ __('site.members') }}</span>
                                     </div>
                                     @if($club->president)
                                     <div class="flex items-center gap-2 mb-3 text-sm text-on-surface-variant">
                                         <span class="material-symbols-outlined text-xs">person</span>
-                                        <span>Başkan: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
+                                        <span>{{ __('site.name') }}: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
                                     </div>
                                     @endif
-                                    <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
-                                    <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ $club->short_description ?? strip_tags($club->description) }}</p>
+                                    <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}</h3>
+                                    <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ app()->getLocale() == 'en' && $club->short_description_en ? $club->short_description_en : ($club->short_description ?? strip_tags($club->description)) }}</p>
                                 </div>
                                 <div class="text-primary font-bold text-sm flex items-center gap-2 mt-auto">
-                                    Kulübü Görüntüle <span class="material-symbols-outlined">arrow_right_alt</span>
+                                    {{ __('site.view_details') }} <span class="material-symbols-outlined">arrow_right_alt</span>
                                 </div>
                             </div>
                         </a>
                     </div>
                     @empty
                     <div class="swiper-slide">
-                        <div class="py-12 text-center text-slate-400">Henüz aktif bir kulüp bulunmuyor.</div>
+                        <div class="py-12 text-center text-slate-400">{{ __('site.no_events') }}</div>
                     </div>
                     @endforelse
                 </div>
@@ -285,24 +283,24 @@
                                 @if($club->category)
                                 <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name }}</span>
                                 @endif
-                                <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} Üye</span>
+                                <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} {{ __('site.members') }}</span>
                             </div>
                             @if($club->president)
                             <div class="flex items-center gap-2 mb-3 text-sm text-on-surface-variant">
                                 <span class="material-symbols-outlined text-xs">person</span>
-                                <span>Başkan: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
+                                <span>{{ __('site.president') }}: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
                             </div>
                             @endif
-                            <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
-                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ $club->short_description ?? strip_tags($club->description) }}</p>
+                            <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}</h3>
+                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ app()->getLocale() == 'en' && $club->short_description_en ? $club->short_description_en : ($club->short_description ?? strip_tags($club->description)) }}</p>
                         </div>
                         <div class="text-primary font-bold text-sm flex items-center gap-2 mt-auto">
-                            Kulübü Görüntüle <span class="material-symbols-outlined">arrow_right_alt</span>
+                            {{ __('site.view_club') }} <span class="material-symbols-outlined">arrow_right_alt</span>
                         </div>
                     </div>
                 </a>
                 @empty
-                <div class="col-span-full py-12 text-center text-slate-400">Henüz aktif bir kulüp bulunmuyor.</div>
+                <div class="col-span-full py-12 text-center text-slate-400">{{ __('site.no_clubs') }}</div>
                 @endforelse
             </div>
             @endif
@@ -313,8 +311,7 @@
     <section class="py-12 md:py-16 px-4 sm:px-6 bg-slate-50 overflow-hidden">
         <div class="max-w-7xl mx-auto">
             <div class="mb-10 md:mb-16">
-                <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Kampüs Yaşamından
-                    Kareler</h2>
+                <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">{{ __('site.campus_gallery') }}</h2>
                 <div class="h-1 w-20 bg-primary mx-auto rounded-full"></div>
             </div>
             <div class="swiper gallery-swiper overflow-hidden rounded-2xl md:rounded-3xl pb-12">
@@ -352,7 +349,7 @@
                         </div>
                     @empty
                         <div class="w-full py-12 text-center text-slate-400">
-                            <p>Henüz galeriye resim eklenmemiş.</p>
+                            <p>{{ __('site.no_gallery') }}</p>
                         </div>
                     @endforelse
                 </div>
@@ -366,9 +363,8 @@
     <section class="py-12 md:py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div class="mb-10 md:mb-16">
-                <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">Başarı Hikayeleri</h2>
-                <p class="text-on-surface-variant text-center max-w-xl mx-auto text-sm md:text-base">Topluluğumuzun birlikte imza attığı
-                    gurur dolu anlar ve önemli başarılar.</p>
+                <h2 class="text-2xl md:text-4xl font-headline font-bold text-center mb-4 text-on-surface">{{ __('site.platform_achievements') }}</h2>
+                <p class="text-on-surface-variant text-center max-w-xl mx-auto text-sm md:text-base">{{ __('site.achievements_desc') }}</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 <!-- Success Card 1 -->
@@ -378,9 +374,8 @@
                         class="w-14 h-14 md:w-16 md:h-16 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
                         <span class="material-symbols-outlined text-2xl md:text-3xl">emoji_events</span>
                     </div>
-                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">Robotik Ödülü</h3>
-                    <p class="text-on-surface-variant text-sm leading-relaxed">Robotik ekibimiz ulusal yarışmada 'En
-                        İyi İnovasyon' ödülünü kazandı.</p>
+                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">{{ __('site.achievement_robotics') }}</h3>
+                    <p class="text-on-surface-variant text-sm leading-relaxed">{{ __('site.achievement_robotics_desc') }}</p>
                 </div>
                 <!-- Success Card 2 -->
                 <div
@@ -389,9 +384,8 @@
                         class="w-14 h-14 md:w-16 md:h-16 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
                         <span class="material-symbols-outlined text-2xl md:text-3xl">campaign</span>
                     </div>
-                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">100. Etkinlik</h3>
-                    <p class="text-on-surface-variant text-sm leading-relaxed">Bu dönem topluluklarımız tarafından
-                        düzenlenen 100. etkinliği tamamladık.</p>
+                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">{{ __('site.achievement_100events') }}</h3>
+                    <p class="text-on-surface-variant text-sm leading-relaxed">{{ __('site.achievement_100events_desc') }}</p>
                 </div>
                 <!-- Success Card 3 -->
                 <div
@@ -400,9 +394,8 @@
                         class="w-14 h-14 md:w-16 md:h-16 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
                         <span class="material-symbols-outlined text-2xl md:text-3xl">groups</span>
                     </div>
-                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">Global İş Birliği</h3>
-                    <p class="text-on-surface-variant text-sm leading-relaxed">Modern Sanatlar Kolektifi, Avrupa'dan
-                        3 farklı okul ile partnerlik kurdu.</p>
+                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">{{ __('site.achievement_global') }}</h3>
+                    <p class="text-on-surface-variant text-sm leading-relaxed">{{ __('site.achievement_global_desc') }}</p>
                 </div>
                 <!-- Success Card 4 -->
                 <div
@@ -411,9 +404,8 @@
                         class="w-14 h-14 md:w-16 md:h-16 bg-primary-container text-primary rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
                         <span class="material-symbols-outlined text-2xl md:text-3xl">star</span>
                     </div>
-                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">Yılın Topluluğu</h3>
-                    <p class="text-on-surface-variant text-sm leading-relaxed">Girişimcilik Kulübü, en yüksek
-                        öğrenci katılım oranıyla yılın kulübü seçildi.</p>
+                    <h3 class="font-headline font-bold text-on-surface mb-2 md:mb-3">{{ __('site.achievement_community') }}</h3>
+                    <p class="text-on-surface-variant text-sm leading-relaxed">{{ __('site.achievement_community_desc') }}</p>
                 </div>
             </div>
         </div>

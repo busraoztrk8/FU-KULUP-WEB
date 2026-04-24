@@ -9,13 +9,16 @@ use Illuminate\Support\Str;
 
 class Club extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \App\Traits\Translatable;
 
     protected $fillable = [
         'name',
+        'name_en',
         'slug',
         'description',
+        'description_en',
         'short_description',
+        'short_description_en',
         'logo',
         'cover_image',
         'category_id',
@@ -31,10 +34,15 @@ class Club extends Model
         'whatsapp_url',
         'channel_url',
         'mission',
+        'mission_en',
         'vision',
+        'vision_en',
         'activities',
+        'activities_en',
         'founder_name',
+        'founder_name_en',
         'established_year',
+        'is_featured'
     ];
 
     /**
