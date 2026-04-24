@@ -100,7 +100,6 @@
         <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6 relative z-10">
             <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
 
-<<<<<<< HEAD
                 <div class="flex items-center gap-1 border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2">
                     @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                         <a href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}" 
@@ -108,11 +107,6 @@
                             {{ strtoupper($localeCode) }}
                         </a>
                     @endforeach
-=======
-                <div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold border-r border-black/10 pr-3 sm:pr-4 mr-1 sm:mr-2">
-                    <a href="{{ route('lang.switch', 'en') }}" class="text-slate-400 hover:text-primary transition-colors py-1 px-1">EN</a>
-                    <a href="{{ route('lang.switch', 'tr') }}" class="bg-[#fdf0f2] text-primary px-2 py-1 rounded-md transition-all hover:bg-primary/10">TR</a>
->>>>>>> 5bf14fe (UI İyileştirmeleri ve Hata Gidermeleri: Mobil Menü, Slider Yönetimi, Kategori Listesi ve Etkinlik Kartı Güncellemeleri)
                 </div>
 
                 @auth
