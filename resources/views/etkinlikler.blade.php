@@ -165,11 +165,11 @@
                             style="font-variation-settings: 'FILL' 1;">category</span>
                         Kategoriler
                     </h4>
-                    <ul class="space-y-1.5 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-x-3 lg:gap-y-2">
+                    <ul class="space-y-1.5 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-x-3 lg:gap-y-2 max-h-[180px] overflow-y-auto custom-scrollbar pr-2">
                         @php
                             $fallbackDots = ['#5d1021', '#2563eb', '#ca8a04', '#16a34a', '#9333ea', '#db2777'];
                         @endphp
-                        @foreach(\App\Models\Category::take(6)->get() as $idx => $cat)
+                        @foreach(\App\Models\Category::take(10)->get() as $idx => $cat)
                         <li class="flex items-center text-xs md:text-sm gap-2 min-w-0">
                             @php
                                 $dotColor = $cat->color;

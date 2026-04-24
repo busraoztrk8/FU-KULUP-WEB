@@ -89,9 +89,9 @@
                             </div>
                             @endif
 
-                            <div class="flex items-center gap-1.5 text-on-surface-variant text-xs md:text-sm mt-1">
-                                <span class="material-symbols-outlined text-primary text-base shrink-0">location_on</span>
-                                <span class="font-medium truncate">{{ $event->location ?? 'Yer Belirtilmedi' }}</span>
+                            <div class="flex items-start gap-1.5 text-on-surface-variant text-xs md:text-sm mt-1">
+                                <span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">location_on</span>
+                                <span class="font-medium break-words">Yer: {{ $event->location ?? 'Yer Belirtilmedi' }}</span>
                             </div>
                         </div>
 

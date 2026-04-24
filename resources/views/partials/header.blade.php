@@ -4,9 +4,9 @@
     <nav class="flex items-center justify-between px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto h-full relative">
 
         <!-- Sol: Mobilde logo+yazı, Desktopda sadece yazı -->
-        <a href="{{ route('home') }}" class="flex items-center gap-2 shrink-0 relative z-10">
+        <a href="{{ route('home') }}" class="flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-10">
             <!-- Mobilde logo göster -->
-            <div class="lg:hidden" style="perspective: 300px; width: 46px; height: 46px; flex-shrink: 0;">
+            <div class="lg:hidden" style="perspective: 300px; width: 38px; height: 38px; flex-shrink: 0;">
                 <div style="width:100%; height:100%; position:relative; transform-style: preserve-3d; animation: logoFlip 8s ease-in-out infinite;">
                     <div style="position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;">
                         <img src="{{ asset('images/logo_front.png') }}" alt="Logo" style="width:100%; height:100%; object-fit:contain;">
@@ -16,8 +16,9 @@
                     </div>
                 </div>
             </div>
-            <div class="text-l lg:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight whitespace-nowrap">
+            <div class="text-[13px] sm:text-base lg:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight whitespace-nowrap">
                 {{ __('site.university_name') }}
+            </div>
             </div>
         </a>
 
@@ -99,6 +100,7 @@
         <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6 relative z-10">
             <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
 
+<<<<<<< HEAD
                 <div class="flex items-center gap-1 border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2">
                     @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                         <a href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}" 
@@ -106,6 +108,11 @@
                             {{ strtoupper($localeCode) }}
                         </a>
                     @endforeach
+=======
+                <div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold border-r border-black/10 pr-3 sm:pr-4 mr-1 sm:mr-2">
+                    <a href="{{ route('lang.switch', 'en') }}" class="text-slate-400 hover:text-primary transition-colors py-1 px-1">EN</a>
+                    <a href="{{ route('lang.switch', 'tr') }}" class="bg-[#fdf0f2] text-primary px-2 py-1 rounded-md transition-all hover:bg-primary/10">TR</a>
+>>>>>>> 5bf14fe (UI İyileştirmeleri ve Hata Gidermeleri: Mobil Menü, Slider Yönetimi, Kategori Listesi ve Etkinlik Kartı Güncellemeleri)
                 </div>
 
                 @auth
@@ -169,7 +176,7 @@
 
             <!-- Mobile UI Button -->
             <button id="mob-menu-btn"
-                class="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600 active:bg-slate-200 transition-colors">
+                class="lg:hidden w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600 active:bg-slate-200 transition-colors">
                 <span class="material-symbols-outlined">menu</span>
             </button>
         </div>

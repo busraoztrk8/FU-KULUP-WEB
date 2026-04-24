@@ -17,13 +17,15 @@
                                     <div class="container mx-auto px-4 sm:px-6 relative z-10 text-center">
                                         <div class="glass-card block w-[92%] sm:inline-block px-4 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
                                             @if($slider->title)
-                                                <h1 class="font-headline text-xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-3 md:mb-6 leading-tight text-on-surface px-2 break-all sm:break-normal">
+                                                <h1 class="font-headline text-xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-3 md:mb-6 leading-tight text-on-surface px-2 break-words">
                                                     {{ \Illuminate\Support\Str::words(app()->getLocale() == 'en' && $slider->title_en ? $slider->title_en : $slider->title, 10, '...') }}
                                                 </h1>
                                             @endif
                                             @if($slider->subtitle)
-                                                <p class="font-body text-xs sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-4 md:mb-10 leading-relaxed px-4 break-all sm:break-normal">
+                                                <p class="font-body text-xs sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-4 md:mb-10 leading-relaxed px-4 break-words">
                                                     {{ \Illuminate\Support\Str::words(app()->getLocale() == 'en' && $slider->subtitle_en ? $slider->subtitle_en : $slider->subtitle, 15, '...') }}
+                                                </p>
+                                            @endif
                                                 </p>
                                             @endif
                                             @if($slider->button_text && $slider->button_url)

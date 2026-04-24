@@ -23,6 +23,11 @@
     @forelse($sliders as $slider)
     <div class="admin-card p-0 overflow-hidden group">
         <div class="relative h-44 bg-slate-100">
+            @php
+                $imagePath = $slider->image_path;
+                $imageUrl = (str_starts_with($imagePath, 'http')) ? $imagePath : (file_exists(public_path('uploads/' . $imagePath)) ? asset('uploads/' . $imagePath) : asset('storage/' . $imagePath));
+            @endphp
+            <img src="{{ $imageUrl }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $slider->title }}">
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             <div class="absolute top-3 right-3">
                 <span class="text-[10px] font-bold px-2 py-1 rounded-full {{ $slider->is_active ? 'bg-green-500 text-white' : 'bg-slate-400 text-white' }}">

@@ -22,7 +22,7 @@
         <div class="relative z-10">
             <p class="text-[10px] font-bold text-primary-light uppercase tracking-widest mb-0.5">Yeni Bir Şeyler Başlat</p>
             <h5 class="font-bold text-xs md:text-sm mb-2">Kendi etkinliğini mi planlamak istiyorsun?</h5>
-            <a href="{{ url('/admin') }}" class="inline-flex items-center gap-2 text-xs font-bold bg-white text-slate-900 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
+            <a href="{{ route('kulupler') }}" class="inline-flex items-center gap-2 text-xs font-bold bg-white text-slate-900 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition-all">
                 Kulüp Paneli <span class="material-symbols-outlined text-xs">arrow_forward</span>
             </a>
         </div>
