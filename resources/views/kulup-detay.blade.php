@@ -466,20 +466,36 @@
 
             {{-- Active Members / Board --}}
             @php
-                $activeMembers = $club->members()
+                $activeMembers = collect();
+                
+                if ($club->president) {
+                    $presidentMember = new \App\Models\ClubMember();
+                    $presidentMember->user_id = $club->president->id;
+                    $presidentMember->title = 'Başkan';
+                    $presidentMember->status = 'approved';
+                    $presidentMember->setRelation('user', $club->president);
+                    $activeMembers->push($presidentMember);
+                }
+
+                $query = $club->members()
                     ->where('status', 'approved')
-                    ->whereNotNull('title')
-                    ->orderByRaw("CASE 
-                        WHEN user_id = " . ($club->president_id ?? 0) . " THEN 0 
-                        WHEN title = 'Başkan' THEN 1 
-                        WHEN title = 'Başkan Yardımcısı' THEN 2 
-                        WHEN title LIKE '%Başkan Yardımcısı%' THEN 3 
-                        WHEN title LIKE '%Başkan%' THEN 4
-                        ELSE 5 
+                    ->whereNotNull('title');
+                    
+                if ($club->president_id) {
+                    $query->where('user_id', '!=', $club->president_id);
+                }
+
+                $otherMembers = $query->orderByRaw("CASE 
+                        WHEN title = 'Başkan Yardımcısı' THEN 1 
+                        WHEN title LIKE '%Başkan Yardımcısı%' THEN 2 
+                        WHEN title LIKE '%Başkan%' THEN 3
+                        ELSE 4 
                     END")
                     ->orderBy('title')
-                    ->take(4)
+                    ->take(4 - $activeMembers->count())
                     ->get();
+                    
+                $activeMembers = $activeMembers->concat($otherMembers);
             @endphp
             @if($activeMembers->count() > 0)
             <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">

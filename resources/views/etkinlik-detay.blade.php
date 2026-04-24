@@ -60,7 +60,7 @@
                     <span class="w-1.5 h-6 md:h-8 bg-primary rounded-full mr-3 md:mr-4"></span>
                     Etkinlik Hakkında
                 </h2>
-                <div class="text-on-surface-variant leading-relaxed text-base space-y-4">
+                <div class="text-on-surface-variant leading-relaxed text-base space-y-4 break-words">
                     {!! nl2br(e($event->description)) !!}
                 </div>
             </div>
