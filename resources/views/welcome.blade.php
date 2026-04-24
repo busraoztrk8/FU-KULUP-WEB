@@ -26,8 +26,6 @@
                                                     {{ \Illuminate\Support\Str::words(app()->getLocale() == 'en' && $slider->subtitle_en ? $slider->subtitle_en : $slider->subtitle, 15, '...') }}
                                                 </p>
                                             @endif
-                                                </p>
-                                            @endif
                                             @if($slider->button_text && $slider->button_url)
                                                 <div class="flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-4">
                                                     <a href="{{ $slider->button_url }}" class="w-full sm:w-auto px-5 md:px-8 py-2.5 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-xs md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">

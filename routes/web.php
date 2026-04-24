@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\HomeController;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
     'middleware' => [

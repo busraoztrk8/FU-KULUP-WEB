@@ -1,4 +1,5 @@
 <!-- Header -->
+@php use Mcamara\LaravelLocalization\Facades\LaravelLocalization; @endphp
 <header id="main-nav"
     class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5 transition-all duration-300">
     <nav class="flex items-center justify-between px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto h-full relative">
