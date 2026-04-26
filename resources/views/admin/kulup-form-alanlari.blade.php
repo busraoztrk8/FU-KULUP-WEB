@@ -30,7 +30,11 @@
 <div class="admin-card mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm">
     <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
         @if($club->logo)
-            <img src="{{ asset('storage/' . $club->logo) }}" class="w-14 h-14 rounded-xl object-cover" alt="">
+            @php
+                $logoPath = $club->logo;
+                $logoUrl = str_starts_with($logoPath, 'http') ? $logoPath : (file_exists(public_path('uploads/' . $logoPath)) ? asset('uploads/' . $logoPath) : asset('storage/' . $logoPath));
+            @endphp
+            <img src="{{ $logoUrl }}" class="w-14 h-14 rounded-xl object-cover" alt="">
         @else
             <span class="material-symbols-outlined text-primary text-[28px]">groups</span>
         @endif

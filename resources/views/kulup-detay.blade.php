@@ -709,15 +709,15 @@
                 @foreach($club->formFields as $field)
                 @php
                     $labelMap = [
-                        'Adınız - Soyadınız' => __('site.form_full_name', [], 'en'),
-                        'Öğrenci Numaranız' => __('site.form_student_number', [], 'en'),
-                        'E-posta Adresiniz' => __('site.form_email', [], 'en'),
-                        'Fakülteniz - Bölümünüz' => __('site.form_department', [], 'en'),
-                        'Telefon Numaranız' => __('site.form_phone', [], 'en'),
-                        'KVKK metnini tam olarak okuduğumu, anladığımı ve onayladığımı kabul, beyan ve taahhüt ederim.' => __('site.form_kvkk', [], 'en'),
+                        'Adınız - Soyadınız' => __('site.form_full_name'),
+                        'Öğrenci Numaranız' => __('site.form_student_number'),
+                        'E-posta Adresiniz' => __('site.form_email'),
+                        'Fakülteniz - Bölümünüz' => __('site.form_department'),
+                        'Telefon Numaranız' => __('site.form_phone'),
+                        'KVKK metnini tam olarak okuduğumu, anladığımı ve onayladığımı kabul, beyan ve taahhüt ederim.' => __('site.form_kvkk'),
                     ];
                     $placeholderMap = [
-                        'Yanıtınız' => __('site.your_answer', [], 'en'),
+                        'Yanıtınız' => __('site.your_answer'),
                         'ornek@email.com' => 'example@email.com',
                     ];
                     

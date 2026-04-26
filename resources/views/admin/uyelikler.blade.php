@@ -14,6 +14,14 @@
         .dataTables_wrapper .dataTables_length select {
             @apply bg-slate-50 border-slate-200 rounded-xl text-sm px-8 py-2 focus:ring-primary/20 focus:border-primary transition-all mx-2;
         }
+        /* Tablo kayma fix */
+        #uyelikler-table thead th {
+            white-space: normal !important;
+            min-width: 100px;
+        }
+        #uyelikler-table td {
+            white-space: normal !important;
+        }
     </style>
 @endpush
 

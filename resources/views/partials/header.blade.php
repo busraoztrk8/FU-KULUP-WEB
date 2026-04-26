@@ -2,7 +2,7 @@
 @php use Mcamara\LaravelLocalization\Facades\LaravelLocalization; @endphp
 <header id="main-nav"
     class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5 transition-all duration-300">
-    <nav class="flex items-center justify-between px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto h-full relative">
+    <nav class="flex items-center justify-between px-2 min-[360px]:px-4 sm:px-6 md:px-8 py-3 md:py-4 max-w-7xl mx-auto h-full relative">
 
         <!-- Sol: Mobilde logo+yazı, Desktopda sadece yazı -->
         <a href="{{ route('home') }}" class="flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-10">
@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="text-[13px] sm:text-base lg:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight whitespace-nowrap">
+            <div class="text-[10px] min-[360px]:text-[13px] sm:text-base lg:text-xl font-bold bg-gradient-to-r from-[#5d1021] to-[#8b1d35] bg-clip-text text-transparent font-headline tracking-tight whitespace-nowrap">
                 {{ __('site.university_name') }}
             </div>
             </div>
@@ -36,9 +36,13 @@
         <!-- Desktop Navigation (Center) -->
         <div class="hidden lg:flex items-center gap-8 font-headline font-bold absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             @foreach($mainMenus as $menu)
+                @php
+                    $isCurrent = request()->url() == url($menu->url) || 
+                                (trim($menu->url, '/') !== '' && request()->is(trim($menu->url, '/') . '*'));
+                @endphp
                 @if($menu->children->count() > 0)
                     <div class="relative group">
-                        <button class="flex items-center gap-1 nav-link text-slate-500 hover:text-primary transition-colors">
+                        <button class="flex items-center gap-1 nav-link {{ $isCurrent ? 'active text-primary font-bold' : 'text-slate-500' }} hover:text-primary transition-colors">
                             {{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}
                             <span class="material-symbols-outlined text-[18px] group-hover:rotate-180 transition-transform duration-300">expand_more</span>
                         </button>
@@ -63,9 +67,12 @@
                                     <div class="h-px bg-slate-100 flex-1"></div>
                                 </div>
                                 @foreach($menu->children as $child)
+                                    @php
+                                        $isChildCurrent = request()->url() == url($child->url);
+                                    @endphp
                                     <a href="{{ $child->url }}" target="{{ $child->target }}"
-                                        class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 rounded-xl hover:bg-slate-50 hover:text-primary transition-all group/item">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover/item:bg-primary group-hover/item:scale-125 transition-all"></div>
+                                        class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold {{ $isChildCurrent ? 'text-primary bg-primary/5' : 'text-slate-600' }} rounded-xl hover:bg-slate-50 hover:text-primary transition-all group/item">
+                                        <div class="w-1.5 h-1.5 rounded-full {{ $isChildCurrent ? 'bg-primary scale-125' : 'bg-slate-200' }} group-hover/item:bg-primary group-hover/item:scale-125 transition-all"></div>
                                         {{ app()->getLocale() == 'en' && $child->label_en ? $child->label_en : $child->label }}
                                     </a>
                                 @endforeach
@@ -74,7 +81,7 @@
                     </div>
                 @else
                     <a href="{{ $menu->url }}" target="{{ $menu->target }}"
-                        class="nav-link {{ request()->url() == url($menu->url) ? 'active text-primary' : 'text-slate-500' }}">
+                        class="nav-link {{ $isCurrent ? 'active text-primary font-bold' : 'text-slate-500' }}">
                         {{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}
                     </a>
                 @endif
@@ -98,13 +105,13 @@
         </div>
 
         <!-- Right Actions -->
-        <div class="flex items-center space-x-2 sm:space-x-4 md:space-x-6 relative z-10">
-            <div class="flex items-center space-x-2 sm:space-x-4 text-on-surface">
+        <div class="flex items-center space-x-1 min-[360px]:space-x-2 sm:space-x-4 md:space-x-6 relative z-10">
+            <div class="flex items-center space-x-1 min-[360px]:space-x-2 sm:space-x-4 text-on-surface">
 
-                <div class="flex items-center gap-1 border-r border-black/10 pr-2 sm:pr-4 mr-1 sm:mr-2">
+                <div class="flex items-center gap-0.5 min-[360px]:gap-1 border-r border-black/10 pr-1 min-[360px]:pr-2 sm:pr-4 mr-0.5 min-[360px]:mr-1 sm:mr-2">
                     @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                         <a href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}" 
-                           class="text-[10px] font-bold px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors {{ App::getLocale() == $localeCode ? 'text-primary bg-primary/5' : 'text-slate-400' }}">
+                           class="text-[9px] min-[360px]:text-[10px] font-bold px-1 min-[360px]:px-1.5 py-0.5 rounded hover:bg-primary/10 transition-colors {{ App::getLocale() == $localeCode ? 'text-primary bg-primary/5' : 'text-slate-400' }}">
                             {{ strtoupper($localeCode) }}
                         </a>
                     @endforeach
@@ -164,7 +171,7 @@
 
             @guest
                 <a href="{{ route('login') }}"
-                    class="bg-gradient-primary text-white px-4 sm:px-6 py-2 rounded-full font-bold text-xs sm:text-sm scale-95 active:scale-90 transition-transform shadow-lg shadow-primary/20 block text-center whitespace-nowrap">
+                    class="bg-gradient-primary text-white px-2 min-[360px]:px-4 sm:px-6 py-2 rounded-full font-bold text-[10px] min-[360px]:text-xs sm:text-sm scale-95 active:scale-90 transition-transform shadow-lg shadow-primary/20 block text-center whitespace-nowrap">
                     {{ __('site.login') }}
                 </a>
             @endguest
@@ -214,12 +221,16 @@
                     elseif (str_contains($label, 'iletişim')) $icon = 'alternate_email';
                 @endphp
 
+                @php
+                    $isCurrent = request()->url() == url($menu->url) || 
+                                (trim($menu->url, '/') !== '' && request()->is(trim($menu->url, '/') . '*'));
+                @endphp
                 @if($menu->children->count() > 0)
-                    <div x-data="{ open: false }" class="mb-2">
+                    <div x-data="{ open: {{ $isCurrent ? 'true' : 'false' }} }" class="mb-2">
                         <button @click="open = !open"
-                            class="w-full flex items-center justify-between p-3.5 rounded-2xl font-bold text-slate-600 hover:bg-primary/5 hover:text-primary transition-all group">
+                            class="w-full flex items-center justify-between p-3.5 rounded-2xl font-bold {{ $isCurrent ? 'bg-primary/5 text-primary' : 'text-slate-600' }} hover:bg-primary/5 hover:text-primary transition-all group">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                                <div class="w-10 h-10 rounded-xl {{ $isCurrent ? 'bg-primary/10 text-primary' : 'bg-slate-50 text-slate-400' }} group-hover:bg-primary/10 group-hover:text-primary transition-all flex items-center justify-center">
                                     <span class="material-symbols-outlined text-[22px]">{{ $icon }}</span>
                                 </div>
                                 <span class="text-sm font-headline lowercase first-letter:uppercase">{{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}</span>
@@ -230,8 +241,9 @@
                         <div x-show="open" x-collapse
                             class="ml-5 mt-1 pb-2 space-y-1.5 border-l-2 border-slate-100 pl-4">
                             @foreach($menu->children as $child)
+                                @php $isChildCurrent = request()->url() == url($child->url); @endphp
                                 <a href="{{ $child->url }}" target="{{ $child->target }}"
-                                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-[13px] text-slate-500 hover:text-primary hover:bg-primary/5 transition-all">
+                                    class="flex items-center gap-3 p-3 rounded-xl font-bold text-[13px] {{ $isChildCurrent ? 'text-primary bg-primary/5' : 'text-slate-500' }} hover:text-primary hover:bg-primary/5 transition-all">
                                     {{ app()->getLocale() == 'en' && $child->label_en ? $child->label_en : $child->label }}
                                 </a>
                             @endforeach
@@ -239,8 +251,8 @@
                     </div>
                 @else
                     <a href="{{ $menu->url }}" target="{{ $menu->target }}"
-                        class="mobile-nav-link flex items-center gap-3 p-3.5 rounded-2xl font-bold {{ request()->url() == url($menu->url) ? 'active' : 'text-slate-600 hover:bg-primary/5 hover:text-primary' }} transition-all group">
-                        <div class="w-10 h-10 rounded-xl {{ request()->url() == url($menu->url) ? 'bg-primary/10 text-primary' : 'bg-slate-50 text-slate-400' }} flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                        class="mobile-nav-link flex items-center gap-3 p-3.5 rounded-2xl font-bold {{ $isCurrent ? 'active' : 'text-slate-600 hover:bg-primary/5 hover:text-primary' }} transition-all group">
+                        <div class="w-10 h-10 rounded-xl {{ $isCurrent ? 'bg-primary/10 text-primary' : 'bg-slate-50 text-slate-400' }} flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
                             <span class="material-symbols-outlined text-[20px]">{{ $icon }}</span>
                         </div>
                         <span class="text-sm font-headline lowercase first-letter:uppercase">{{ app()->getLocale() == 'en' && $menu->label_en ? $menu->label_en : $menu->label }}</span>

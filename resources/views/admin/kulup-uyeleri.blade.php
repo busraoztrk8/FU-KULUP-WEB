@@ -15,6 +15,10 @@
         font-size: 0.875rem; padding: 0.5rem 2rem 0.5rem 0.75rem; margin: 0 0.5rem;
         appearance: auto;
     }
+    /* Tablo kayma fix */
+    #uyeler-table thead th, #uyeler-table td {
+        white-space: normal !important;
+    }
 </style>
 @endpush
 
@@ -154,11 +158,29 @@
 <div id="title-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideTitleModal()"></div>
     <div class="relative bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
-        <h3 class="text-lg font-bold font-headline text-slate-800 mb-4">Unvan Belirle</h3>
-        <p class="text-sm text-slate-500 mb-5">"<span id="title-member-name" class="font-semibold text-slate-700"></span>" adlı üyeye unvan atayın.</p>
+        <h3 class="text-lg font-bold font-headline text-slate-800 mb-4">Unvan ve Yetki Belirle</h3>
+        <p class="text-sm text-slate-500 mb-5">"<span id="title-member-name" class="font-semibold text-slate-700"></span>" adlı üyeye unvan atayın ve yetkilerini belirleyin.</p>
         <form id="title-form" method="POST">
             @csrf
-            <input type="text" id="title-input" name="title" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 mb-5 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Boş bırakarak unvanı silebilirsiniz...">
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Üye Unvanı</label>
+                <input type="text" id="title-input" name="title" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Örn: Başkan Yardımcısı, Sekreter...">
+            </div>
+
+            <div class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <label class="flex items-center gap-3 cursor-pointer group">
+                    <div class="relative">
+                        <input type="checkbox" id="is-editor-input" name="is_editor" value="1" class="peer sr-only">
+                        <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-green-500 transition-colors"></div>
+                        <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></div>
+                    </div>
+                    <div>
+                        <span class="block text-sm font-bold text-slate-700 group-hover:text-primary transition-colors">Editör Yetkisi Ver</span>
+                        <span class="block text-[11px] text-slate-500">Bu üye kulüp panelini (Haber, Duyuru vb.) yönetebilir.</span>
+                    </div>
+                </label>
+            </div>
+
             <div class="flex gap-3">
                 <button type="button" onclick="hideTitleModal()" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50">İptal</button>
                 <button type="submit" class="flex-1 py-3 rounded-xl bg-primary hover:bg-primary-dim text-white font-semibold text-sm shadow-sm">Kaydet</button>
@@ -246,9 +268,10 @@ function showDeleteMemberModal(id, name) {
 }
 function hideDeleteMemberModal() { document.getElementById('delete-member-modal').classList.add('hidden'); }
 
-function showTitleModal(id, name, title) {
+function showTitleModal(id, name, title, isEditor) {
     document.getElementById('title-member-name').textContent = name;
     document.getElementById('title-input').value = title;
+    document.getElementById('is-editor-input').checked = !!isEditor;
     document.getElementById('title-form').action = '{{ url("admin/kulup-uyelik") }}/' + id + '/update-title';
     document.getElementById('title-modal').classList.remove('hidden');
 }

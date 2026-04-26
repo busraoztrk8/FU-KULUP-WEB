@@ -365,18 +365,21 @@ class ClubController extends Controller
                         ? '<img src="'.asset('storage/'.$member->user->profile_photo).'" class="w-9 h-9 rounded-full object-cover">'
                         : '<span class="material-symbols-outlined text-primary text-[18px]">person</span>';
                     $presidentBadge = ($club->president_id && $member->user_id == $club->president_id)
-                        ? '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white ml-1"><span class="material-symbols-outlined text-[11px]">workspace_premium</span>BAŞKAN</span>'
+                        ? '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white ml-1 shrink-0"><span class="material-symbols-outlined text-[11px]">workspace_premium</span>BAŞKAN</span>'
                         : '';
-                    $title = $member->title ? '<p class="text-[11px] font-bold text-primary uppercase tracking-wider mt-0.5">'.e($member->title).'</p>' : '';
-                    return '<div class="flex items-center gap-3">
+                    $title = $member->title ? '<p class="text-[11px] font-bold text-primary uppercase tracking-wider mt-0.5 truncate" title="'.e($member->title).'">'.e($member->title).'</p>' : '';
+                    return '<div class="flex items-center gap-3 min-w-0">
                         <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">'.$photo.'</div>
-                        <div>
-                            <p class="font-semibold text-slate-800 text-sm">'.e($member->user->name).$presidentBadge.'</p>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1 min-w-0">
+                                <p class="font-semibold text-slate-800 text-sm truncate" title="'.e($member->user->name).'">'.e($member->user->name).'</p>
+                                '.$presidentBadge.'
+                            </div>
                             '.$title.'
                         </div>
                     </div>';
                 })
-                ->addColumn('email', fn($m) => '<span class="text-sm text-slate-600">'.e($m->user->email ?? '-').'</span>')
+                ->addColumn('email', fn($m) => '<span class="text-sm text-slate-600 truncate block" title="'.e($m->user->email ?? '-').'">'.e($m->user->email ?? '-').'</span>')
                 ->addColumn('form_data', function ($member) {
                     if ($member->registrationData && $member->registrationData->count() > 0) {
                         $json = htmlspecialchars(json_encode(
@@ -410,7 +413,8 @@ class ClubController extends Controller
                         if (auth()->user()->isAdmin() && (!$club->president_id || $member->user_id != $club->president_id)) {
                             $html .= '<form action="'.route('admin.kulupler.set-president', [$club->id, $member->user_id]).'" method="POST" class="inline" onsubmit="return confirm(\'Başkan yapmak istediğinize emin misiniz?\')">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 border border-amber-100" title="Başkan Yap"><span class="material-symbols-outlined text-[16px]">workspace_premium</span></button></form>';
                         }
-                        $html .= '<button onclick="showTitleModal('.$member->id.', \''.e(addslashes($member->user->name ?? '')).'\', \''.e(addslashes($member->title ?? '')).'\' )" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 border border-indigo-100" title="Unvan"><span class="material-symbols-outlined text-[16px]">badge</span></button>';
+                        $isEditor = ($member->user && $member->user->isEditor()) ? 1 : 0;
+                        $html .= '<button onclick="showTitleModal('.$member->id.', \''.e(addslashes($member->user->name ?? '')).'\', \''.e(addslashes($member->title ?? '')).'\', '.$isEditor.' )" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 border border-indigo-100" title="Unvan ve Yetki"><span class="material-symbols-outlined text-[16px]">badge</span></button>';
                         $html .= '<form action="'.route('admin.kulupler.uyeler.reddet', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 border border-red-100" title="Üyeliği Kaldır"><span class="material-symbols-outlined text-[16px]">person_remove</span></button></form>';
                     } elseif ($member->status === 'rejected') {
                         $html .= '<form action="'.route('admin.kulupler.uyeler.onayla', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg hover:bg-green-100 border border-green-100" title="Tekrar Onayla"><span class="material-symbols-outlined text-[16px]">undo</span></button></form>';
@@ -502,10 +506,43 @@ class ClubController extends Controller
             abort(403, 'Bu üyenin unvanını değiştirme yetkiniz yok.');
         }
 
-        $request->validate(['title' => 'nullable|string|max:255']);
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'is_editor' => 'nullable'
+        ]);
+        
         $member->update(['title' => $request->title]);
 
-        return back()->with('success', 'Üye unvanı başarıyla güncellendi.');
+        if ($member->user) {
+            $user = $member->user;
+            $wantsEditor = $request->has('is_editor');
+            
+            // Admin ve Başkan rollerini koru
+            $isPresident = ($member->club && $member->club->president_id == $user->id);
+            
+            if (!$user->isAdmin() && !$isPresident) {
+                if ($wantsEditor) {
+                    $editorRole = Role::where('name', 'editor')->first();
+                    if ($editorRole) {
+                        $user->update([
+                            'role_id' => $editorRole->id,
+                            'club_id' => $member->club_id
+                        ]);
+                    }
+                } else {
+                    // Editörlük yetkisi kaldırılıyorsa ve kullanıcı şu an editörse, öğrenci yap
+                    if ($user->isEditor()) {
+                        $studentRole = Role::where('name', 'student')->first();
+                        $user->update([
+                            'role_id' => $studentRole->id ?? 3,
+                            'club_id' => null
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return back()->with('success', 'Üye unvanı ve yetkileri başarıyla güncellendi.');
     }
 
     public function deleteGalleryImage(ClubImage $image)

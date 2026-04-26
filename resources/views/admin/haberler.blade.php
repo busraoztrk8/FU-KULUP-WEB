@@ -433,6 +433,17 @@ function showHaberDuzenle(id) {
         }, 100);
         
         document.getElementById('haber-modal').classList.remove('hidden');
+
+        // Mevcut resmi göster
+        const previewImg = document.getElementById('haber-preview');
+        const previewContainer = document.getElementById('haber-preview-container');
+        if (data.image_path) {
+            previewImg.src = resolveImageUrl(data.image_path);
+            previewContainer.classList.remove('hidden');
+        } else {
+            previewImg.src = '';
+            previewContainer.classList.add('hidden');
+        }
     }).fail(function() {
         alert('Haber verileri yüklenirken bir hata oluştu.');
     });

@@ -27,11 +27,11 @@ class MembershipController extends Controller
                     if (!$member->user) return '<span class="text-slate-400 italic">Silinmiş Kullanıcı</span>';
                     
                     $initials = mb_strtoupper(mb_substr($member->user->name, 0, 2, 'UTF-8'), 'UTF-8');
-                    return '<div class="flex items-center gap-3">
+                    return '<div class="flex items-center gap-3 min-w-0">
                                 <div class="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center shrink-0 text-primary text-xs font-bold shadow-sm">'.$initials.'</div>
-                                <div class="flex flex-col">
-                                    <span class="font-semibold text-slate-800">'.$member->user->name.'</span>
-                                    <span class="text-[11px] text-slate-500">'.$member->user->email.'</span>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="font-semibold text-slate-800 truncate" title="'.$member->user->name.'">'.$member->user->name.'</span>
+                                    <span class="text-[11px] text-slate-500 truncate" title="'.$member->user->email.'">'.$member->user->email.'</span>
                                 </div>
                             </div>';
                 })
