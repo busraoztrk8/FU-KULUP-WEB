@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tüm Duyurular - Fırat Üniversitesi')
+@section('title', __('site.all_announcements_title') . ' - Fırat Üniversitesi')
 @section('data-page', 'tum-duyurular')
 
 @section('content')
@@ -9,20 +9,20 @@
         <div class="absolute right-0 top-0 w-64 h-64 bg-amber-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
         <div class="absolute left-0 bottom-0 w-48 h-48 bg-amber-600/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3"></div>
         <div class="max-w-7xl mx-auto text-center relative z-10">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-headline text-on-background mb-4 uppercase tracking-tight">Tüm Duyurular</h1>
-            <p class="text-on-surface-variant text-base md:text-xl max-w-2xl mx-auto font-body">Üniversitemiz ve kulüplerimizden güncel haber ve duyuruları takip edin.</p>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-headline text-on-background mb-4 uppercase tracking-tight">{{ __('site.all_announcements_title') }}</h1>
+            <p class="text-on-surface-variant text-base md:text-xl max-w-2xl mx-auto font-body">{{ __('site.all_announcements_desc') }}</p>
             
             <!-- Search Bar -->
             <div class="mt-8 max-w-xl mx-auto relative group">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-                <input type="text" id="announcement-search" placeholder="Duyuru başlığı, içeriği veya kulüp adı ile ara..." 
+                <input type="text" id="announcement-search" placeholder="{{ __('site.search_announcements_placeholder') }}"
                     class="w-full bg-white border border-black/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all outline-none shadow-sm font-bold">
             </div>
 
             <div class="mt-6 flex items-center justify-center gap-3">
                 <span class="bg-amber-600/10 text-amber-600 px-4 py-2 rounded-full text-sm font-bold">
                     <span class="material-symbols-outlined text-sm align-middle mr-1">campaign</span>
-                    Toplam <span id="total-count">{{ $totalAnnouncements }}</span> Duyuru
+                    {!! __('site.total_announcements_count', ['count' => '<span id="total-count">' . $totalAnnouncements . '</span>']) !!}
                 </span>
             </div>
         </div>

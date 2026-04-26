@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Etkinlikler - Fırat Üniversitesi')
+@section('title', __('site.page_title_events') . ' - ' . __('site.university_name'))
 @section('data-page', 'events')
 
 @section('content')
@@ -11,8 +11,8 @@
     
     $featured = $events->where('is_featured', true)->first() ?? $events->first();
     
-    $heroTitle = $customTitle ?: ($featured ? $featured->title : 'Etkinlikler');
-    $heroSubtitle = $customSubtitle ?: ($featured ? $featured->short_description : 'Kampüsümüzdeki en güncel etkinlikler...');
+    $heroTitle = $customTitle ?: ($featured ? $featured->title : __('site.events_page_hero_title'));
+    $heroSubtitle = $customSubtitle ?: ($featured ? $featured->short_description : __('site.events_page_hero_desc'));
     
     if ($customImage) {
         $heroUrl = file_exists(public_path('uploads/' . $customImage)) ? asset('uploads/' . $customImage) : asset('storage/' . $customImage);
@@ -26,41 +26,77 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <!-- Hero Section -->
-    <section class="@include('partials.site-hero-dimensions')">
-        @if($heroUrl)
-            <img alt="{{ $heroTitle }}" class="absolute inset-0 w-full h-full object-cover" src="{{ $heroUrl }}" />
-        @else
-            <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
-        @endif
-        <div class="absolute inset-0 bg-gradient-to-r from-black/70 md:from-black/60 via-black/25 to-transparent"></div>
-        <div class="relative z-10 max-w-3xl px-4 sm:px-6 md:px-20 text-center md:text-left">
-            @if(!$customTitle && $featured && $featured->is_featured)
-            <span class="bg-primary text-white px-2.5 md:px-4 py-0.5 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold mb-2 md:mb-4 inline-block uppercase tracking-widest">
-                Ana Etkinlik
-            </span>
-            @endif
-            <h1 class="text-lg sm:text-3xl md:text-5xl lg:text-5xl font-bold font-headline text-white mb-2 md:mb-6 leading-tight tracking-tight uppercase">
-                {{ $heroTitle }}
-            </h1>
-            @if($heroSubtitle)
-            <p class="text-xs sm:text-base md:text-xl text-white mb-4 md:mb-10 max-w-xl font-body leading-relaxed mx-auto md:mx-0">
-                {{ $heroSubtitle }}
-            </p>
-            @endif
-            
-            @if(!$customTitle && $featured)
-            <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-2 md:gap-4">
-                <a href="{{ route('kulup.detay', $featured->club->slug) }}"
-                    class="bg-primary hover:bg-primary-dark text-white px-4 md:px-8 py-2 md:py-4 rounded-full font-bold transition-all flex justify-center items-center gap-2 group text-[11px] md:text-base">
-                    Kulübe Üye Ol
-                    <span class="material-symbols-outlined text-sm md:text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </a>
-                <a href="{{ route('etkinlik.detay', $featured->slug) }}"
-                    class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-4 md:px-8 py-2 md:py-4 rounded-full font-bold transition-all text-[11px] md:text-base text-center">
-                    Detayları Gör
-                </a>
+    <section class="@include('partials.site-hero-dimensions') overflow-hidden relative group">
+        <div class="swiper hero-swiper absolute inset-0 w-full h-full">
+            <div class="swiper-wrapper">
+                @forelse($heroEvents as $heroEvent)
+                    @php
+                        $eImg = $heroEvent->image;
+                        $eUrl = ($eImg && str_starts_with($eImg, 'http')) ? $eImg : ($eImg && file_exists(public_path('uploads/' . $eImg)) ? asset('uploads/' . $eImg) : ($eImg ? asset('storage/' . $eImg) : null));
+                    @endphp
+                    <div class="swiper-slide relative w-full h-full">
+                        @if($eUrl)
+                            <img alt="{{ $heroEvent->title }}" class="absolute inset-0 w-full h-full object-cover" src="{{ $eUrl }}" />
+                        @else
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
+                        @endif
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/70 md:from-black/60 via-black/25 to-transparent"></div>
+                        
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="relative z-10 w-full max-w-4xl px-4 sm:px-6 md:px-20 text-center md:text-left">
+                                <!-- Sabit Boyutlu İçerik Kutusu -->
+                                <div class="min-h-[250px] md:min-h-[350px] flex flex-col justify-center">
+                                    <div class="inline-flex items-center self-center md:self-start mb-4">
+                                        <span class="bg-primary text-white px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20">
+                                            {{ __('site.upcoming_event') }}
+                                        </span>
+                                    </div>
+                                    
+                                    <h1 class="text-2xl sm:text-4xl md:text-6xl font-bold font-headline text-white mb-4 md:mb-6 leading-[1.1] tracking-tight uppercase drop-shadow-lg line-clamp-2">
+                                        {{ $heroEvent->title }}
+                                    </h1>
+                                    
+                                    <p class="text-sm sm:text-lg md:text-xl text-white/90 mb-8 md:mb-10 max-w-2xl font-body leading-relaxed mx-auto md:mx-0 line-clamp-3 md:line-clamp-4 drop-shadow-md">
+                                        {{ $heroEvent->short_description ?? Str::limit(strip_tags($heroEvent->description), 200) }}
+                                    </p>
+                                    
+                                    <div class="flex flex-col sm:flex-row justify-center md:justify-start gap-3 md:gap-5">
+                                        <a href="{{ route('etkinlik.detay', $heroEvent->slug) }}"
+                                            class="bg-primary hover:bg-primary-dark text-white px-6 py-3 md:px-10 md:py-4 rounded-full font-bold transition-all flex justify-center items-center gap-2 group/btn text-xs md:text-base shadow-xl shadow-primary/30">
+                                            {{ __('site.view_details') }}
+                                            <span class="material-symbols-outlined text-sm md:text-base group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+                                        </a>
+                                        <a href="{{ route('kulup.detay', $heroEvent->club->slug) }}"
+                                            class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-6 py-3 md:px-10 md:py-4 rounded-full font-bold transition-all text-xs md:text-base text-center">
+                                            {{ __('site.event_host') }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="swiper-slide relative w-full h-full">
+                        <div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <h1 class="text-white text-3xl font-bold">{{ __('site.no_events_found') }}</h1>
+                        </div>
+                    </div>
+                @endforelse
             </div>
-            @endif
+            
+            <!-- Pagination -->
+            <div class="swiper-pagination hero-pagination !bottom-8 !left-20 !justify-start !w-auto"></div>
+            
+            <!-- Navigation -->
+            <div class="hidden md:flex absolute right-10 bottom-10 z-20 gap-3">
+                <button class="hero-prev w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-primary hover:border-primary transition-all group/nav">
+                    <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">chevron_left</span>
+                </button>
+                <button class="hero-next w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-md text-white flex items-center justify-center hover:bg-primary hover:border-primary transition-all group/nav">
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">chevron_right</span>
+                </button>
+            </div>
         </div>
     </section>
 
@@ -68,19 +104,18 @@
     <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-12 md:py-16">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-4 md:mb-12 gap-3 md:gap-6">
             <div>
-                <h2 class="text-base sm:text-2xl md:text-3xl font-bold font-headline text-on-background mb-1 md:mb-2">Yaklaşan Etkinlikler</h2>
-                <p class="text-on-surface-variant text-xs md:text-base">Kampüs hayatındaki en güncel akademik ve sosyal etkinlikleri
-                    takip edin.</p>
+                <h2 class="text-base sm:text-2xl md:text-3xl font-bold font-headline text-on-background mb-1 md:mb-2">{{ __('site.upcoming_events') }}</h2>
+                <p class="text-on-surface-variant text-xs md:text-base">{{ __('site.upcoming_events_desc') }}</p>
             </div>
 
             <!-- Tab Toggle -->
             <div class="bg-slate-100 p-1 rounded-full flex gap-1 shadow-sm w-full md:w-auto">
                 <button
                     class="flex-1 md:flex-none px-4 md:px-8 py-1.5 md:py-2.5 rounded-full bg-primary text-white font-bold text-[11px] md:text-sm transition-all shadow-md tab-btn active"
-                    data-tab-btn="calendar">Takvim</button>
+                    data-tab-btn="calendar">{{ __('site.calendar_view') }}</button>
                 <button
                     class="flex-1 md:flex-none px-4 md:px-8 py-1.5 md:py-2.5 rounded-full text-slate-600 hover:text-on-background font-medium text-[11px] md:text-sm transition-all tab-btn"
-                    data-tab-btn="all">Tümü</button>
+                    data-tab-btn="all">{{ __('site.all') }}</button>
             </div>
         </div>
 
@@ -88,7 +123,7 @@
         <div id="calendar-view" class="tab-content active grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 lg:gap-10 lg:items-stretch"
             data-tab-content="calendar">
 @php
-    \Carbon\Carbon::setLocale('tr');
+    \Carbon\Carbon::setLocale(app()->getLocale());
     $currentDateStr = request('date', now()->format('Y-m-d'));
     $currentDate = \Carbon\Carbon::parse($currentDateStr);
     $year = $currentDate->year;
@@ -107,63 +142,14 @@
 @endphp
             <!-- Calendar + Kategoriler (sol kart — sağ kart ile aynı çerçeve) -->
             <div class="lg:col-span-5 w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-5 md:p-6 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full">
-                <div class="flex justify-between items-center mb-3 md:mb-6">
-                    <h3 class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">{{ $startOfMonth->translatedFormat('F Y') }}</h3>
-                    <div class="flex gap-2">
-                        <a href="?date={{ $startOfMonth->copy()->subMonth()->format('Y-m-d') }}#calendar-view" class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
-                                class="material-symbols-outlined">chevron_left</span></a>
-                        <a href="?date={{ $startOfMonth->copy()->addMonth()->format('Y-m-d') }}#calendar-view" class="p-1.5 md:p-2 rounded-lg hover:bg-white text-on-surface-variant"><span
-                                class="material-symbols-outlined">chevron_right</span></a>
-                    </div>
-                </div>
-                <div class="grid grid-cols-7 gap-y-3 md:gap-y-4 text-center mb-4">
-                    <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60">PT</div>
-                    <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60">SA</div>
-                    <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60">ÇA</div>
-                    <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60">PE</div>
-                    <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60">CU</div>
-                    <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60 text-primary">CT</div>
-                    <div class="text-[10px] md:text-xs font-bold text-on-surface-variant opacity-60 text-primary">PA</div>
-                    
-                    @for($i = 1; $i < $startDayOfWeek; $i++)
-                        <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-300">
-                            {{ $startOfMonth->copy()->subDays($startDayOfWeek - $i)->day }}
-                        </div>
-                    @endfor
-                    
-                    @for($day = 1; $day <= $endOfMonth->day; $day++)
-                        @php
-                            $dateStr = sprintf('%04d-%02d-%02d', $year, $month, $day);
-                            $hasEvents = $eventsByDate->has($dateStr);
-                            $isSelected = $dateStr === $currentDateStr;
-                            $isToday = $dateStr === now()->format('Y-m-d');
-                        @endphp
-                        
-                        <a href="javascript:void(0)" 
-                           onclick="filterByDate('{{ $dateStr }}', this)"
-                           data-date="{{ $dateStr }}"
-                           class="calendar-day p-1.5 md:p-2 text-xs md:text-sm {{ $isSelected ? 'active bg-primary text-white shadow-lg ring-2 md:ring-4 ring-primary/10' : ($hasEvents ? 'font-bold text-primary bg-primary/10' : ($isToday ? 'text-primary font-bold' : 'text-slate-600')) }} relative block hover:scale-105 rounded-lg md:rounded-xl transition-all">
-                            {{ $day }}
-                            @if($hasEvents)
-                                <span class="absolute bottom-0.5 md:bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 {{ $isSelected ? 'bg-white' : 'bg-primary' }} rounded-full event-dot"></span>
-                            @endif
-                        </a>
-                    @endfor
-                    
-                    @php $endDayOfWeek = $endOfMonth->dayOfWeekIso; @endphp
-                    @if($endDayOfWeek < 7)
-                        @for($i = 1; $i <= (7 - $endDayOfWeek); $i++)
-                            <div class="p-1.5 md:p-2 text-xs md:text-sm text-slate-300">
-                                {{ $endOfMonth->copy()->addDays($i)->day }}
-                            </div>
-                        @endfor
-                    @endif
+                <div id="calendar-month-container">
+                    @include('partials.calendar-month', ['currentDateStr' => $currentDateStr, 'events' => $events])
                 </div>
                 <div class="mt-3 md:mt-6 pt-3 md:pt-6 border-t border-slate-200">
                     <h4 class="text-xs md:text-sm font-bold mb-2 md:mb-3 flex items-center gap-2 text-on-background">
                         <span class="material-symbols-outlined text-primary text-xs md:text-sm"
                             style="font-variation-settings: 'FILL' 1;">category</span>
-                        Kategoriler
+                        {{ __('site.categories') }}
                     </h4>
                     <ul class="space-y-1.5 md:space-y-3 lg:grid lg:grid-cols-2 lg:space-y-0 lg:gap-x-3 lg:gap-y-2 max-h-[180px] overflow-y-auto custom-scrollbar pr-2">
                         @php
@@ -193,10 +179,10 @@
             <div class="lg:col-span-7 min-w-0 w-full max-w-full bg-white rounded-2xl md:rounded-[2rem] p-3 sm:p-5 md:p-6 border border-slate-100 shadow-sm flex flex-col min-h-0 lg:h-full overflow-hidden">
                 <div class="flex items-center justify-between gap-3 mb-3 md:mb-6 shrink-0">
                     <h3 id="selected-date-title" class="font-headline font-bold text-sm md:text-xl text-on-background capitalize">
-                        {{ $currentDate->translatedFormat('j F, l') }}
+                        {{ app()->getLocale() == 'en' ? $currentDate->format('F j, l') : $currentDate->translatedFormat('j F, l') }}
                     </h3>
                     <span id="event-count-badge" class="text-on-surface-variant text-[10px] md:text-sm whitespace-nowrap">
-                        {{ $selectedEvents->count() }} Etkinlik Bulundu
+                        {{ __('site.events_found', ['count' => $selectedEvents->count()]) }}
                     </span>
                 </div>
                 <div id="event-list-container" class="transition-all duration-500 min-w-0 max-w-full flex-1 min-h-0 flex flex-col overflow-x-hidden">
@@ -209,18 +195,24 @@
         <div id="grid-view" class="tab-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[400px]"
             data-tab-content="all" style="display: none;">
             <div id="events-grid-container" class="contents">
-                @include('partials.event-grid-items', ['events' => $gridEvents])
+                @include('partials.event-grid-items', ['events' => $gridEvents->take(6)])
+                
+                @if($gridEvents->count() > 6)
+                <div id="extra-grid-events" class="contents" style="display: none;">
+                    @include('partials.event-grid-items', ['events' => $gridEvents->skip(6)])
+                </div>
+                @endif
             </div>
         </div>
 
-        <!-- More Button - Redirect to Tüm Etkinlikler page -->
-        @if($totalPublishedEvents > 10)
+        <!-- More Button - Show more then Redirect -->
+        @if($totalPublishedEvents > 6)
         <div id="load-more-container" class="mt-6 md:mt-16 flex justify-center" style="display: none;">
-            <a href="{{ route('tum-etkinlikler') }}"
+            <button id="load-more-grid-btn"
                 class="bg-white hover:bg-slate-50 text-primary px-6 md:px-10 py-2.5 md:py-4 rounded-full font-bold transition-all border border-primary/20 flex items-center gap-2 shadow-lg hover:shadow-xl text-xs md:text-base group">
-                <span>Tüm Etkinlikleri Gör</span>
-                <span class="material-symbols-outlined text-xs md:text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </a>
+                <span id="load-more-text">{{ __('site.see_more') }}</span>
+                <span class="material-symbols-outlined text-xs md:text-sm group-hover:translate-x-1 transition-transform">expand_more</span>
+            </button>
         </div>
         @endif
     </section>
@@ -231,17 +223,43 @@
             const container = btn.parentElement.querySelector('.additional-events');
             if (container.style.display === 'none' || container.style.display === '') {
                 container.style.display = 'flex';
-                btn.innerHTML = 'Daha Az Gör <span class="material-symbols-outlined text-sm">expand_less</span>';
+                btn.innerHTML = '{{ __('site.see_less') }} <span class="material-symbols-outlined text-sm">expand_less</span>';
             } else {
                 container.style.display = 'none';
-                btn.innerHTML = 'Diğer Etkinlikleri Gör <span class="material-symbols-outlined text-sm">expand_more</span>';
+                btn.innerHTML = '{{ __('site.see_other_events') }} <span class="material-symbols-outlined text-sm">expand_more</span>';
                 btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
         let unifiedSwiper;
+        let heroSwiper;
 
-        function initUnifiedSwiper() {
+        function initSwipers() {
+            // Hero Swiper
+            const heroEl = document.querySelector('.hero-swiper');
+            if (heroEl) {
+                heroSwiper = new Swiper(heroEl, {
+                    slidesPerView: 1,
+                    spaceBetween: 0,
+                    loop: true,
+                    effect: 'fade',
+                    fadeEffect: { crossFade: true },
+                    autoplay: {
+                        delay: 7000,
+                        disableOnInteraction: false,
+                    },
+                    pagination: {
+                        el: '.hero-pagination',
+                        clickable: true,
+                    },
+                    navigation: {
+                        nextEl: '.hero-next',
+                        prevEl: '.hero-prev',
+                    },
+                });
+            }
+
+            // Unified Swiper
             const el = document.querySelector('.unified-events-swiper');
             if (!el) {
                 if (unifiedSwiper) {
@@ -256,7 +274,6 @@
             }
             const prevEl = el.querySelector('.unified-events-prev');
             const nextEl = el.querySelector('.unified-events-next');
-            const paginationEl = el.querySelector('.unified-pagination');
 
             unifiedSwiper = new Swiper(el, {
                 slidesPerView: 1,
@@ -265,9 +282,9 @@
                 rewind: true,
                 grabCursor: true,
                 watchOverflow: true,
-                autoHeight: false, // Stretch to match container
+                autoHeight: false, 
                 autoplay: {
-                    delay: 5000, // 5 seconds
+                    delay: 5000, 
                     disableOnInteraction: false,
                     pauseOnMouseEnter: true,
                 },
@@ -289,8 +306,34 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            initUnifiedSwiper();
+            initSwipers();
         });
+
+        function changeMonth(dateStr) {
+            const container = document.getElementById('calendar-month-container');
+            container.style.opacity = '0.5';
+            
+            fetch(`{{ route('etkinlikler') }}?date=${dateStr}&view_type=calendar_month`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                container.innerHTML = data.html;
+                container.style.opacity = '1';
+                
+                // Fetch events for the selected date in the new month
+                const newSelectedDate = document.querySelector('.calendar-day.active');
+                if(newSelectedDate) {
+                    filterByDate(newSelectedDate.dataset.date, newSelectedDate);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.style.opacity = '1';
+            });
+        }
 
         function filterByDate(date, element) {
             // UI Update
@@ -308,7 +351,8 @@
 
             const dateObj = new Date(date);
             const options = { day: 'numeric', month: 'long', weekday: 'long' };
-            document.getElementById('selected-date-title').innerText = dateObj.toLocaleDateString('tr-TR', options);
+            const locale = '{{ app()->getLocale() == 'en' ? 'en-US' : 'tr-TR' }}';
+            document.getElementById('selected-date-title').innerText = dateObj.toLocaleDateString(locale, options);
 
             const eventListContainer = document.getElementById('event-list-container');
             
@@ -325,14 +369,15 @@
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = data.html;
                     
-                    // Re-initialize slider
-                    initUnifiedSwiper();
+                    // Re-initialize sliders
+                    initSwipers();
                     
                     eventListContainer.style.opacity = '1';
                     
                     const countRoot = tempDiv.querySelector('.unified-event-list-root');
                     const count = countRoot ? parseInt(countRoot.getAttribute('data-event-count') || '0', 10) : tempDiv.querySelectorAll('.swiper-slide').length;
-                    document.getElementById('event-count-badge').innerText = `${count} Etkinlik Bulundu`;
+                    const countText = '{{ __('site.events_found', ['count' => ':count']) }}'.replace(':count', count);
+                    document.getElementById('event-count-badge').innerText = countText;
                 });
             }, 300);
         }
@@ -365,10 +410,27 @@
                     }
                 });
                 if (target === 'calendar') {
-                    setTimeout(function() { initUnifiedSwiper(); }, 50);
+                    setTimeout(function() { initSwipers(); }, 50);
                 }
             });
         });
+
+        // Grid Load More Logic
+        const loadMoreBtn = document.getElementById('load-more-grid-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                const extraEvents = document.getElementById('extra-grid-events');
+                if (extraEvents && extraEvents.style.display === 'none') {
+                    // Step 1: Show up to 15 events
+                    extraEvents.style.display = 'contents';
+                    document.getElementById('load-more-text').innerText = '{{ __('site.see_all_events') }}';
+                    loadMoreBtn.querySelector('.material-symbols-outlined').innerText = 'arrow_forward';
+                } else {
+                    // Step 2: Redirect to all events page
+                    window.location.href = '{{ route('tum-etkinlikler') }}';
+                }
+            });
+        }
 
     </script>
 @endsection

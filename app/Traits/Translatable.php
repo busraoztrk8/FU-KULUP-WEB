@@ -42,13 +42,18 @@ trait Translatable
     {
         $translatable = $this->getTranslatableAttributes();
 
-        // Admin panelinde veya konsolda isek otomatik çeviri ile maskeleme yapma. 
-        // Admin orijinal veriyi görmeli.
-        if (app()->runningInConsole() || request()->is('*admin*') || request()->routeIs('admin.*')) {
+        // Konsolda isek veya bir model field'ı EN ile bitiyorsa orijinal veriyi döndür.
+        if (app()->runningInConsole() || str_ends_with($key, '_en')) {
             return parent::getAttribute($key);
         }
 
-        if (in_array($key, $translatable) && app()->getLocale() === 'en') {
+        $isAdmin = request()->is('admin*') || 
+                   request()->is('*/admin*') || 
+                   request()->segment(1) == 'admin' || 
+                   request()->segment(2) == 'admin' || 
+                   (request()->route() && str_starts_with(request()->route()->getName(), 'admin.'));
+
+        if (!$isAdmin && in_array($key, $translatable) && app()->getLocale() === 'en') {
             $enKey = $key . '_en';
             $enValue = parent::getAttribute($enKey);
             
@@ -77,11 +82,28 @@ trait Translatable
                 $tr = new GoogleTranslate('en');
                 $tr->setSource('tr');
 
+                $isAnyDirty = false;
+                foreach ($translatable as $attr) {
+                    if ($model->isDirty($attr)) {
+                        $isAnyDirty = true;
+                        break;
+                    }
+                }
+
                 foreach ($translatable as $attribute) {
                     $enAttribute = $attribute . '_en';
                     
-                    // Eğer ana özellik (tr) değiştiyse veya İngilizce versiyon boşsa
-                    if (!empty($model->{$attribute}) && empty($model->{$enAttribute})) {
+                    // Çeviri yapılması gereken durumlar:
+                    // 1. İngilizce alan boşsa
+                    // 2. İngilizce alan Türkçe ile aynıysa (henüz çevrilmemiş fallback)
+                    // 3. Türkçe alan değişmişse (isDirty)
+                    // 4. Diğer herhangi bir alan değişmişse (senkronizasyon için toplu güncelleme)
+                    $shouldTranslate = empty($model->{$enAttribute}) || 
+                                      $model->{$enAttribute} === $model->{$attribute} || 
+                                      $model->isDirty($attribute) ||
+                                      $isAnyDirty;
+
+                    if (!empty($model->{$attribute}) && $shouldTranslate) {
                         $model->{$enAttribute} = $tr->translate($model->{$attribute});
                     }
                 }

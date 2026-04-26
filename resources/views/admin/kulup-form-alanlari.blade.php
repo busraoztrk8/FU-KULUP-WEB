@@ -309,7 +309,7 @@ function hideAddFieldModal() {
 }
 
 function showEditFieldModal(field) {
-    document.getElementById('edit-field-form').action = "/admin/form-alanlari/" + field.id;
+    document.getElementById('edit-field-form').action = "{{ url('admin/form-alanlari') }}/" + field.id;
     document.getElementById('edit-label').value = field.label;
     document.getElementById('edit-type').value = field.type;
     document.getElementById('edit-placeholder').value = field.placeholder || '';
@@ -333,7 +333,7 @@ function hideEditFieldModal() {
 
 function showDeleteFieldModal(id, name) {
     document.getElementById('delete-field-name').textContent = name;
-    document.getElementById('delete-field-form').action = "/admin/form-alanlari/" + id;
+    document.getElementById('delete-field-form').action = "{{ url('admin/form-alanlari') }}/" + id;
     document.getElementById('delete-field-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }

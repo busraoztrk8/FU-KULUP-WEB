@@ -222,4 +222,147 @@ return [
     'application_note'    => 'Application Note (Optional)',
     'application_note_placeholder' => 'If you have a note for the club management or event organizer, you can write it here...',
     'complete_registration'=> 'Complete Registration',
+    'featured_club'       => 'Featured Club',
+    'search_club_placeholder' => 'Search clubs...',
+    'member_singular'     => 'Member',
+    'member_plural'       => 'Members',
+    'no_description'      => 'No description provided.',
+    'title_president'     => 'President',
+    'title_vice_president' => 'Vice President',
+
+    // ── PAGE TITLES (browser tab) ──
+    'page_title_events'        => 'Events',
+    'page_title_clubs'         => 'Clubs',
+    'page_title_news'          => 'News',
+    'page_title_announcements' => 'Announcements',
+
+    // ── NEWS PAGE EXTRA ──
+    'latest_developments'      => 'Latest Developments',
+    'latest_news_heading'      => 'Latest News',
+    'total_news_found'         => ':count news found',
+    'view_all_news'            => 'View All News',
+    'no_news_yet'              => 'No News Yet',
+    'news_will_appear'         => 'Published news will appear here.',
+
+    // ── ANNOUNCEMENTS PAGE EXTRA ──
+    'important_notices'        => 'Important Notices',
+    'current_announcements'    => 'Current Announcements',
+    'total_announcements_found'=> ':count announcements found',
+    'view_all_announcements'   => 'View All Announcements',
+    'no_announcements_yet'     => 'No Announcements Yet',
+    'announcements_will_appear'=> 'Published announcements will appear here.',
+
+    // ── EVENT GRID EXTRA ──
+    'no_active_events'         => 'No active events yet.',
+    'main_event'               => 'Main Event',
+    'events_page_hero_title'   => 'Events',
+    'events_page_hero_desc'    => 'The latest events on our campus...',
+    'upcoming_events_desc'     => 'Follow the most current academic and social events in campus life.',
+    'events_found'             => ':count Events Found',
+
+    // ── CALENDAR DAYS ──
+    'day_mo' => 'MO',
+    'day_tu' => 'TU',
+    'day_we' => 'WE',
+    'day_th' => 'TH',
+    'day_fr' => 'FR',
+    'day_sa' => 'SA',
+    'day_su' => 'SU',
+
+    // ── UNIFIED EVENT CARD EXTRA ──
+    'event_host' => 'Event Host',
+    'event' => 'Event',
+    'review' => 'Review',
+    'no_events_found' => 'No Events Found',
+    'no_events_scheduled_today' => 'There are no events scheduled for today.',
+    'keep_exploring' => 'Keep Exploring the Campus',
+    'all_clubs' => 'All Clubs',
+    'back_to_calendar' => 'Back to Calendar',
+    'start_something_new' => 'Start Something New',
+    'want_to_plan_event' => 'Do you want to plan your own event?',
+    'club_panel' => 'Club Panel',
+    'see_all_events' => 'See All Events',
+    'see_less' => 'See Less',
+    'see_other_events' => 'See Other Events',
+    'see_more' => 'Load More',
+
+    // ── FORM FIELDS EXTRA ──
+    'form_full_name' => 'Full Name',
+    'form_student_number' => 'Student Number',
+    'form_email' => 'Email Address',
+    'form_department' => 'Faculty - Department',
+    'form_phone' => 'Phone Number',
+    'form_kvkk' => 'I accept, declare and undertake that I have fully read, understood and approved the KVKK text.',
+    'your_answer' => 'Your answer',
+    'only_numbers' => 'Please enter numbers only',
+    'phone_format' => 'Please enter your 10 or 11 digit phone number without a leading zero',
+    'registration_desc' => 'Please complete the application form.',
+    'required_field' => 'Required Field',
+    'fix_errors' => 'Please fix errors.',
+    'clear_form' => 'Clear Form',
+    'cancel' => 'Cancel',
+    'submit' => 'Submit',
+    'select_option' => 'Select an option',
+
+    // ── ALL EVENTS EXTRA ──
+    'all_events_title' => 'All Events',
+    'all_events_desc' => 'Keep track of all upcoming and past events at our university.',
+    'search_events_placeholder' => 'Search by event name, description, or club name...',
+    'total_events_count' => 'Total :count Events',
+    'location' => 'Location',
+    'not_specified' => 'Not Specified',
+    'read_more' => 'Read More',
+
+    // ── ALL ANNOUNCEMENTS EXTRA ──
+    'all_announcements_title' => 'All Announcements',
+    'all_announcements_desc' => 'Keep track of the latest news and announcements from our university and clubs.',
+    'search_announcements_placeholder' => 'Search by announcement title, content, or club name...',
+    'total_announcements_count' => 'Total :count Announcements',
+
+    // ── ALL NEWS EXTRA ──
+    'all_news_desc' => 'Follow all the latest developments, academic achievements, and club news at our university.',
+    'search_news_placeholder' => 'Search by news title, content, or club name...',
+    'total_news_count_html' => 'Total :count News',
+
+    // ── EMPTY STATES ──
+    'no_events_found' => 'No Events Found',
+    'no_results_match_search' => 'No results found matching your search.',
+    'events_will_appear' => 'There are no events matching your search.',
+    'no_announcements_yet' => 'No Announcements Found',
+    'announcements_will_appear' => 'There are no announcements matching your search.',
+    'no_news_yet' => 'No News Found',
+    'news_will_appear' => 'There is no news matching your search.',
+
+    // ── DETAIL PAGES EXTRA ──
+    'announcement_content' => 'Announcement Content',
+    'publishing_club' => 'Publishing Club',
+    'view_club' => 'View Club',
+    'announcement_details' => 'Announcement Details',
+    'publish_date' => 'Publish Date',
+    'publish_time' => 'Publish Time',
+    'related_club' => 'Related Club',
+    'share' => 'Share',
+    'recent_announcements' => 'Recent Announcements',
+    'other_announcements' => 'Other Announcements',
+    'view_all' => 'View All',
+    
+    'news_content' => 'News Content',
+    'news_details' => 'News Details',
+    'recent_news' => 'Recent News',
+    'other_news' => 'Other News',
+
+    // ── FLASH MESSAGES ──
+    'application_received' => 'Your application for ":name" club has been received! Waiting for approval.',
+    'already_applied'     => 'You have already applied for this club. Status: :status',
+    'registration_error'   => 'An error occurred during application. Please try again.',
+    'left_club'           => 'You have left the club.',
+    'not_club_member'     => 'You are not a member of this club.',
+    'event_registered'    => 'You have successfully registered for the event and the club!',
+    'event_registered_full'=> 'You have successfully registered for ":event" and the ":club" club!',
+    'already_registered_event' => 'You are already registered for this event.',
+    'event_registration_cancelled' => 'Your event registration has been cancelled.',
+    'cannot_register_event' => 'Registration is not available for this event.',
+    'news_singular' => 'News',
+    'club_all_news_desc' => 'all current news and developments of the club.',
+    'club_all_events_desc' => 'all upcoming and past events of the club.',
 ];

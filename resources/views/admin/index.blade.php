@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Dashboard')
-@section('page_title', 'Dashboard')
+@section('title', 'Yönetim Paneli')
+@section('page_title', 'Genel Bakış')
 @section('data-page', 'dashboard')
 
 @section('content')

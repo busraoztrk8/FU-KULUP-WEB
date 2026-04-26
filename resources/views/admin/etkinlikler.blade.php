@@ -144,9 +144,9 @@
 <div id="event-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity opacity-0" id="event-modal-overlay" onclick="hideEventModal()"></div>
     <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="event-modal-content">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-            <h3 class="text-lg font-bold font-headline text-slate-800">Yeni Etkinlik Ekle</h3>
-            <button onclick="hideEventModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+        <div class="flex flex-col items-center justify-center px-6 py-5 border-b border-slate-100 shrink-0 relative">
+            <h3 class="text-xl font-bold font-headline text-slate-800 text-center">Yeni Etkinlik Ekle</h3>
+            <button onclick="hideEventModal()" class="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
@@ -295,7 +295,7 @@
                 </div>
             </form>
         </div>
-        <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
+        <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-center gap-3 bg-slate-50 rounded-b-2xl">
             <button onclick="hideEventModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all">İptal</button>
             <button type="submit" form="event-form" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md shadow-primary/20">
                 Kaydet ve Yayınla
@@ -354,17 +354,17 @@
 <div id="etkinlik-duzenle-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideEtkinlikDuzenle()"></div>
     <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col shadow-2xl">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-            <h3 class="text-lg font-bold font-headline text-slate-800">Etkinliği Düzenle</h3>
-            <button onclick="hideEtkinlikDuzenle()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
+        <div class="flex flex-col items-center justify-center px-6 py-5 border-b border-slate-100 shrink-0 relative">
+            <h3 class="text-xl font-bold font-headline text-slate-800 text-center">Etkinliği Düzenle</h3>
+            <button onclick="hideEtkinlikDuzenle()" class="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
         <form id="etkinlik-duzenle-form" method="POST" enctype="multipart/form-data" class="flex flex-col flex-1 overflow-hidden">
             @csrf @method('PUT')
             <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="space-y-4">
+                <div class="max-w-xl mx-auto space-y-6">
+                    <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Etkinlik Adı <span class="text-red-500">*</span></label>
                             <input id="edit-etkinlik-adi" name="title" type="text" maxlength="100" required class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all has-char-counter"/>
@@ -406,8 +406,8 @@
                         </div>
                     </div>
 
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-bold text-slate-700 mb-2">Kategori</label>
                                 <div class="flex gap-2">
@@ -503,7 +503,7 @@
                     <div id="edit-speakers-container" class="space-y-4"></div>
                 </div>
             </div>
-            <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
+            <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-center gap-3 bg-slate-50 rounded-b-2xl">
                 <button type="button" onclick="hideEtkinlikDuzenle()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all">İptal</button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md flex items-center gap-2">
                     Güncelle
@@ -512,56 +512,57 @@
         </form>
     </div>
     {{-- Sayfa Hero Alanları --}}
-    <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm">
-        <div class="flex items-center gap-3 mb-8">
-            <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined text-primary text-[24px]">image</span>
+    <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm max-w-5xl mx-auto">
+        <div class="flex flex-col items-center text-center mb-10">
+            <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-primary text-[32px]">image</span>
             </div>
-            <div>
-                <h3 class="text-lg font-bold font-headline text-slate-800">Sayfa Hero Alanları</h3>
-                <p class="text-xs text-slate-500">Etkinlikler sayfasının başındaki banner alanını özelleştirin.</p>
-            </div>
+            <h3 class="text-2xl font-bold font-headline text-slate-800 mb-2">Sayfa Hero Alanları</h3>
+            <p class="text-sm text-slate-500 max-w-md">Etkinlikler sayfasının başındaki banner alanını özelleştirin.</p>
+            <div class="h-1 w-16 bg-primary/20 rounded-full mt-4"></div>
         </div>
 
         <form action="{{ route('admin.ayarlar.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
-                        <input type="text" name="events_hero_title" value="{{ \App\Models\SiteSetting::getVal('events_hero_title') }}" 
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
-                        <textarea name="events_hero_subtitle" rows="3"
-                                  class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('events_hero_subtitle') }}</textarea>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Arka Plan Görseli</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative"
-                         onclick="this.querySelector('input').click()">
-                        @php
-                            $heroImg = \App\Models\SiteSetting::getVal('events_hero_image');
-                            $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
-                        @endphp
-                        <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
-                             <img src="{{ $heroUrl }}" class="w-full h-full object-cover rounded-lg shadow-inner"/>
-                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-                                 <span class="text-white text-xs font-bold">Değiştirmek için tıklayın</span>
-                             </div>
+            <div class="max-w-xl mx-auto space-y-8">
+                <div class="grid grid-cols-1 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
+                            <input type="text" name="events_hero_title" value="{{ \App\Models\SiteSetting::getVal('events_hero_title') }}" 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                         </div>
-                        <div class="hero-placeholder {{ $heroUrl ? 'hidden' : '' }} flex flex-col items-center">
-                            <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
-                            <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
+                            <textarea name="events_hero_subtitle" rows="3"
+                                      class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('events_hero_subtitle') }}</textarea>
                         </div>
-                        <input type="file" name="events_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2 italic text-center">* Boş bırakılırsa öne çıkan etkinliğin görseli kullanılır.</p>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Arka Plan Görseli</label>
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative min-h-[200px]"
+                             onclick="this.querySelector('input').click()">
+                            @php
+                                $heroImg = \App\Models\SiteSetting::getVal('events_hero_image');
+                                $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
+                            @endphp
+                            <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
+                                 <img src="{{ $heroUrl }}" class="w-full h-full object-cover rounded-lg shadow-inner"/>
+                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                                     <span class="text-white text-xs font-bold">Değiştirmek için tıklayın</span>
+                                 </div>
+                            </div>
+                            <div class="hero-placeholder {{ $heroUrl ? 'hidden' : '' }} flex flex-col items-center">
+                                <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
+                                <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
+                            </div>
+                            <input type="file" name="events_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2 italic text-center">* Boş bırakılırsa öne çıkan etkinliğin görseli kullanılır.</p>
+                    </div>
                 </div>
             </div>
-            <div class="mt-8 flex justify-end">
+            <div class="mt-8 flex justify-center">
                 <button type="submit" class="bg-primary hover:bg-primary-dim text-white px-10 py-3 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95">
                     Ayarları Kaydet
                 </button>
@@ -615,8 +616,21 @@ $(document).ready(function() {
         ],
         order: [[0, 'asc']],
         language: {
-            url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
-            paginate: { previous: "Önceki", next: "Sonraki" }
+            emptyTable: "Tabloda veri bulunmuyor",
+            info: "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+            infoEmpty: "Kayıt yok",
+            infoFiltered: "(_MAX_ kayıt içerisinden bulunan)",
+            lengthMenu: "Sayfada _MENU_ kayıt göster",
+            loadingRecords: "Yükleniyor...",
+            processing: "İşleniyor...",
+            search: "Ara:",
+            zeroRecords: "Eşleşen kayıt bulunamadı",
+            paginate: {
+                first: "İlk",
+                last: "Son",
+                next: "Sonraki",
+                previous: "Önceki"
+            }
         },
         dom: 'rt<"flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-slate-100"ip>',
         initComplete: function() {
@@ -694,10 +708,10 @@ function showEtkinlikDuzenle(id) {
     document.getElementById('edit-event-image-preview').classList.add('hidden');
     document.getElementById('edit-event-placeholder').classList.remove('hidden');
     
-    document.getElementById('etkinlik-duzenle-form').action = '/admin/etkinlikler/' + id;
+    document.getElementById('etkinlik-duzenle-form').action = '{{ url("admin/etkinlikler") }}/' + id;
     document.getElementById('etkinlik-duzenle-modal').classList.remove('hidden');
 
-    fetch('/admin/etkinlikler/' + id)
+    fetch('{{ url("admin/etkinlikler") }}/' + id)
         .then(response => response.json())
         .then(data => {
             document.getElementById('edit-etkinlik-adi').value = data.title;
@@ -716,6 +730,13 @@ function showEtkinlikDuzenle(id) {
 
             form.querySelector('textarea[name="short_description"]').value = data.short_description || '';
             form.querySelector('textarea[name="description"]').value = data.description || '';
+            
+            // Populate Club
+            const clubSelect = form.querySelector('select[name="club_id"]');
+            if (clubSelect) {
+                clubSelect.value = data.club_id || '';
+                clubSelect.dispatchEvent(new Event('change'));
+            }
             
             // Programs & Speakers Populate
             populateEventDetails(data);
@@ -738,9 +759,15 @@ function showEtkinlikDuzenle(id) {
             if (data.image) {
                 const previewImg = document.getElementById('edit-event-image-preview');
                 const placeholder = document.getElementById('edit-event-placeholder');
-                previewImg.src = resolveImageUrl(data.image);
-                previewImg.classList.remove('hidden');
-                placeholder.classList.add('hidden');
+                const resolvedUrl = resolveImageUrl(data.image);
+                if (resolvedUrl) {
+                    previewImg.src = resolvedUrl;
+                    previewImg.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                }
+            } else {
+                document.getElementById('edit-event-image-preview').classList.add('hidden');
+                document.getElementById('edit-event-placeholder').classList.remove('hidden');
             }
         })
         .catch(error => {
@@ -917,7 +944,7 @@ function previewHero(input) {
 }
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;
-    document.getElementById('delete-form').action = "/admin/etkinlikler/" + id;
+    document.getElementById('delete-form').action = '{{ url("admin/etkinlikler") }}/' + id;
     document.getElementById('delete-modal').classList.remove('hidden');
 }
 function hideDeleteModal() {

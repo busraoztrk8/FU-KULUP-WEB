@@ -42,7 +42,9 @@
 
         <!-- Main View Area -->
         <main class="flex-1 min-w-0 overflow-y-scroll p-6 md:p-8">
-            @yield('content')
+            <div class="max-w-[1440px] mx-auto w-full">
+                @yield('content')
+            </div>
         </main>
     </div>
 </div>

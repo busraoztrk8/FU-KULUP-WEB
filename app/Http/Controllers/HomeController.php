@@ -25,6 +25,7 @@ class HomeController extends Controller
             ->get();
 
         $activeClubs = Club::with(['category', 'members', 'president'])
+            ->withCount('approvedMembers')
             ->oldest()
             ->limit(8)
             ->get();
@@ -69,6 +70,16 @@ class HomeController extends Controller
                 ]);
             }
             
+            if ($viewType === 'calendar_month') {
+                $calendarHtml = view('partials.calendar-month', [
+                    'currentDateStr' => $date,
+                    'events' => $events
+                ])->render();
+                return response()->json([
+                    'html' => $calendarHtml
+                ]);
+            }
+            
             if ($viewType === 'grid') {
                 return view('partials.event-grid-items', compact('events'))->render();
             }
@@ -81,12 +92,28 @@ class HomeController extends Controller
         $selectedEvents = $eventsByDate->get($date, collect());
         $initialClubs = $selectedEvents->pluck('club')->unique('id')->filter();
 
-        // Initial grid events - show 10 in the "Tümü" tab
-        $gridEvents = Event::with(['category', 'club'])->where('status', 'published')->orderBy('start_time', 'asc')->limit(10)->get();
+        // Initial grid events - show 15 in the "Tümü" tab (6 initially visible, then 15, then redirect)
+        $gridEvents = Event::with(['category', 'club'])->where('status', 'published')->orderBy('start_time', 'asc')->limit(15)->get();
         $totalPublishedEvents = Event::where('status', 'published')->count();
         $latestNews = \App\Models\News::where('is_published', true)->latest()->take(3)->get();
+
+        // Hero Slider: Gelecek 5 etkinlik
+        $heroEvents = Event::with(['category', 'club'])
+            ->where('status', 'published')
+            ->where('start_time', '>=', now())
+            ->orderBy('start_time', 'asc')
+            ->take(5)
+            ->get();
+            
+        if ($heroEvents->isEmpty()) {
+            $heroEvents = Event::with(['category', 'club'])
+                ->where('status', 'published')
+                ->latest()
+                ->take(3)
+                ->get();
+        }
         
-        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date', 'totalPublishedEvents', 'latestNews'));
+        return view('etkinlikler', compact('events', 'gridEvents', 'initialClubs', 'date', 'totalPublishedEvents', 'latestNews', 'heroEvents'));
     }
 
     public function dailyEvents($date)
@@ -110,12 +137,24 @@ class HomeController extends Controller
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('title_en', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('description_en', 'like', "%{$search}%")
                   ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('location_en', 'like', "%{$search}%")
                   ->orWhereHas('club', function($cq) use ($search) {
-                      $cq->where('name', 'like', "%{$search}%");
+                      $cq->where('name', 'like', "%{$search}%")
+                        ->orWhere('name_en', 'like', "%{$search}%");
                   });
             });
+        }
+
+        $filteredClub = null;
+        if ($request->has('club')) {
+            $filteredClub = Club::where('slug', $request->get('club'))->first();
+            if ($filteredClub) {
+                $query->where('club_id', $filteredClub->id);
+            }
         }
 
         $events = $query->orderBy('start_time', 'asc')->paginate(9);
@@ -128,8 +167,8 @@ class HomeController extends Controller
             if ($events->isEmpty()) {
                 $html = '<div class="col-span-full text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-3xl">
                             <span class="material-symbols-outlined text-6xl text-slate-300 mb-4 inline-block">event_busy</span>
-                            <h3 class="text-xl font-bold text-slate-600 mb-2">Etkinlik Bulunamadı</h3>
-                            <p class="text-slate-400">Aramanızla eşleşen bir sonuç bulunamadı.</p>
+                            <h3 class="text-xl font-bold text-slate-600 mb-2">' . __('site.no_events_found') . '</h3>
+                            <p class="text-slate-400">' . __('site.no_results_match_search') . '</p>
                          </div>';
             }
             
@@ -140,9 +179,13 @@ class HomeController extends Controller
             ]);
         }
 
-        $totalEvents = Event::where('status', 'published')->count();
+        $totalEventsCount = Event::where('status', 'published');
+        if ($filteredClub) {
+            $totalEventsCount->where('club_id', $filteredClub->id);
+        }
+        $totalEvents = $totalEventsCount->count();
 
-        return view('tum-etkinlikler', compact('events', 'totalEvents'));
+        return view('tum-etkinlikler', compact('events', 'totalEvents', 'filteredClub'));
     }
 
     public function duyurular()
@@ -150,7 +193,7 @@ class HomeController extends Controller
         $announcements = \App\Models\Announcement::with('club')
             ->where('is_published', true)
             ->latest('published_at')
-            ->paginate(9);
+            ->paginate(6);
 
         $latestNews = \App\Models\News::with('club')
             ->where('is_published', true)
@@ -169,14 +212,17 @@ class HomeController extends Controller
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('title_en', 'like', "%{$search}%")
                   ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhere('content_en', 'like', "%{$search}%")
                   ->orWhereHas('club', function($cq) use ($search) {
-                      $cq->where('name', 'like', "%{$search}%");
+                      $cq->where('name', 'like', "%{$search}%")
+                        ->orWhere('name_en', 'like', "%{$search}%");
                   });
             });
         }
 
-        $announcements = $query->latest('published_at')->paginate(12);
+        $announcements = $query->latest('published_at')->paginate(6);
 
         if ($request->ajax()) {
             return view('partials.announcement-grid-items', compact('announcements'))->render();
@@ -209,7 +255,7 @@ class HomeController extends Controller
         $news = \App\Models\News::with('club')
             ->where('is_published', true)
             ->latest('published_at')
-            ->paginate(9);
+            ->paginate(6);
 
         return view('haberler', compact('news'));
     }
@@ -222,22 +268,37 @@ class HomeController extends Controller
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('title_en', 'like', "%{$search}%")
                   ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhere('content_en', 'like', "%{$search}%")
                   ->orWhereHas('club', function($cq) use ($search) {
-                      $cq->where('name', 'like', "%{$search}%");
+                      $cq->where('name', 'like', "%{$search}%")
+                        ->orWhere('name_en', 'like', "%{$search}%");
                   });
             });
         }
 
-        $news = $query->latest('published_at')->paginate(12);
+        $filteredClub = null;
+        if ($request->has('club')) {
+            $filteredClub = Club::where('slug', $request->get('club'))->first();
+            if ($filteredClub) {
+                $query->where('club_id', $filteredClub->id);
+            }
+        }
+
+        $news = $query->latest('published_at')->paginate(6);
 
         if ($request->ajax()) {
             return view('partials.news-grid-items', compact('news'))->render();
         }
 
-        $totalNews = \App\Models\News::where('is_published', true)->count();
+        $totalNews = \App\Models\News::where('is_published', true);
+        if ($filteredClub) {
+            $totalNews->where('club_id', $filteredClub->id);
+        }
+        $totalNews = $totalNews->count();
 
-        return view('tum-haberler', compact('news', 'totalNews'));
+        return view('tum-haberler', compact('news', 'totalNews', 'filteredClub'));
     }
 
     public function haberDetay($slug)
@@ -259,10 +320,20 @@ class HomeController extends Controller
 
     public function kulupler(Request $request)
     {
-        $clubs = Club::with('category')->where('is_active', true)->oldest()->paginate(12);
+        // Öne çıkan kulübü aktiviteye göre seç (Üye sayısı + Etkinlik sayısı)
+        $featured = Club::where('is_active', true)
+            ->withCount(['approvedMembers', 'events'])
+            ->get()
+                /** @var \App\Models\Club $club */
+            ->sortByDesc(function($club) {
+                return $club->approved_members_count + $club->events_count;
+            })
+            ->first();
+
+        $clubs = Club::with('category')->withCount('approvedMembers')->where('is_active', true)->oldest()->paginate(12);
         $categories = \App\Models\Category::all();
         $latestNews = \App\Models\News::where('is_published', true)->latest()->take(3)->get();
-        return view('kulupler', compact('clubs', 'categories', 'latestNews'));
+        return view('kulupler', compact('clubs', 'categories', 'latestNews', 'featured'));
     }
 
     public function kulupDetay($slug)
@@ -286,17 +357,24 @@ class HomeController extends Controller
                 ->first()
             : null;
 
-        return view('kulup-detay', compact('club', 'membership'));
+        $news = \App\Models\News::where('club_id', $club->id)
+            ->where('is_published', true)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('kulup-detay', compact('club', 'membership', 'news'));
     }
 
     public function kulupGaleri($slug)
     {
-        $club = Club::with('images')
-            ->where('slug', $slug)
+        $club = Club::where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
 
-        return view('kulup-galeri', compact('club'));
+        $images = $club->images()->paginate(12);
+
+        return view('kulup-galeri', compact('club', 'images'));
     }
 
     public function etkinlikDetay($slug)

@@ -32,7 +32,7 @@ class KayitController extends Controller
             ->first();
 
         if ($existing) {
-            return back()->with('info', 'Bu kulübe zaten başvurdunuz. Durum: ' . $this->statusLabel($existing->status));
+            return back()->with('info', __('site.already_applied', ['status' => $this->statusLabel($existing->status)]));
         }
 
         // Dinamik form alanlarını validate et
@@ -120,11 +120,11 @@ class KayitController extends Controller
                 // Üye sayısını güncelle
                 $club->increment('member_count');
 
-                return back()->with('success', '"' . $club->name . '" kulübüne başvurunuz alındı! Onay bekleniyor.');
+                return back()->with('success', __('site.application_received', ['name' => $club->name]));
             });
         } catch (\Exception $e) {
             \Log::error("Club Registration Error: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Başvuru sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+            return back()->withInput()->with('error', __('site.registration_error'));
         }
     }
 
@@ -136,10 +136,10 @@ class KayitController extends Controller
 
         if ($deleted) {
             $club->decrement('member_count');
-            return back()->with('success', 'Kulüpten ayrıldınız.');
+            return back()->with('success', __('site.left_club'));
         }
 
-        return back()->with('error', 'Zaten bu kulübün üyesi değilsiniz.');
+        return back()->with('error', __('site.not_club_member'));
     }
 
     // ── ETKİNLİK KAYIT ───────────────────────────────────────
@@ -149,7 +149,7 @@ class KayitController extends Controller
         $user = Auth::user();
 
         if ($event->status !== 'published') {
-            return back()->with('error', 'Bu etkinliğe kayıt yapılamaz.');
+            return back()->with('error', __('site.cannot_register_event'));
         }
 
         // 1. Kulübe üyelik kontrolü/kaydı
@@ -176,9 +176,9 @@ class KayitController extends Controller
             if ($existing->status === 'cancelled') {
                 $existing->update(['status' => 'registered']);
                 $event->increment('current_participants');
-                return back()->with('success', 'Etkinliğe ve kulübe başarıyla kayıt oldunuz!');
+                return back()->with('success', __('site.event_registered'));
             }
-            return back()->with('info', 'Bu etkinliğe zaten kayıtlısınız.');
+            return back()->with('info', __('site.already_registered_event'));
         }
 
         $request->validate([
@@ -194,7 +194,7 @@ class KayitController extends Controller
 
         $event->increment('current_participants');
 
-        return back()->with('success', '"' . $event->title . '" etkinliğine ve ' . $event->club->name . ' kulübüne başarıyla kayıt oldunuz!');
+        return back()->with('success', __('site.event_registered_full', ['event' => $event->title, 'club' => $event->club->name]));
     }
 
     public function etkinlikIptal(Event $event)
@@ -207,10 +207,10 @@ class KayitController extends Controller
         if ($reg) {
             $reg->update(['status' => 'cancelled']);
             $event->decrement('current_participants');
-            return back()->with('success', 'Etkinlik kaydınız iptal edildi.');
+            return back()->with('success', __('site.event_registration_cancelled'));
         }
 
-        return back()->with('error', 'Bu etkinliğe kayıtlı değilsiniz.');
+        return back()->with('error', __('site.not_club_member'));
     }
 
     private function statusLabel(string $status): string

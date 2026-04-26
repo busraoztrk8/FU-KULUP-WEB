@@ -9,9 +9,9 @@ use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, \App\Traits\Translatable;
 
-    protected $fillable = ['name', 'slug', 'icon', 'color'];
+    protected $fillable = ['name', 'name_en', 'slug', 'icon', 'color'];
 
     /**
      * Set the category name and slug.

@@ -109,9 +109,10 @@ class ClubController extends Controller
                         </div>';
                     })
                     ->addColumn('action', function($row) {
+                        $baseUrl = url('admin/kulupler');
                         $btn = '<div class="flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap">';
-                        $btn .= '<a href="/admin/kulupler/'.$row->id.'/uyeler" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Üyeler"><span class="material-symbols-outlined text-[16px]">group</span></a>';
-                        $btn .= '<a href="/admin/kulupler/'.$row->id.'/form-alanlari" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Kayıt Formu"><span class="material-symbols-outlined text-[16px]">dynamic_form</span></a>';
+                        $btn .= '<a href="'.$baseUrl.'/'.$row->id.'/uyeler" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors border border-amber-100" title="Üyeler"><span class="material-symbols-outlined text-[16px]">group</span></a>';
+                        $btn .= '<a href="'.$baseUrl.'/'.$row->id.'/form-alanlari" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Kayıt Formu"><span class="material-symbols-outlined text-[16px]">dynamic_form</span></a>';
                         $btn .= '<button onclick="showKulupDuzenle('.$row->id.')" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100" title="Düzenle"><span class="material-symbols-outlined text-[16px]">edit_square</span></button>';
                         
                         if (auth()->user()->isAdmin()) {

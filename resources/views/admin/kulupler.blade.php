@@ -601,8 +601,21 @@ $(document).ready(function() {
         ],
         order: [[1, 'asc']],
         language: {
-            url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
-            paginate: { previous: "Önceki", next: "Sonraki" }
+            emptyTable: "Tabloda veri bulunmuyor",
+            info: "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+            infoEmpty: "Kayıt yok",
+            infoFiltered: "(_MAX_ kayıt içerisinden bulunan)",
+            lengthMenu: "Sayfada _MENU_ kayıt göster",
+            loadingRecords: "Yükleniyor...",
+            processing: "İşleniyor...",
+            search: "Ara:",
+            zeroRecords: "Eşleşen kayıt bulunamadı",
+            paginate: {
+                first: "İlk",
+                last: "Son",
+                next: "Sonraki",
+                previous: "Önceki"
+            }
         },
         dom: 'rt<"flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-slate-100"ip>',
         initComplete: function() {
@@ -665,7 +678,7 @@ $(document).ready(function() {
             const $select = $(this);
             
             // Kullanıcı durumunu kontrol et
-            fetch(`/admin/check-president/${userId}`)
+            fetch(`{{ url('admin/check-president') }}/${userId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.is_president) {
@@ -768,10 +781,10 @@ function showKulupDuzenle(id) {
     const newPreviews = document.getElementById('new-gallery-previews');
     if (newPreviews) newPreviews.remove();
 
-    document.getElementById('kulup-duzenle-form').action = '/admin/kulupler/' + id;
+    document.getElementById('kulup-duzenle-form').action = '{{ url("admin/kulupler") }}/' + id;
     document.getElementById('kulup-duzenle-modal').classList.remove('hidden');
 
-    fetch('/admin/kulupler/' + id)
+    fetch('{{ url("admin/kulupler") }}/' + id)
         .then(response => response.json())
         .then(data => {
             document.getElementById('edit-kulup-adi').value = data.name;
@@ -919,7 +932,7 @@ function addQuickCategory(btn) {
 }
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;
-    document.getElementById('delete-form').action = "/admin/kulupler/" + id;
+    document.getElementById('delete-form').action = '{{ url("admin/kulupler") }}/' + id;
     document.getElementById('delete-modal').classList.remove('hidden');
 }
 function hideDeleteModal() {
@@ -928,7 +941,7 @@ function hideDeleteModal() {
 function deleteGalleryImage(id, btn) {
     if(!confirm('Bu resmi galeriden silmek istediğinize emin misiniz?')) return;
     
-    fetch('/admin/kulup-gallery/' + id, {
+    fetch('{{ url("admin/kulup-gallery") }}/' + id, {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',

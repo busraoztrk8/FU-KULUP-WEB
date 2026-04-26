@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Fırat Üniversitesi - Üniversite Hayatını Keşfedin')
+@section('title', __('site.university_name') . ' - ' . __('site.hero_title') . ' ' . __('site.hero_highlight'))
 @section('data-page', 'home')
 @section('content')
 
@@ -18,18 +18,18 @@
                                         <div class="glass-card block w-[92%] sm:inline-block px-4 py-8 sm:px-6 sm:py-10 md:px-10 md:py-16 rounded-2xl md:rounded-[2rem] max-w-4xl mx-auto shadow-2xl">
                                             @if($slider->title)
                                                 <h1 class="font-headline text-xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-3 md:mb-6 leading-tight text-on-surface px-2 break-words">
-                                                    {{ \Illuminate\Support\Str::words(app()->getLocale() == 'en' && $slider->title_en ? $slider->title_en : $slider->title, 10, '...') }}
+                                                    {{ \Illuminate\Support\Str::words($slider->title, 10, '...') }}
                                                 </h1>
                                             @endif
                                             @if($slider->subtitle)
                                                 <p class="font-body text-xs sm:text-base md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-4 md:mb-10 leading-relaxed px-4 break-words">
-                                                    {{ \Illuminate\Support\Str::words(app()->getLocale() == 'en' && $slider->subtitle_en ? $slider->subtitle_en : $slider->subtitle, 15, '...') }}
+                                                    {{ \Illuminate\Support\Str::words($slider->subtitle, 15, '...') }}
                                                 </p>
                                             @endif
                                             @if($slider->button_text && $slider->button_url)
                                                 <div class="flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-4">
                                                     <a href="{{ $slider->button_url }}" class="w-full sm:w-auto px-5 md:px-8 py-2.5 md:py-4 bg-gradient-primary text-white rounded-full font-bold text-xs md:text-lg hover:opacity-90 transition-all shadow-xl shadow-primary/30 text-center">
-                                                        {{ app()->getLocale() == 'en' && $slider->button_text_en ? $slider->button_text_en : $slider->button_text }}
+                                                        {{ $slider->button_text }}
                                                     </a>
                                                 </div>
                                             @endif
@@ -146,22 +146,22 @@
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <h3
-                                            class="text-base sm:text-lg md:text-xl font-headline font-bold mb-1 group-hover:text-primary transition-colors text-on-surface line-clamp-1 break-all">
-                                            {{ app()->getLocale() == 'en' && $event->title_en ? $event->title_en : $event->title }}</h3>
+                                            class="text-sm sm:text-base md:text-lg font-headline font-bold mb-1 group-hover:text-primary transition-colors text-on-surface line-clamp-1 break-all">
+                                            {{ $event->title }}</h3>
                                         <div class="flex items-center text-xs sm:text-sm text-on-surface-variant">
                                             <span class="material-symbols-outlined text-xs sm:text-sm mr-1">location_on</span>
-                                            <span class="truncate">{{ (app()->getLocale() == 'en' && $event->location_en ? $event->location_en : $event->location) ?? __('site.location') }}</span>
+                                            <span class="truncate">{{ $event->location ?? __('site.location') }}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex gap-2 mb-4 md:mb-6 flex-wrap">
                                     @if($event->category)
                                     <span
-                                        class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">{{ $event->category->name }}</span>
+                                        class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">{{ $event->category->name ?? __('site.event') }}</span>
                                     @endif
                                     @if($event->club)
                                     <span
-                                        class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider">{{ $event->club->name }}</span>
+                                        class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider">{{ $event->club->name ?? '' }}</span>
                                     @endif
                                 </div>
                                 @if($event->image)
@@ -173,8 +173,8 @@
                                     </div>
                                 @endif
                                 <div class="card-content mt-4">
-                                    <h3 class="text-xl font-headline font-bold mb-2 line-clamp-2 break-all">{{ app()->getLocale() == 'en' && $event->title_en ? $event->title_en : $event->title }}</h3>
-                                    <p class="text-on-surface-variant text-sm line-clamp-3 break-all">{{ app()->getLocale() == 'en' && $event->short_description_en ? $event->short_description_en : ($event->short_description ?? Str::limit(strip_tags($event->description), 120)) }}</p>
+                                    <h3 class="text-base md:text-lg font-headline font-bold mb-2 line-clamp-2 break-all">{{ $event->title }}</h3>
+                                    <p class="text-on-surface-variant text-sm line-clamp-3 break-all">{{ $event->short_description ?? Str::limit(strip_tags($event->description), 120) }}</p>
                                 </div>
                             </div>
                         </a>
@@ -233,9 +233,12 @@
                                 <div>
                                     <div class="flex items-center justify-between mb-3 md:mb-4">
                                         @if($club->category)
-                                        <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name }}</span>
+                                        <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name ?? '' }}</span>
                                         @endif
-                                        <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} {{ __('site.members') }}</span>
+                                        <span class="text-on-surface-variant text-sm flex items-center font-bold">
+                                            <span class="material-symbols-outlined text-xs mr-1 text-primary">group</span> 
+                                            {{ $club->approved_members_count }} {{ __('site.members') }}
+                                        </span>
                                     </div>
                                     @if($club->president)
                                     <div class="flex items-center gap-2 mb-3 text-sm text-on-surface-variant">
@@ -243,8 +246,17 @@
                                         <span>{{ __('site.name') }}: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
                                     </div>
                                     @endif
-                                    <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}</h3>
-                                    <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ app()->getLocale() == 'en' && $club->short_description_en ? $club->short_description_en : ($club->short_description ?? strip_tags($club->description)) }}</p>
+                                    <h3 class="text-lg md:text-xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
+                                    
+                                    <div class="mb-2">
+                                        <span class="text-[10px] font-bold uppercase tracking-widest text-primary/70 bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
+                                            {{ __('site.about_us') }}
+                                        </span>
+                                    </div>
+
+                                    <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">
+                                        {{ Str::limit(strip_tags($club->description), 160) }}
+                                    </p>
                                 </div>
                                 <div class="text-primary font-bold text-sm flex items-center gap-2 mt-auto">
                                     {{ __('site.view_details') }} <span class="material-symbols-outlined">arrow_right_alt</span>
@@ -281,7 +293,7 @@
                         <div>
                             <div class="flex items-center justify-between mb-3 md:mb-4">
                                 @if($club->category)
-                                <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name }}</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name ?? '' }}</span>
                                 @endif
                                 <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} {{ __('site.members') }}</span>
                             </div>
@@ -291,8 +303,17 @@
                                 <span>{{ __('site.president') }}: <span class="font-semibold text-on-surface">{{ $club->president->name }}</span></span>
                             </div>
                             @endif
-                            <h3 class="text-xl md:text-2xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}</h3>
-                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">{{ app()->getLocale() == 'en' && $club->short_description_en ? $club->short_description_en : ($club->short_description ?? strip_tags($club->description)) }}</p>
+                            <h3 class="text-lg md:text-xl font-headline font-bold mb-2 md:mb-3 text-on-surface group-hover:text-primary transition-colors line-clamp-1">{{ $club->name }}</h3>
+                            
+                            <div class="mb-2">
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-primary/70 bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
+                                    {{ __('site.about_us') }}
+                                </span>
+                            </div>
+
+                            <p class="text-on-surface-variant text-sm leading-relaxed mb-4 md:mb-6 line-clamp-3 break-all">
+                                {{ Str::limit(strip_tags($club->description), 160) }}
+                            </p>
                         </div>
                         <div class="text-primary font-bold text-sm flex items-center gap-2 mt-auto">
                             {{ __('site.view_club') }} <span class="material-symbols-outlined">arrow_right_alt</span>
@@ -474,7 +495,7 @@
                     grabCursor: true,
                     loop: false,
                     autoplay: {
-                        delay: 4000,
+                        delay: 6000,
                         disableOnInteraction: false,
                     },
                     breakpoints: {
@@ -487,6 +508,11 @@
                             spaceBetween: 40,
                         },
                     },
+                    on: {
+                        init: function() {
+                            // Swiper initialized
+                        }
+                    }
                 });
 
                 const prevBtn = document.querySelector('.clubs-swiper-prev');

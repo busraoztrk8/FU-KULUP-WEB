@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', __('messages.title'))
-@section('page_title', __('messages.title'))
+@section('title', 'Haber Yönetimi')
+@section('page_title', 'Haber Yönetimi')
 @section('data-page', 'news')
 
 @push('styles')
@@ -120,7 +120,7 @@
         </div>
 
         <button onclick="showHaberModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0">
-            <span class="material-symbols-outlined text-[18px]">add</span>{{ __('messages.add_new') }}
+            <span class="material-symbols-outlined text-[18px]">add</span>Yeni Haber Ekle
         </button>
     </div>
 
@@ -147,10 +147,10 @@
     <div id="haber-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideHaberModal()"></div>
         <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col shadow-2xl">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-                <h3 id="haber-modal-title" class="text-lg font-bold font-headline text-slate-800">Yeni Haber Ekle</h3>
+            <div class="flex flex-col items-center justify-center px-6 py-5 border-b border-slate-100 shrink-0 relative">
+                <h3 id="haber-modal-title" class="text-xl font-bold font-headline text-slate-800 text-center">Yeni Haber Ekle</h3>
                 <button type="button" onclick="hideHaberModal()"
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
+                    class="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
@@ -206,8 +206,7 @@
                         <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/5000</span></div>
                     </div>
                 </div>
-                <div
-                    class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
+                <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-center gap-3 bg-slate-50 rounded-b-2xl">
                     <button type="button" onclick="hideHaberModal()"
                         class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
                     <button type="submit"
@@ -241,52 +240,55 @@
     </div>
 
     {{-- Sayfa Hero Alanları --}}
-    <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm">
-        <div class="flex items-center gap-3 mb-8">
-            <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined text-primary text-[24px]">newspaper</span>
+    <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm max-w-5xl mx-auto">
+        <div class="flex flex-col items-center text-center mb-10">
+            <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-primary text-[32px]">newspaper</span>
             </div>
             <div>
-                <h3 class="text-lg font-bold font-headline text-slate-800">Sayfa Hero Alanları</h3>
-                <p class="text-xs text-slate-500">Haberler sayfasının başındaki banner alanını özelleştirin.</p>
+                <h3 class="text-2xl font-bold font-headline text-slate-800 mb-2">Sayfa Hero Alanları</h3>
+                <p class="text-sm text-slate-500 max-w-md">Haberler sayfasının başındaki banner alanını özelleştirin.</p>
+                <div class="h-1 w-16 bg-primary/20 rounded-full mt-4 mx-auto"></div>
             </div>
         </div>
 
         <form action="{{ route('admin.ayarlar.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
-                        <input type="text" name="news_hero_title" value="{{ \App\Models\SiteSetting::getVal('news_hero_title', 'Haberler') }}" 
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+            <div class="max-w-3xl mx-auto space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
+                            <input type="text" name="news_hero_title" value="{{ \App\Models\SiteSetting::getVal('news_hero_title', 'Haberler') }}" 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
+                            <textarea name="news_hero_subtitle" rows="3"
+                                      class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('news_hero_subtitle', 'Üniversitemizden en son haberler...') }}</textarea>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
-                        <textarea name="news_hero_subtitle" rows="3"
-                                  class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('news_hero_subtitle', 'Üniversitemizden en son haberler...') }}</textarea>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Arka Plan Görseli</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative"
-                         onclick="this.querySelector('input').click()">
-                        @php
-                            $heroImg = \App\Models\SiteSetting::getVal('news_hero_image');
-                            $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
-                        @endphp
-                        <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
-                             <img src="{{ $heroUrl }}" class="w-full h-full object-cover rounded-lg shadow-inner"/>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Arka Plan Görseli</label>
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative min-h-[200px]"
+                             onclick="this.querySelector('input').click()">
+                            @php
+                                $heroImg = \App\Models\SiteSetting::getVal('news_hero_image');
+                                $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
+                            @endphp
+                            <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
+                                 <img src="{{ $heroUrl }}" class="w-full h-full object-cover rounded-lg shadow-inner"/>
+                            </div>
+                            <div class="hero-placeholder {{ $heroUrl ? 'hidden' : '' }} flex flex-col items-center">
+                                <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
+                                <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
+                            </div>
+                            <input type="file" name="news_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
                         </div>
-                        <div class="hero-placeholder {{ $heroUrl ? 'hidden' : '' }} flex flex-col items-center">
-                            <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
-                            <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
-                        </div>
-                        <input type="file" name="news_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
                     </div>
                 </div>
             </div>
-            <div class="mt-8 flex justify-end">
+            <div class="mt-8 flex justify-center">
                 <button type="submit" class="bg-primary hover:bg-primary-dim text-white px-10 py-3 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95">
                     Ayarları Kaydet
                 </button>
@@ -337,8 +339,21 @@
                 ],
                 order: [[0, 'asc']],
                 language: {
-                    url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
-                    paginate: { previous: "Önceki", next: "Sonraki" }
+                    emptyTable: "Tabloda veri bulunmuyor",
+                    info: "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+                    infoEmpty: "Kayıt yok",
+                    infoFiltered: "(_MAX_ kayıt içerisinden bulunan)",
+                    lengthMenu: "Sayfada _MENU_ kayıt göster",
+                    loadingRecords: "Yükleniyor...",
+                    processing: "İşleniyor...",
+                    search: "Ara:",
+                    zeroRecords: "Eşleşen kayıt bulunamadı",
+                    paginate: {
+                        first: "İlk",
+                        last: "Son",
+                        next: "Sonraki",
+                        previous: "Önceki"
+                    }
                 },
                 dom: 'rt<"flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-slate-100"ip>',
                 initComplete: function() {
@@ -394,9 +409,9 @@ function showHaberDuzenle(id) {
     document.getElementById('haber-icerik').value = '';
     
     // Fetch real data via AJAX
-    $.get('/admin/haberler/' + id, function(data) {
+    $.get('{{ url("admin/haberler") }}/' + id, function(data) {
         document.getElementById('haber-modal-title').textContent = 'Haberi Düzenle';
-        document.getElementById('haber-form').action = "/admin/haberler/" + id;
+        document.getElementById('haber-form').action = '{{ url("admin/haberler") }}/' + id;
         document.getElementById('haber-method').value = 'PUT';
         
         document.getElementById('haber-baslik').value = data.title;
@@ -441,7 +456,7 @@ function showHaberDuzenle(id) {
 
         function showDeleteModal(id, baslik) {
             document.getElementById('delete-item-name').textContent = baslik;
-            document.getElementById('delete-form').action = "/admin/haberler/" + id;
+            document.getElementById('delete-form').action = '{{ url("admin/haberler") }}/' + id;
             document.getElementById('delete-modal').classList.remove('hidden');
         }
 

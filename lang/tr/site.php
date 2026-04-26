@@ -222,4 +222,147 @@ return [
     'application_note'    => 'Başvuru Notu (İsteğe Bağlı)',
     'application_note_placeholder' => 'Kulüp yönetimine veya etkinlik düzenleyicisine iletmek istediğiniz bir not varsa buraya yazabilirsiniz...',
     'complete_registration'=> 'Kaydımı Tamamla',
+    'featured_club'       => 'Öne Çıkan Kulüp',
+    'search_club_placeholder' => 'Kulüp ara...',
+    'member_singular'     => 'Üye',
+    'member_plural'       => 'Üye',
+    'no_description'      => 'Açıklama eklenmemiş.',
+    'title_president'     => 'Başkan',
+    'title_vice_president' => 'Başkan Yardımcısı',
+
+    // ── PAGE TITLES (browser tab) ──
+    'page_title_events'        => 'Etkinlikler',
+    'page_title_clubs'         => 'Kulüpler',
+    'page_title_news'          => 'Haberler',
+    'page_title_announcements' => 'Duyurular',
+
+    // ── NEWS PAGE EXTRA ──
+    'latest_developments'      => 'Güncel Gelişmeler',
+    'latest_news_heading'      => 'Son Haberler',
+    'total_news_found'         => 'Toplam :count haber bulundu',
+    'view_all_news'            => 'Tüm Haberleri Gör',
+    'no_news_yet'              => 'Henüz Haber Yok',
+    'news_will_appear'         => 'Yayınlanan haberler burada görüntülenecektir.',
+
+    // ── ANNOUNCEMENTS PAGE EXTRA ──
+    'important_notices'        => 'Önemli Bilgilendirmeler',
+    'current_announcements'    => 'Güncel Duyurular',
+    'total_announcements_found'=> 'Toplam :count duyuru bulundu',
+    'view_all_announcements'   => 'Tüm Güncel Duyurular',
+    'no_announcements_yet'     => 'Henüz Duyuru Yok',
+    'announcements_will_appear'=> 'Yayınlanan duyurular burada görüntülenecektir.',
+
+    // ── EVENT GRID EXTRA ──
+    'no_active_events'         => 'Henüz aktif bir etkinlik bulunmuyor.',
+    'main_event'               => 'Ana Etkinlik',
+    'events_page_hero_title'   => 'Etkinlikler',
+    'events_page_hero_desc'    => 'Kampüsümüzdeki en güncel etkinlikler...',
+    'upcoming_events_desc'     => 'Kampüs hayatındaki en güncel akademik ve sosyal etkinlikleri takip edin.',
+    'events_found'             => ':count Etkinlik Bulundu',
+    
+    // ── CALENDAR DAYS ──
+    'day_mo' => 'PT',
+    'day_tu' => 'SA',
+    'day_we' => 'ÇA',
+    'day_th' => 'PE',
+    'day_fr' => 'CU',
+    'day_sa' => 'CT',
+    'day_su' => 'PA',
+
+    // ── UNIFIED EVENT CARD EXTRA ──
+    'event_host' => 'Etkinlik Ev Sahibi',
+    'event' => 'Etkinlik',
+    'review' => 'İncele',
+    'no_events_found' => 'Etkinlik Bulunamadı',
+    'no_events_scheduled_today' => 'Bu güne ait planlanmış bir etkinlik gözükmüyor.',
+    'keep_exploring' => 'Kampüsü Keşfetmeye Devam Et',
+    'all_clubs' => 'Tüm Kulüpler',
+    'back_to_calendar' => 'Takvime Dön',
+    'start_something_new' => 'Yeni Bir Şeyler Başlat',
+    'want_to_plan_event' => 'Kendi etkinliğini mi planlamak istiyorsun?',
+    'club_panel' => 'Kulüp Paneli',
+    'see_all_events' => 'Tüm Etkinlikleri Gör',
+    'see_less' => 'Daha Az Gör',
+    'see_other_events' => 'Diğer Etkinlikleri Gör',
+    'see_more' => 'Daha Fazla Yükle',
+
+    // ── FORM FIELDS EXTRA ──
+    'form_full_name' => 'Adınız - Soyadınız',
+    'form_student_number' => 'Öğrenci Numaranız',
+    'form_email' => 'E-posta Adresiniz',
+    'form_department' => 'Fakülteniz - Bölümünüz',
+    'form_phone' => 'Telefon Numaranız',
+    'form_kvkk' => 'KVKK metnini tam olarak okuduğumu, anladığımı ve onayladığımı kabul, beyan ve taahhüt ederim.',
+    'your_answer' => 'Yanıtınız',
+    'only_numbers' => 'Sadece rakam giriniz',
+    'phone_format' => 'Başında sıfır olmadan 10 veya 11 haneli telefon numaranızı giriniz',
+    'registration_desc' => 'Lütfen başvuru formunu eksiksiz doldurun.',
+    'required_field' => 'Zorunlu Alan',
+    'fix_errors' => 'Lütfen hataları düzeltin.',
+    'clear_form' => 'Formu Temizle',
+    'cancel' => 'İptal',
+    'submit' => 'Gönder',
+    'select_option' => 'Seçiniz',
+
+    // ── ALL EVENTS EXTRA ──
+    'all_events_title' => 'Tüm Etkinlikler',
+    'all_events_desc' => 'Üniversitemizdeki tüm yaklaşan ve geçmiş etkinlikleri takip edin.',
+    'search_events_placeholder' => 'Etkinlik adı, açıklaması veya kulüp adı ile ara...',
+    'total_events_count' => 'Toplam :count Etkinlik',
+    'location' => 'Konum',
+    'not_specified' => 'Belirtilmedi',
+    'read_more' => 'Devamını Oku',
+
+    // ── ALL ANNOUNCEMENTS EXTRA ──
+    'all_announcements_title' => 'Tüm Duyurular',
+    'all_announcements_desc' => 'Üniversitemiz ve kulüplerimizden güncel haber ve duyuruları takip edin.',
+    'search_announcements_placeholder' => 'Duyuru başlığı, içeriği veya kulüp adı ile ara...',
+    'total_announcements_count' => 'Toplam :count Duyuru',
+
+    // ── ALL NEWS EXTRA ──
+    'all_news_desc' => 'Üniversitemizdeki tüm güncel gelişmeleri, akademik başarıları ve kulüp haberlerini takip edin.',
+    'search_news_placeholder' => 'Haber başlığı, içeriği veya kulüp adı ile ara...',
+    'total_news_count_html' => 'Toplam :count Haber',
+
+    // ── EMPTY STATES ──
+    'no_events_found' => 'Etkinlik Bulunamadı',
+    'no_results_match_search' => 'Aramanızla eşleşen bir sonuç bulunamadı.',
+    'events_will_appear' => 'Aramanızla eşleşen bir etkinlik bulunmuyor.',
+    'no_announcements_yet' => 'Duyuru Bulunamadı',
+    'announcements_will_appear' => 'Aramanızla eşleşen bir duyuru bulunmuyor.',
+    'no_news_yet' => 'Haber Bulunamadı',
+    'news_will_appear' => 'Aramanızla eşleşen bir haber bulunmuyor.',
+
+    // ── DETAIL PAGES EXTRA ──
+    'announcement_content' => 'Duyuru İçeriği',
+    'publishing_club' => 'Yayınlayan Kulüp',
+    'view_club' => 'Kulübü Gör',
+    'announcement_details' => 'Duyuru Detayları',
+    'publish_date' => 'Yayın Tarihi',
+    'publish_time' => 'Yayın Saati',
+    'related_club' => 'İlgili Kulüp',
+    'share' => 'Paylaş',
+    'recent_announcements' => 'Son Duyurular',
+    'other_announcements' => 'Diğer Duyurular',
+    'view_all' => 'Tümünü Gör',
+    
+    'news_content' => 'Haber İçeriği',
+    'news_details' => 'Haber Detayları',
+    'recent_news' => 'Son Haberler',
+    'other_news' => 'Diğer Haberler',
+
+    // ── FLASH MESSAGES ──
+    'application_received' => '":name" kulübüne başvurunuz alındı! Onay bekleniyor.',
+    'already_applied'     => 'Bu kulübe zaten başvurdunuz. Durum: :status',
+    'registration_error'   => 'Başvuru sırasında bir hata oluştu. Lütfen tekrar deneyin.',
+    'left_club'           => 'Kulüpten ayrıldınız.',
+    'not_club_member'     => 'Zaten bu kulübün üyesi değilsiniz.',
+    'event_registered'    => 'Etkinliğe ve kulübe başarıyla kayıt oldunuz!',
+    'event_registered_full'=> '":event" etkinliğine ve :club kulübüne başarıyla kayıt oldunuz!',
+    'already_registered_event' => 'Bu etkinliğe zaten kayıtlısınız.',
+    'event_registration_cancelled' => 'Etkinlik kaydınız iptal edildi.',
+    'cannot_register_event' => 'Bu etkinliğe kayıt yapılamaz.',
+    'news_singular' => 'Haberleri',
+    'club_all_news_desc' => 'kulübüne ait tüm güncel haberler ve gelişmeler.',
+    'club_all_events_desc' => 'kulübüne ait tüm yaklaşan ve geçmiş etkinlikler.',
 ];

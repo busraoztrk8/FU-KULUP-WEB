@@ -17,14 +17,18 @@ class LanguageMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Admin rotaları için her zaman Türkçe zorla
-        if ($request->is('admin') || $request->is('admin/*')) {
+        // Admin rotaları için her zaman Türkçe zorla (Prefix olsa bile)
+        if ($request->is('admin*') || $request->is('*/admin*')) {
             App::setLocale('tr');
             return $next($request);
         }
 
         if (Session::has('locale')) {
-            App::setLocale(Session::get('locale'));
+            $locale = Session::get('locale');
+            App::setLocale($locale);
+            \Carbon\Carbon::setLocale($locale);
+        } else {
+            \Carbon\Carbon::setLocale(App::getLocale());
         }
 
         return $next($request);

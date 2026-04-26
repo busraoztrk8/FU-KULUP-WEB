@@ -131,7 +131,7 @@ function showCategoryModal() {
 
 function showEditCategoryModal(id, name, icon, color) {
     document.getElementById('category-modal-title').textContent = 'Kategoriyi Düzenle';
-    document.getElementById('category-form').action = "/admin/kategoriler/" + id;
+    document.getElementById('category-form').action = "{{ url('admin/kategoriler') }}/" + id;
     document.getElementById('category-method').value = "PUT";
     document.getElementById('category-name').value = name;
     document.getElementById('category-icon').value = icon || "";

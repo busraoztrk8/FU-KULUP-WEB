@@ -361,7 +361,7 @@
 
     function showMenuDuzenle(id, label, url, parent_id, target, order, aktif, footer) {
         document.getElementById('menu-modal-title').textContent = 'Menü Öğesini Düzenle';
-        document.getElementById('menu-form').action = '/admin/menu/' + id;
+        document.getElementById('menu-form').action = '{{ url("admin/menu") }}/' + id;
         document.getElementById('menu-method').value = 'PUT';
         document.getElementById('menu-label').value = label;
         document.getElementById('menu-url').value = url;

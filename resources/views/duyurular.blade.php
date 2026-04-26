@@ -1,11 +1,14 @@
 @extends('layouts.app')
-@section('title', 'Duyurular - Fırat Üniversitesi')
+@section('title', __('site.page_title_announcements') . ' - ' . __('site.university_name'))
 @section('data-page', 'announcements')
 
 @section('content')
 @php
-    $heroTitle = \App\Models\SiteSetting::getVal('announcements_hero_title', 'Duyurular');
-    $heroSubtitle = \App\Models\SiteSetting::getVal('announcements_hero_subtitle', 'Üniversitemizin ve kulüplerimizin önemli duyurularını takip edin.');
+    $defaultTitle = app()->getLocale() == 'en' ? __('site.page_title_announcements') : 'Duyurular';
+    $defaultSubtitle = app()->getLocale() == 'en' ? __('site.important_notices') : 'Üniversitemizin ve kulüplerimizin önemli duyurularını takip edin.';
+    
+    $heroTitle = app()->getLocale() == 'en' ? \App\Models\SiteSetting::getVal('announcements_hero_title_en', $defaultTitle) : \App\Models\SiteSetting::getVal('announcements_hero_title', $defaultTitle);
+    $heroSubtitle = app()->getLocale() == 'en' ? \App\Models\SiteSetting::getVal('announcements_hero_subtitle_en', $defaultSubtitle) : \App\Models\SiteSetting::getVal('announcements_hero_subtitle', $defaultSubtitle);
     $heroImage = \App\Models\SiteSetting::getVal('announcements_hero_image');
     $heroUrl = $heroImage ? (file_exists(public_path('uploads/' . $heroImage)) ? asset('uploads/' . $heroImage) : asset('storage/' . $heroImage)) : null;
 @endphp
@@ -24,7 +27,7 @@
         <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16 text-center">
             <span class="inline-block bg-white/15 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest mb-4 border border-white/20">
                 <span class="material-symbols-outlined text-[14px] align-middle mr-1">campaign</span>
-                Önemli Bilgilendirmeler
+                {{ __('site.important_notices') }}
             </span>
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold font-headline text-white mb-4 tracking-tight">
                 {{ $heroTitle }}
@@ -39,12 +42,12 @@
     <section class="max-w-6xl mx-auto px-4 sm:px-6 py-12 md:py-20">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 md:mb-12 gap-4">
             <div>
-                <h2 class="text-xl md:text-3xl font-extrabold font-headline text-on-surface">Güncel Duyurular</h2>
-                <p class="text-on-surface-variant text-sm mt-1">Toplam {{ $announcements->total() }} duyuru bulundu</p>
+                <h2 class="text-xl md:text-3xl font-extrabold font-headline text-on-surface">{{ __('site.current_announcements') }}</h2>
+                <p class="text-on-surface-variant text-sm mt-1">{{ __('site.total_announcements_found', ['count' => $announcements->total()]) }}</p>
             </div>
             <a href="{{ route('tum-duyurular') }}" class="text-on-surface font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all">
                 <span class="material-symbols-outlined text-[18px]">campaign</span>
-                Tüm Güncel Duyurular
+                {{ __('site.view_all_announcements') }}
             </a>
         </div>
 
@@ -80,7 +83,7 @@
                 <div class="p-4 md:p-8 flex flex-col flex-1">
                     <div class="flex items-center gap-2 text-xs text-white/70 font-bold uppercase tracking-wider mb-2 md:mb-3">
                         <span class="material-symbols-outlined text-[14px]">schedule</span>
-                        {{ $item->published_at ? $item->published_at->format('d M Y') : $item->created_at->format('d M Y') }}
+                        {{ $item->published_at ? $item->published_at->translatedFormat('d M Y') : $item->created_at->translatedFormat('d M Y') }}
                     </div>
                     <h3 class="text-sm md:text-2xl font-bold font-headline text-white group-hover:text-white/90 transition-colors leading-snug mb-2 line-clamp-2">
                         {{ $item->title }}
@@ -89,24 +92,21 @@
                         {{ Str::limit(strip_tags($item->content), 120) }}
                     </p>
                     <div class="mt-auto w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl bg-white text-primary font-bold hover:bg-slate-100 transition-all flex justify-center items-center active:scale-95 shadow-lg text-xs md:text-sm">
-                        Devamını Oku
+                        {{ __('site.read_more') }}
                     </div>
                 </div>
             </a>
             @endforeach
         </div>
 
-        <!-- Pagination -->
-        <div class="mt-12 flex justify-center">
-            {{ $announcements->links('partials.custom-pagination') }}
-        </div>
+
         @else
         <div class="text-center py-20">
             <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span class="material-symbols-outlined text-amber-200 text-[40px]">campaign</span>
             </div>
-            <h3 class="text-xl font-bold text-slate-400 mb-2">Henüz Duyuru Yok</h3>
-            <p class="text-slate-400 text-sm">Yayınlanan duyurular burada görüntülenecektir.</p>
+            <h3 class="text-xl font-bold text-slate-400 mb-2">{{ __('site.no_announcements_yet') }}</h3>
+            <p class="text-slate-400 text-sm">{{ __('site.announcements_will_appear') }}</p>
         </div>
         @endif
     </section>

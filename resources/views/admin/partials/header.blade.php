@@ -3,7 +3,7 @@
         <button id="sidebar-toggle" class="lg:hidden text-slate-600 hover:text-primary transition-colors">
             <span class="material-symbols-outlined">menu</span>
         </button>
-        <h1 class="text-xl font-bold font-headline text-slate-800">{{ View::getSection('page_title', 'Dashboard') }}</h1>
+        <h1 class="text-xl font-bold font-headline text-slate-800">{{ View::getSection('page_title', 'Yönetim') }}</h1>
     </div>
     <div class="flex items-center gap-4">
         <!-- Siteyi Görüntüle -->

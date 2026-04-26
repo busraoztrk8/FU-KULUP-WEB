@@ -28,7 +28,7 @@
     <div class="p-4 md:p-8 flex flex-col flex-1">
         <div class="flex items-center gap-2 text-xs text-white/70 font-bold uppercase tracking-wider mb-2 md:mb-3">
             <span class="material-symbols-outlined text-[14px]">schedule</span>
-            {{ $item->published_at ? \Carbon\Carbon::parse($item->published_at)->format('d M Y') : $item->created_at->format('d M Y') }}
+            {{ $item->published_at ? \Carbon\Carbon::parse($item->published_at)->translatedFormat('d M Y') : $item->created_at->translatedFormat('d M Y') }}
         </div>
         <h3 class="text-sm md:text-2xl font-bold font-headline text-white group-hover:text-white/90 transition-colors leading-snug mb-2 line-clamp-2">
             {{ $item->title }}
@@ -37,7 +37,7 @@
             {{ Str::limit(strip_tags($item->content), 120) }}
         </p>
         <div class="mt-auto w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl bg-white text-primary font-bold hover:bg-slate-100 transition-all flex justify-center items-center active:scale-95 shadow-lg text-xs md:text-sm">
-            Devamını Oku
+            {{ __('site.read_more') }}
         </div>
     </div>
 </a>
@@ -46,8 +46,8 @@
     <div class="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6">
         <span class="material-symbols-outlined text-primary/20 text-[40px]">newspaper</span>
     </div>
-    <h3 class="text-xl font-bold text-slate-400 mb-2">Haber Bulunamadı</h3>
-    <p class="text-slate-400 text-sm">Aramanızla eşleşen bir haber bulunmuyor.</p>
+    <h3 class="text-xl font-bold text-slate-400 mb-2">{{ __('site.no_news_yet') }}</h3>
+    <p class="text-slate-400 text-sm">{{ __('site.news_will_appear') }}</p>
 </div>
 @endforelse
 

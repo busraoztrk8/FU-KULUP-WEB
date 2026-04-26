@@ -241,7 +241,7 @@ function filterTable(status) {
 
 function showDeleteMemberModal(id, name) {
     document.getElementById('delete-member-name').textContent = name;
-    document.getElementById('delete-member-form').action = '/admin/kulup-uyelik/' + id;
+    document.getElementById('delete-member-form').action = '{{ url("admin/kulup-uyelik") }}/' + id;
     document.getElementById('delete-member-modal').classList.remove('hidden');
 }
 function hideDeleteMemberModal() { document.getElementById('delete-member-modal').classList.add('hidden'); }
@@ -249,7 +249,7 @@ function hideDeleteMemberModal() { document.getElementById('delete-member-modal'
 function showTitleModal(id, name, title) {
     document.getElementById('title-member-name').textContent = name;
     document.getElementById('title-input').value = title;
-    document.getElementById('title-form').action = '/admin/kulup-uyelik/' + id + '/update-title';
+    document.getElementById('title-form').action = '{{ url("admin/kulup-uyelik") }}/' + id + '/update-title';
     document.getElementById('title-modal').classList.remove('hidden');
 }
 function hideTitleModal() { document.getElementById('title-modal').classList.add('hidden'); }

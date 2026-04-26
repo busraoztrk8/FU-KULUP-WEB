@@ -31,7 +31,7 @@
                     @empty
                         <li><a class="hover:text-primary transition-colors" href="{{ route('home') }}">{{ __('site.home') }}</a></li>
                         <li><a class="hover:text-primary transition-colors" href="{{ route('etkinlikler') }}">{{ __('site.events_page_title') }}</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="{{ route('duyurular') }}">{{ __('site.announcements_page_title') }}</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ route('tum-duyurular') }}">{{ __('site.announcements_page_title') }}</a></li>
                         <li><a class="hover:text-primary transition-colors" href="{{ route('kulupler') }}">{{ __('site.clubs_page_title') }}</a></li>
                     @endforelse
                 </ul>

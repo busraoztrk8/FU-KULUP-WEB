@@ -77,9 +77,9 @@
     </div>
 
     {{-- Grid --}}
-    @if($club->images->count() > 0)
+    @if($images->count() > 0)
         <div class="gallery-grid">
-            @foreach($club->images as $index => $image)
+            @foreach($images as $index => $image)
                 @php
                     $gPath = $image->image_path;
                     $gUrl = str_starts_with($gPath, 'http') ? $gPath : (file_exists(public_path('uploads/' . $gPath)) ? asset('uploads/' . $gPath) : asset('storage/' . $gPath));
@@ -95,6 +95,11 @@
                     </div>
                 </div>
             @endforeach
+        </div>
+
+        {{-- Pagination --}}
+        <div class="mt-12 flex justify-center">
+            {{ $images->links('partials.custom-pagination') }}
         </div>
     @else
         <div class="py-20 text-center bg-slate-50 rounded-3xl border border-slate-100">

@@ -267,8 +267,21 @@ $(document).ready(function() {
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         language: {
-            url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json",
-            paginate: { previous: "Önceki", next: "Sonraki" }
+            emptyTable: "Tabloda veri bulunmuyor",
+            info: "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+            infoEmpty: "Kayıt yok",
+            infoFiltered: "(_MAX_ kayıt içerisinden bulunan)",
+            lengthMenu: "Sayfada _MENU_ kayıt göster",
+            loadingRecords: "Yükleniyor...",
+            processing: "İşleniyor...",
+            search: "Ara:",
+            zeroRecords: "Eşleşen kayıt bulunamadı",
+            paginate: {
+                first: "İlk",
+                last: "Son",
+                next: "Sonraki",
+                previous: "Önceki"
+            }
         },
         dom: '<"grid"l f>rt<"grid"i p>',
     });
@@ -294,7 +307,6 @@ $(document).ready(function() {
 function showKullaniciDuzenle(id, adi, email, rolId, kulupId) {
     document.getElementById('edit-kullanici-adi').value = adi;
     document.getElementById('edit-kullanici-email-display').textContent = email;
-    document.getElementById('edit-kullanici-student-number').value = studentNumber || '';
     
     // Admin seçeneğini kontrol et (Eğer düzenlediğimiz kişi adminse seçeneği aktif etmeliyiz)
     const rolSelect = document.getElementById('edit-kullanici-rol');
@@ -302,16 +314,15 @@ function showKullaniciDuzenle(id, adi, email, rolId, kulupId) {
     
     if (rolId) {
         rolSelect.value = rolId;
-        // Eğer düzenlediğimiz kişi zaten adminse, o seçeneği disable'dan çıkar mıyız?
-        // Aslında backend'de check var, ama UX için:
         if (adminOption) {
-            // Eğer aktif seçili olan zaten adminse disabled'ı kaldır
             if (rolId == adminOption.value) adminOption.disabled = false;
         }
     }
     
     if (kulupId) document.getElementById('edit-kullanici-kulup').value = kulupId;
-    document.getElementById('kullanici-duzenle-form').action = '/admin/kullanicilar/' + id;
+    else document.getElementById('edit-kullanici-kulup').value = '';
+    
+    document.getElementById('kullanici-duzenle-form').action = '{{ url("admin/kullanicilar") }}/' + id;
     document.getElementById('kullanici-duzenle-modal').classList.remove('hidden');
 }
 function hideKullaniciDuzenle() {
@@ -333,7 +344,7 @@ function hideKullaniciEkle() {
 
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;
-    document.getElementById('delete-form').action = "/admin/kullanicilar/" + id;
+    document.getElementById('delete-form').action = '{{ url("admin/kullanicilar") }}/' + id;
     document.getElementById('delete-modal').classList.remove('hidden');
 }
 

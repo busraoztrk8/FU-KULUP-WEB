@@ -180,9 +180,9 @@ function resolveImageUrl(path) {
     // Slider resimleri genellikle ana dizinde veya özel klasörde olabilir
     // Eğer yol '/' içeriyorsa ve bilinen storage klasörleri değilse uploads'tur
     if (path.includes('/') && !path.startsWith('logos/') && !path.startsWith('covers/') && !path.startsWith('gallery/') && !path.startsWith('profiles/')) {
-        return '/uploads/' + path;
+        return '{{ asset('uploads') }}/' + path;
     }
-    return '/storage/' + path;
+    return '{{ asset('storage') }}/' + path;
 }
 
 function showSliderModal() {
@@ -200,7 +200,7 @@ function showSliderModal() {
 }
 function showSliderDuzenle(id, baslik, altyazi, btnText, btnUrl, sira, aktif, imagePath) {
     document.getElementById('slider-modal-title').textContent = 'Slide Düzenle';
-    document.getElementById('slider-form').action = '/admin/slider/' + id;
+    document.getElementById('slider-form').action = '{{ url("admin/slider") }}/' + id;
     document.getElementById('slider-method').value = 'PUT';
     document.getElementById('slider-baslik').value = baslik;
     document.getElementById('slider-altyazi').value = altyazi;

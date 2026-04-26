@@ -6,7 +6,7 @@
 
 @section('content')
 
-<div class="max-w-4xl">
+<div class="max-w-4xl mx-auto">
     @if(session('success'))
         <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-6 flex items-center gap-3">
             <span class="material-symbols-outlined text-[20px]">check_circle</span>

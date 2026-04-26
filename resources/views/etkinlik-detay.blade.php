@@ -19,21 +19,21 @@
     <div class="relative z-10 w-full p-5 sm:p-8 md:p-14 max-w-7xl mx-auto">
         @if($event->category)
             <span class="inline-block px-2.5 py-0.5 md:py-1 rounded-full bg-primary text-white font-bold text-[8px] md:text-[10px] uppercase tracking-widest mb-1 md:mb-3 shadow-lg">
-                {{ $event->category->name }}
+                {{ app()->getLocale() == 'en' && $event->category->name_en ? $event->category->name_en : $event->category->name }}
             </span>
         @endif
-        <h1 class="text-xl sm:text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tight mb-2 md:mb-4 leading-tight">
-            {{ $event->title }}
+        <h1 class="text-xl sm:text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tight mb-2 md:mb-4 leading-tight break-words">
+            {{ app()->getLocale() == 'en' && $event->title_en ? $event->title_en : $event->title }}
         </h1>
         <div class="flex flex-wrap items-center gap-4 md:gap-8 text-white/90 text-sm md:text-base pb-4 border-b border-white/10">
             <div class="flex items-center gap-1.5 md:gap-2 text-[11px] md:text-base">
                 <span class="material-symbols-outlined text-primary text-sm md:text-lg">calendar_today</span>
-                {{ $event->start_time->format('d M Y') }}
+                {{ app()->getLocale() == 'en' ? $event->start_time->format('M d, Y') : $event->start_time->translatedFormat('d M Y') }}
             </div>
             @if($event->location)
             <div class="flex items-center gap-1.5 md:gap-2 text-[11px] md:text-base">
                 <span class="material-symbols-outlined text-primary text-sm md:text-lg">location_on</span>
-                {{ $event->location }}
+                {{ app()->getLocale() == 'en' && $event->location_en ? $event->location_en : $event->location }}
             </div>
             @endif
             @if($event->start_time)
@@ -60,8 +60,8 @@
                     <span class="w-1.5 h-6 md:h-8 bg-primary rounded-full mr-3 md:mr-4"></span>
                     {{ __('site.about_event') }}
                 </h2>
-                <div class="text-on-surface-variant leading-relaxed text-base space-y-4 break-words">
-                    {!! nl2br(e($event->description)) !!}
+                <div class="text-on-surface-variant leading-relaxed text-base space-y-4 break-words overflow-hidden">
+                    {!! app()->getLocale() == 'en' && $event->description_en ? nl2br(e($event->description_en)) : nl2br(e($event->description)) !!}
                 </div>
             </div>
 
@@ -149,10 +149,15 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">{{ __('site.organizing_club') }}</p>
-                    <h3 class="text-sm md:text-lg font-bold text-slate-800 truncate">{{ $event->club->name }}</h3>
-                    @if($event->club->short_description)
-                        <p class="text-xs md:text-sm text-slate-500 mt-1 line-clamp-1">{{ $event->club->short_description }}</p>
-                    @endif
+                    <h3 class="text-sm md:text-lg font-bold text-slate-800 truncate">{{ app()->getLocale() == 'en' && $event->club->name_en ? $event->club->name_en : $event->club->name }}</h3>
+                    <div class="mt-1">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-primary/70 bg-primary/5 px-1.5 py-0.5 rounded border border-primary/5">
+                            {{ __('site.about_us') }}
+                        </span>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 line-clamp-2">
+                        {{ Str::limit(strip_tags($event->club->description), 120) }}
+                    </p>
                 </div>
                 <a href="{{ route('kulup.detay', $event->club->slug) }}"
                     class="shrink-0 w-full sm:w-auto text-center px-4 md:px-5 py-2 md:py-2.5 bg-primary text-white rounded-xl font-bold text-[11px] md:text-sm hover:bg-primary-dark transition-all active:scale-95">
@@ -193,7 +198,7 @@
                         </div>
                         <div>
                             <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.date') }}</p>
-                            <p class="font-bold text-slate-800 text-xs md:text-base">{{ $event->start_time->format('d M Y, l') }}</p>
+                            <p class="font-bold text-slate-800 text-xs md:text-base">{{ app()->getLocale() == 'en' ? $event->start_time->format('M d, Y, l') : $event->start_time->translatedFormat('d M Y, l') }}</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 md:gap-4">
@@ -215,7 +220,7 @@
                         </div>
                         <div>
                             <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.location') }}</p>
-                            <p class="font-bold text-slate-800 text-xs md:text-base leading-snug">{{ $event->location }}</p>
+                            <p class="font-bold text-slate-800 text-xs md:text-base leading-snug">{{ app()->getLocale() == 'en' && $event->location_en ? $event->location_en : $event->location }}</p>
                         </div>
                     </div>
                     @endif
@@ -226,7 +231,7 @@
                         </div>
                         <div>
                             <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.category') }}</p>
-                            <p class="font-bold text-slate-800 text-xs md:text-base">{{ $event->category->name }}</p>
+                            <p class="font-bold text-slate-800 text-xs md:text-base">{{ app()->getLocale() == 'en' && $event->category->name_en ? $event->category->name_en : $event->category->name }}</p>
                         </div>
                     </div>
                     @endif
@@ -316,16 +321,16 @@
                     @endif
                     @if($s->category)
                     <div class="absolute top-3 left-3 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                        {{ $s->category->name }}
+                        {{ app()->getLocale() == 'en' && $s->category->name_en ? $s->category->name_en : $s->category->name }}
                     </div>
                     @endif
                 </div>
                 <div class="p-5">
                     <p class="text-xs text-primary font-bold uppercase tracking-wider mb-2">
-                        {{ $s->start_time->format('d M Y') }}
+                        {{ app()->getLocale() == 'en' ? $s->start_time->format('M d, Y') : $s->start_time->translatedFormat('d M Y') }}
                     </p>
                     <h4 class="font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                        {{ $s->title }}
+                        {{ app()->getLocale() == 'en' && $s->title_en ? $s->title_en : $s->title }}
                     </h4>
                     @if($s->location)
                     <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
@@ -363,7 +368,7 @@
         <div class="bg-primary p-8 text-white relative">
             <h3 class="text-2xl font-headline font-bold mb-2">{{ __('site.register_event') }}</h3>
             <p class="text-white/80 text-sm leading-relaxed">
-                {{ __('site.register_event_desc', ['club' => $event->club->name]) }}
+                {{ __('site.register_event_desc', ['club' => app()->getLocale() == 'en' && $event->club->name_en ? $event->club->name_en : $event->club->name]) }}
             </p>
             <button onclick="hideRegistrationModal()" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
                 <span class="material-symbols-outlined font-bold">close</span>

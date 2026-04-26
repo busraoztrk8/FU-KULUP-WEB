@@ -37,23 +37,39 @@
                 {{ \Carbon\Carbon::parse($event->start_time)->format('H:i') }}
             </span>
         </div>
-        <h4 class="text-sm md:text-2xl font-extrabold font-headline mb-1 md:mb-4 leading-tight uppercase group-hover:text-amber-200 transition-colors">
+        <h4 class="text-base md:text-xl font-extrabold font-headline mb-1 md:mb-4 leading-tight uppercase group-hover:text-amber-200 transition-colors">
             {{ $event->title }}
         </h4>
         <p class="text-white/60 text-xs md:text-sm mb-4 md:mb-8 line-clamp-2 leading-relaxed font-body">
             {{ $event->short_description ?? strip_tags($event->description) }}
         </p>
-        <div class="mt-auto flex items-center justify-between pt-4 md:pt-5 border-t border-white/5">
+        <div class="mt-auto flex flex-col gap-3 pt-4 md:pt-5 border-t border-white/5">
+            @if($event->club)
             <div class="flex items-center gap-1 md:gap-2">
-                <span class="material-symbols-outlined text-sm text-white/40">location_on</span>
-                <span class="text-xs text-white/70 font-medium truncate max-w-[140px]">{{ $event->location ?? 'Yer Belirtilmedi' }}</span>
+                <span class="material-symbols-outlined text-sm text-white/40">groups</span>
+                <span class="text-xs text-white/70 font-bold truncate max-w-[180px]">
+                    {{ $event->club->name }}
+                </span>
             </div>
-            <div class="text-white font-bold text-xs md:text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-                Detaylar <span class="material-symbols-outlined text-sm">arrow_forward_ios</span>
+            @endif
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1 md:gap-2">
+                    <span class="material-symbols-outlined text-sm text-white/40">location_on</span>
+                    <span class="text-xs text-white/70 font-medium truncate max-w-[140px]">{{ $event->location ?? __('site.not_specified') }}</span>
+                </div>
+                <div class="text-white font-bold text-xs md:text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                    {{ __('site.details') }} <span class="material-symbols-outlined text-sm">arrow_forward_ios</span>
+                </div>
             </div>
         </div>
     </div>
 </a>
 @empty
-    {{-- Optional: could handle empty state differentially --}}
+<div class="col-span-full text-center py-20">
+    <div class="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span class="material-symbols-outlined text-primary/20 text-[40px]">event_busy</span>
+    </div>
+    <h3 class="text-xl font-bold text-slate-400 mb-2">{{ __('site.no_events_found') }}</h3>
+    <p class="text-slate-400 text-sm">{{ __('site.events_will_appear') }}</p>
+</div>
 @endforelse

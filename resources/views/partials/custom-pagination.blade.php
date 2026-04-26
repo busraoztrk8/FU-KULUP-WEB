@@ -12,7 +12,7 @@
         @endif
 
         {{-- Pagination Elements --}}
-        <div class="hidden sm:flex items-center gap-3">
+        <div class="flex items-center gap-2 md:gap-3">
             @foreach ($elements as $element)
                 {{-- "Three Dots" Separator --}}
                 @if (is_string($element))
@@ -37,11 +37,6 @@
                 @endif
             @endforeach
         </div>
-
-        {{-- Mobile Page indicator --}}
-        <span class="sm:hidden text-slate-500 font-bold text-sm px-4">
-            {{ $paginator->currentPage() }} / {{ $paginator->lastPage() }}
-        </span>
 
         {{-- Next Page Link --}}
         @if ($paginator->hasMorePages())

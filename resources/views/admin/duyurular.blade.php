@@ -118,7 +118,7 @@
         </div>
 
         <button onclick="showDuyuruModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0">
-            <span class="material-symbols-outlined text-[18px]">add</span>Yeni Duyuru
+            <span class="material-symbols-outlined text-[18px]">add</span>Yeni Duyuru Ekle
         </button>
     </div>
 
@@ -143,9 +143,9 @@
 <div id="duyuru-modal" class="fixed inset-0 z-[70] flex items-center justify-center hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideDuyuruModal()"></div>
     <div class="relative bg-white rounded-2xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col shadow-2xl">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-            <h3 id="duyuru-modal-title" class="text-lg font-bold font-headline text-slate-800">Yeni Duyuru</h3>
-            <button type="button" onclick="hideDuyuruModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
+        <div class="flex flex-col items-center justify-center px-6 py-5 border-b border-slate-100 shrink-0 relative">
+            <h3 id="duyuru-modal-title" class="text-xl font-bold font-headline text-slate-800 text-center">Yeni Duyuru</h3>
+            <button type="button" onclick="hideDuyuruModal()" class="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors">
                 <span class="material-symbols-outlined text-[20px]">close</span>
             </button>
         </div>
@@ -189,7 +189,7 @@
                     <div class="flex justify-end mt-1"><span class="text-[10px] text-slate-400 char-counter">0/5000</span></div>
                 </div>
             </div>
-            <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-end gap-3 bg-slate-50 rounded-b-2xl">
+            <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-center gap-3 bg-slate-50 rounded-b-2xl">
                 <button type="button" onclick="hideDuyuruModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-all active:scale-95">İptal</button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dim text-white font-bold text-sm transition-all shadow-md flex items-center gap-2 active:scale-95">
                     <span class="material-symbols-outlined text-[18px]">done</span>Kaydet
@@ -217,52 +217,55 @@
     </div>
 
     {{-- Sayfa Hero Alanları --}}
-    <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm">
-        <div class="flex items-center gap-3 mb-8">
-            <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <span class="material-symbols-outlined text-primary text-[24px]">campaign</span>
+    <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm max-w-5xl mx-auto">
+        <div class="flex flex-col items-center text-center mb-10">
+            <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-primary text-[32px]">campaign</span>
             </div>
             <div>
-                <h3 class="text-lg font-bold font-headline text-slate-800">Sayfa Hero Alanları</h3>
-                <p class="text-xs text-slate-500">Duyurular sayfasının başındaki banner alanını özelleştirin.</p>
+                <h3 class="text-2xl font-bold font-headline text-slate-800 mb-2">Sayfa Hero Alanları</h3>
+                <p class="text-sm text-slate-500 max-w-md">Duyurular sayfasının başındaki banner alanını özelleştirin.</p>
+                <div class="h-1 w-16 bg-primary/20 rounded-full mt-4 mx-auto"></div>
             </div>
         </div>
 
         <form action="{{ route('admin.ayarlar.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
-                        <input type="text" name="announcements_hero_title" value="{{ \App\Models\SiteSetting::getVal('announcements_hero_title', 'Duyurular') }}" 
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+            <div class="max-w-3xl mx-auto space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
+                            <input type="text" name="announcements_hero_title" value="{{ \App\Models\SiteSetting::getVal('announcements_hero_title', 'Duyurular') }}" 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
+                            <textarea name="announcements_hero_subtitle" rows="3"
+                                      class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('announcements_hero_subtitle', 'Üniversitemizden en son duyurular...') }}</textarea>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
-                        <textarea name="announcements_hero_subtitle" rows="3"
-                                  class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('announcements_hero_subtitle', 'Üniversitemizden en son duyurular...') }}</textarea>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">Arka Plan Görseli</label>
-                    <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative"
-                         onclick="this.querySelector('input').click()">
-                        @php
-                            $heroImg = \App\Models\SiteSetting::getVal('announcements_hero_image');
-                            $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
-                        @endphp
-                        <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
-                             <img src="{{ $heroUrl }}" class="w-full h-full object-cover rounded-lg shadow-inner"/>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Arka Plan Görseli</label>
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative min-h-[200px]"
+                             onclick="this.querySelector('input').click()">
+                            @php
+                                $heroImg = \App\Models\SiteSetting::getVal('announcements_hero_image');
+                                $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
+                            @endphp
+                            <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
+                                 <img src="{{ $heroUrl }}" class="w-full h-full object-cover rounded-lg shadow-inner"/>
+                            </div>
+                            <div class="hero-placeholder {{ $heroUrl ? 'hidden' : '' }} flex flex-col items-center">
+                                <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
+                                <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
+                            </div>
+                            <input type="file" name="announcements_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
                         </div>
-                        <div class="hero-placeholder {{ $heroUrl ? 'hidden' : '' }} flex flex-col items-center">
-                            <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
-                            <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
-                        </div>
-                        <input type="file" name="announcements_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
                     </div>
                 </div>
             </div>
-            <div class="mt-8 flex justify-end">
+            <div class="mt-8 flex justify-center">
                 <button type="submit" class="bg-primary hover:bg-primary-dim text-white px-10 py-3 rounded-xl font-bold text-sm transition-all shadow-lg active:scale-95">
                     Ayarları Kaydet
                 </button>
@@ -376,9 +379,9 @@ function resolveImageUrl(path) {
     
     // Yükleme klasörü kontrolü
     if (path.includes('/') && !path.startsWith('logos/') && !path.startsWith('covers/') && !path.startsWith('gallery/') && !path.startsWith('profiles/')) {
-        return '/uploads/' + path;
+        return '{{ asset('uploads') }}/' + path;
     }
-    return '/storage/' + path;
+    return '{{ asset('storage') }}/' + path;
 }
 
 function showDuyuruDuzenle(id) {
@@ -389,9 +392,9 @@ function showDuyuruDuzenle(id) {
     if (gorselIn) gorselIn.value = '';
 
     // Fetch real data via AJAX
-    $.get('/admin/duyurular/' + id, function(data) {
+    $.get('{{ url("admin/duyurular") }}/' + id, function(data) {
         document.getElementById('duyuru-modal-title').textContent = 'Duyuruyu Düzenle';
-        document.getElementById('duyuru-form').action = "/admin/duyurular/" + id;
+        document.getElementById('duyuru-form').action = '{{ url("admin/duyurular") }}/' + id;
         document.getElementById('duyuru-method').value = 'PUT';
         
         document.getElementById('duyuru-baslik').value = data.title;
@@ -442,7 +445,7 @@ $(document).on('input', '.has-char-counter', function() {
 });
 function showDeleteModal(id, baslik) {
     document.getElementById('delete-item-name').textContent = baslik;
-    document.getElementById('delete-form').action = "/admin/duyurular/" + id;
+    document.getElementById('delete-form').action = '{{ url("admin/duyurular") }}/' + id;
     document.getElementById('delete-modal').classList.remove('hidden');
 }
 function hideDeleteModal() {

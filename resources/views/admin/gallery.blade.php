@@ -232,7 +232,7 @@ function hideGalleryAddModal() {
     removeSelectedImage();
 }
 function showGalleryEditModal(id, title, order, active) {
-    document.getElementById('edit-gallery-form').action = '/admin/galeri/' + id;
+    document.getElementById('edit-gallery-form').action = '{{ url("admin/galeri") }}/' + id;
     document.getElementById('edit-title').value = title;
     document.getElementById('edit-order').value = order;
     document.getElementById('edit-active').checked = active;

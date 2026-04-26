@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', e($club->name) . ' - Fırat Üniversitesi')
+@section('title', e(app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name) . ' - ' . __('site.university_name'))
 @section('data-page', 'club-detail')
 @push('styles')
 <style>
@@ -108,7 +108,7 @@
                 <div class="flex flex-wrap gap-3">
                     @if($club->category)
                     <span class="px-4 py-1.5 bg-primary/90 backdrop-blur-md text-white rounded-full text-[11px] font-bold uppercase tracking-widest border border-white/20">
-                        {{ $club->category->name }}
+                        {{ app()->getLocale() == 'en' && $club->category->name_en ? $club->category->name_en : $club->category->name }}
                     </span>
                     @endif
                     <span class="px-4 py-1.5 bg-white/20 backdrop-blur-md text-white rounded-full text-[11px] font-bold border border-white/10">
@@ -173,6 +173,67 @@
                 </div>
             </div>
             @endif
+            
+            {{-- Kulüp Haberleri --}}
+            @if(isset($news) && $news->count() > 0)
+            <div class="news-wrapper">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
+                        <span class="material-symbols-outlined text-primary">newspaper</span>
+                        {{ __('site.recent_news') }}
+                    </h2>
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        {{-- Slider Nav --}}
+                        <div class="hidden sm:flex gap-2">
+                            <button class="club-news-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                            </button>
+                            <button class="club-news-next w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                            </button>
+                        </div>
+                        <div class="hidden sm:block w-px h-6 bg-slate-200"></div>
+                        <a href="{{ route('tum-haberler') }}?club={{ $club->slug }}" class="text-primary text-sm font-bold hover:underline whitespace-nowrap">{{ __('site.see_all') }}</a>
+                    </div>
+                </div>
+
+                <div class="swiper club-news-swiper overflow-hidden rounded-3xl">
+                    <div class="swiper-wrapper">
+                        @foreach($news as $item)
+                        <div class="swiper-slide !w-auto !h-auto py-4">
+                            <a href="{{ route('haber.detay', $item->slug) }}" class="w-[280px] md:w-[320px] group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 block h-full flex flex-col">
+                                <div class="aspect-[4/3] relative overflow-hidden">
+                                    @php
+                                        $newsImg = $item->image_path;
+                                        $newsUrl = $newsImg ? (str_starts_with($newsImg, 'http') ? $newsImg : (file_exists(public_path('uploads/' . $newsImg)) ? asset('uploads/' . $newsImg) : asset('storage/' . $newsImg))) : asset('images/logo_orj.png');
+                                    @endphp
+                                    <img src="{{ $newsUrl }}" alt="{{ $item->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                                    <div class="absolute top-4 left-4">
+                                        <div class="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg border border-white/50 text-center min-w-[50px]">
+                                            <span class="block text-lg font-black text-primary leading-none">{{ $item->created_at->format('d') }}</span>
+                                            <span class="block text-[8px] font-bold text-slate-500 uppercase tracking-widest">{{ $item->created_at->isoFormat('MMM') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-6 flex-1 flex flex-col">
+                                    <h3 class="font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                                        {{ app()->getLocale() == 'en' && $item->title_en ? $item->title_en : $item->title }}
+                                    </h3>
+                                    <p class="text-slate-500 text-xs line-clamp-2 mb-4">
+                                        {{ Str::limit(strip_tags(app()->getLocale() == 'en' && $item->content_en ? $item->content_en : $item->content), 100) }}
+                                    </p>
+                                    <div class="flex items-center gap-4 text-slate-400 text-[11px] font-medium mt-auto pt-4 border-t border-slate-50">
+                                        <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">calendar_today</span>{{ $item->created_at->format('d.m.Y') }}</span>
+                                        <span class="text-primary font-bold ml-auto flex items-center gap-1">{{ __('site.read_more') }} <span class="material-symbols-outlined text-[14px]">arrow_forward</span></span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
 
             {{-- Club Gallery --}}
             @if($club->images->count() > 0)
@@ -223,23 +284,27 @@
                 $upcomingEvents = $club->events()->where('start_time', '>=', now()->subHours(5))->orderBy('start_time')->get();
             @endphp
             @if($upcomingEvents->count() > 0)
-            <div class="space-y-8">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <span class="w-1.5 h-10 bg-primary rounded-full"></span>
-                        <h2 class="font-headline text-2xl font-bold text-slate-800">{{ __('site.upcoming_events') }}</h2>
+            <div class="events-wrapper">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
+                        <span class="material-symbols-outlined text-primary">event_upcoming</span>
+                        {{ __('site.upcoming_events') }}
+                    </h2>
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        @if($upcomingEvents->count() > 1)
+                        {{-- Slider Nav --}}
+                        <div class="hidden sm:flex gap-2">
+                            <button class="club-events-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                            </button>
+                            <button class="club-events-next w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                            </button>
+                        </div>
+                        @endif
+                        <div class="hidden sm:block w-px h-6 bg-slate-200"></div>
+                        <a href="{{ route('tum-etkinlikler') }}?club={{ $club->slug }}" class="text-primary text-sm font-bold hover:underline whitespace-nowrap">{{ __('site.see_all') }}</a>
                     </div>
-                    @if($upcomingEvents->count() > 1)
-                    <div class="flex items-center gap-2">
-                        <a href="{{ route('etkinlikler') }}?club={{ $club->slug }}" class="text-xs font-bold text-primary hover:underline mr-2">{{ __('site.see_all') }}</a>
-                        <button class="club-events-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
-                            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
-                        </button>
-                        <button class="club-events-next w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
-                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
-                        </button>
-                    </div>
-                    @endif
                 </div>
 
                 @if($upcomingEvents->count() === 1)
@@ -288,12 +353,12 @@
                     </a>
                 @else
                     {{-- Çoklu Etkinlik: Slider --}}
-                    <div class="swiper club-events-swiper !overflow-visible">
+                    <div class="swiper club-events-swiper overflow-hidden rounded-3xl">
                         <div class="swiper-wrapper">
                             @foreach($upcomingEvents as $event)
-                            <div class="swiper-slide !h-auto">
-                                <a href="{{ route('etkinlik.detay', $event->slug) }}" class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 block h-full equal-height-card">
-                                    <div class="aspect-[16/9] relative overflow-hidden">
+                            <div class="swiper-slide !w-auto !h-auto py-4">
+                                <a href="{{ route('etkinlik.detay', $event->slug) }}" class="w-[280px] md:w-[320px] group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 block h-full equal-height-card">
+                                    <div class="aspect-[4/3] relative overflow-hidden">
                                         @if($event->image)
                                             @php
                                                 $evtUrl = str_starts_with($event->image, 'http') ? $event->image : (file_exists(public_path('uploads/' . $event->image)) ? asset('uploads/' . $event->image) : asset('storage/' . $event->image));
@@ -351,7 +416,7 @@
                         </div>
                         <div>
                             <h3 class="font-headline text-xl font-bold text-slate-800 line-clamp-1">{{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}</h3>
-                            <p class="text-[10px] font-bold text-primary uppercase tracking-widest mt-0.5">{{ $club->category->name ?? __('site.general') }}</p>
+                            <p class="text-[10px] font-bold text-primary uppercase tracking-widest mt-0.5">{{ app()->getLocale() == 'en' && $club->category && $club->category->name_en ? $club->category->name_en : ($club->category->name ?? __('site.general')) }}</p>
                         </div>
                     </div>
                     
@@ -518,15 +583,24 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-slate-800 group-hover:text-primary transition-colors">{{ $member->user->name }}</h4>
-                            <p class="text-[11px] font-medium text-slate-400 tracking-wide mt-0.5">{{ $member->title }}</p>
+                            <p class="text-[11px] font-medium text-slate-400 tracking-wide mt-0.5">
+                                @if(app()->getLocale() == 'en')
+                                    @php
+                                        $titleMap = [
+                                            'Başkan' => __('site.title_president'),
+                                            'Başkan Yardımcısı' => __('site.title_vice_president'),
+                                        ];
+                                    @endphp
+                                    {{ $titleMap[$member->title] ?? $member->title }}
+                                @else
+                                    {{ $member->title }}
+                                @endif
+                            </p>
                         </div>
                     </div>
                     @endforeach
                 </div>
-                {{-- See all link --}}
-                <div class="mt-8 pt-6 border-t border-slate-50">
-                    <button class="w-full py-3.5 bg-white text-slate-500 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all border border-slate-100">{{ __('site.view_all_members') }}</button>
-                </div>
+
             </div>
             @endif
 
@@ -594,7 +668,7 @@
                         </div>
                     @endif
                     <div>
-                        <h3 class="text-xl font-bold font-headline leading-tight">{{ $club->name }}</h3>
+                        <h3 class="text-xl font-bold font-headline leading-tight">{{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}</h3>
                         <p class="text-white/70 text-xs font-medium">{{ __('site.registration_form') }}</p>
                     </div>
                 </div>
@@ -633,6 +707,23 @@
             @csrf
             <div class="px-8 py-6 space-y-5">
                 @foreach($club->formFields as $field)
+                @php
+                    $labelMap = [
+                        'Adınız - Soyadınız' => __('site.form_full_name', [], 'en'),
+                        'Öğrenci Numaranız' => __('site.form_student_number', [], 'en'),
+                        'E-posta Adresiniz' => __('site.form_email', [], 'en'),
+                        'Fakülteniz - Bölümünüz' => __('site.form_department', [], 'en'),
+                        'Telefon Numaranız' => __('site.form_phone', [], 'en'),
+                        'KVKK metnini tam olarak okuduğumu, anladığımı ve onayladığımı kabul, beyan ve taahhüt ederim.' => __('site.form_kvkk', [], 'en'),
+                    ];
+                    $placeholderMap = [
+                        'Yanıtınız' => __('site.your_answer', [], 'en'),
+                        'ornek@email.com' => 'example@email.com',
+                    ];
+                    
+                    $translatedLabel = app()->getLocale() == 'en' ? ($labelMap[$field->label] ?? $field->label) : $field->label;
+                    $translatedPlaceholder = app()->getLocale() == 'en' ? ($placeholderMap[$field->placeholder] ?? $field->placeholder) : $field->placeholder;
+                @endphp
                 <div class="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 hover:border-[#5d1021]/20 transition-colors group">
 
                     @if($field->type === 'checkbox')
@@ -643,13 +734,13 @@
                                    {{ old('field_' . $field->id) ? 'checked' : '' }}
                                    {{ $field->is_required ? 'required' : '' }}>
                             <span class="text-sm font-semibold text-slate-700 leading-relaxed">
-                                {{ $field->label }}
+                                {{ $translatedLabel }}
                                 @if($field->is_required)<span class="text-red-500 ml-0.5">*</span>@endif
                             </span>
                         </label>
                     @else
                         <label class="block text-sm font-bold text-slate-800 mb-3">
-                            {{ $field->label }}
+                            {{ $translatedLabel }}
                             @if($field->is_required)
                                 <span class="text-red-500 ml-0.5">*</span>
                             @endif
@@ -660,7 +751,7 @@
                             <input type="{{ $isStudentNo ? 'number' : 'text' }}"
                                    name="field_{{ $field->id }}"
                                    value="{{ old('field_' . $field->id) }}"
-                                   placeholder="{{ $field->placeholder ?? __('site.your_answer') }}"
+                                   placeholder="{{ $translatedPlaceholder ?? __('site.your_answer') }}"
                                    @if($isStudentNo) min="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')" @endif
                                    class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors"
                                    {{ $field->is_required ? 'required' : '' }}>
@@ -670,13 +761,13 @@
 
                         @elseif($field->type === 'email')
                             <input type="email" name="field_{{ $field->id }}" value="{{ old('field_' . $field->id) }}"
-                                   placeholder="{{ $field->placeholder ?? 'ornek@email.com' }}"
+                                   placeholder="{{ $translatedPlaceholder ?? 'ornek@email.com' }}"
                                    class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors"
                                    {{ $field->is_required ? 'required' : '' }}>
 
                         @elseif($field->type === 'tel')
                             <input type="tel" name="field_{{ $field->id }}" value="{{ old('field_' . $field->id) }}"
-                                   placeholder="{{ $field->placeholder ?? '05XXXXXXXXX' }}"
+                                   placeholder="{{ $translatedPlaceholder ?? '05XXXXXXXXX' }}"
                                    maxlength="11"
                                    pattern="[0-9]{10,11}"
                                    oninput="this.value=this.value.replace(/[^0-9]/g,'')"
@@ -686,7 +777,7 @@
 
                         @elseif($field->type === 'textarea')
                             <textarea name="field_{{ $field->id }}" rows="3"
-                                      placeholder="{{ $field->placeholder ?? __('site.your_answer') }}"
+                                      placeholder="{{ $translatedPlaceholder ?? __('site.your_answer') }}"
                                       class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors resize-none"
                                       {{ $field->is_required ? 'required' : '' }}>{{ old('field_' . $field->id) }}</textarea>
 
@@ -781,22 +872,37 @@
             }
         });
 
+        // Initialize Swiper for club news
+        if (document.querySelector('.club-news-swiper')) {
+            new Swiper('.club-news-swiper', {
+                slidesPerView: 'auto',
+                spaceBetween: 20,
+                freeMode: true,
+                navigation: {
+                    nextEl: '.club-news-next',
+                    prevEl: '.club-news-prev',
+                },
+                breakpoints: {
+                    320: { spaceBetween: 12 },
+                    768: { spaceBetween: 20 }
+                }
+            });
+        }
+
         // Initialize Swiper for upcoming club events
         if (document.querySelector('.club-events-swiper')) {
             new Swiper('.club-events-swiper', {
-                slidesPerView: 1,
-                spaceBetween: 16,
-                grabCursor: true,
+                slidesPerView: 'auto',
+                spaceBetween: 20,
+                freeMode: true,
                 navigation: {
                     nextEl: '.club-events-next',
                     prevEl: '.club-events-prev',
                 },
                 breakpoints: {
-                    640: {
-                        slidesPerView: 2,
-                        spaceBetween: 20,
-                    },
-                },
+                    320: { spaceBetween: 12 },
+                    768: { spaceBetween: 20 }
+                }
             });
         }
     });

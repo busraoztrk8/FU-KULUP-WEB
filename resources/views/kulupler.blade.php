@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title', 'Kulüpler - Fırat Üniversitesi')
+@section('title', (app()->getLocale() == 'en' ? 'Clubs' : 'Kulüpler') . ' - ' . __('site.university_name'))
 @section('data-page', 'clubs')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
 
-    {{-- Hero: İlk aktif kulüp — etkinlik/duyuru ile aynı üst banner boyutu --}}
-    @php $featured = $clubs->first(); @endphp
+    {{-- Hero: Öne Çıkan (En Aktif) Kulüp --}}
+    @php $featured = $featured ?? $clubs->first(); @endphp
     @if($featured)
     <section class="mb-6 md:mb-12">
         <div class="@include('partials.site-hero-dimensions') group overflow-hidden">
@@ -27,17 +27,24 @@
                 <div class="max-w-2xl text-white py-8 md:py-0">
                 <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 mb-4 backdrop-blur-md">
                     <span class="material-symbols-outlined text-sm mr-1.5" style="font-variation-settings:'FILL' 1;">star</span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider">Öne Çıkan Kulüp</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider">{{ __('site.featured_club') }}</span>
                 </div>
                 <h1 class="text-lg sm:text-3xl md:text-5xl font-bold font-headline leading-tight mb-2 tracking-tight">
-                    {{ $featured->name }}
+                    {{ app()->getLocale() == 'en' && $featured->name_en ? $featured->name_en : $featured->name }}
                 </h1>
-                @if($featured->short_description)
-                <p class="text-white/80 text-sm md:text-lg mb-6 line-clamp-2">{{ $featured->short_description }}</p>
-                @endif
+                
+                <div class="mb-2">
+                    <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white/60 bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                        {{ __('site.about_us') }}
+                    </span>
+                </div>
+
+                <p class="text-white/80 text-sm md:text-lg mb-6 line-clamp-2">
+                    {{ Str::limit(strip_tags($featured->description), 200) }}
+                </p>
                 <a href="{{ route('kulup.detay', $featured->slug) }}"
                     class="inline-flex items-center gap-2 bg-white text-primary px-4 py-2 md:px-6 md:py-3 rounded-full font-bold hover:bg-slate-100 transition-all shadow-lg active:scale-95 text-[11px] md:text-base">
-                    Kulübü Görüntüle
+                    {{ __('site.view_club') }}
                     <span class="material-symbols-outlined text-xs md:text-base">arrow_forward</span>
                 </a>
                 </div>
@@ -51,18 +58,18 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
             <div class="relative flex-1 max-w-xl">
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[20px] md:text-[24px]">search</span>
-                <input id="club-search" type="text" placeholder="Kulüp ara..."
+                <input id="club-search" type="text" placeholder="{{ __('site.search_club_placeholder') }}"
                     class="w-full bg-white border border-black/5 rounded-xl md:rounded-2xl py-2 md:py-3.5 pl-10 md:pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary text-xs md:text-base text-slate-900 placeholder:text-slate-400 transition-all shadow-sm"/>
             </div>
             <div class="flex flex-wrap gap-2">
                 <button data-filter="all"
                     class="px-3 py-1 md:px-4 md:py-2 rounded-full bg-primary text-white font-bold text-[10px] md:text-sm transition-all shadow-lg shadow-primary/20 active">
-                    Hepsi
+                    {{ __('site.all') }}
                 </button>
                 @foreach($categories as $cat)
                 <button data-filter="{{ $cat->slug }}"
                     class="px-3 py-1 md:px-4 md:py-2 rounded-full bg-white hover:bg-primary hover:text-white text-slate-600 font-bold text-[10px] md:text-sm transition-all border border-black/5 shadow-sm">
-                    {{ $cat->name }}
+                    {{ app()->getLocale() == 'en' && $cat->name_en ? $cat->name_en : $cat->name }}
                 </button>
                 @endforeach
             </div>
@@ -97,31 +104,33 @@
                 @endif
                 @if($club->category)
                 <div class="absolute top-3 left-3 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest">
-                    {{ $club->category->name }}
+                    {{ app()->getLocale() == 'en' && $club->category->name_en ? $club->category->name_en : $club->category->name }}
                 </div>
                 @endif
             </div>
             <div class="p-4 md:p-8 flex flex-col flex-1">
                 <div class="flex justify-between items-start mb-2 md:mb-3">
                     <h3 class="text-sm md:text-2xl font-bold font-headline text-white group-hover:text-white/90 transition-colors leading-snug">
-                        {{ $club->name }}
+                        {{ app()->getLocale() == 'en' && $club->name_en ? $club->name_en : $club->name }}
                     </h3>
                     <div class="flex items-center text-white/70 text-xs font-bold shrink-0 ml-2">
                         <span class="material-symbols-outlined text-sm mr-1">group</span>
-                        {{ number_format($club->member_count) }} Üye
+                        {{ number_format($club->approved_members_count) }} {{ $club->approved_members_count > 1 ? __('site.member_plural') : __('site.member_singular') }}
                     </div>
                 </div>
-                @php
-                    $displayDesc = $club->description ?: $club->short_description;
-                @endphp
-                @if($displayDesc)
-                <p class="text-white/80 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed line-clamp-3 break-words">{{ strip_tags($displayDesc) }}</p>
-                @else
-                <p class="text-white/50 text-xs md:text-sm mb-4 md:mb-6 italic">Açıklama eklenmemiş.</p>
-                @endif
+                
+                <div class="mt-1 mb-2">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-primary-light/80 bg-white/10 px-2 py-0.5 rounded shadow-sm border border-white/5">
+                        {{ __('site.about_us') }}
+                    </span>
+                </div>
+
+                <p class="text-white/80 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed line-clamp-3 break-words">
+                    {{ Str::limit(strip_tags($club->description), 160) }}
+                </p>
                 <a href="{{ route('kulup.detay', $club->slug) }}"
                     class="mt-auto w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl bg-white text-primary font-bold hover:bg-slate-100 transition-all flex justify-center items-center active:scale-95 shadow-lg text-xs md:text-sm">
-                    Kulübü Görüntüle
+                    {{ __('site.view_club') }}
                 </a>
             </div>
         </div>
@@ -130,7 +139,7 @@
     @else
     <div class="text-center py-20">
         <span class="material-symbols-outlined text-slate-300 text-[64px] block mb-4">groups</span>
-        <p class="text-slate-400 font-medium">Henüz aktif kulüp bulunmuyor.</p>
+        <p class="text-slate-400 font-medium">{{ __('site.no_clubs') }}</p>
     </div>
     @endif
 

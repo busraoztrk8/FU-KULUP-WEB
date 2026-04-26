@@ -20,7 +20,7 @@
         <div class="flex flex-wrap items-center gap-3 mb-2 md:mb-4">
             <a href="{{ route('duyurular') }}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-white font-bold text-[10px] uppercase tracking-widest border border-white/20 hover:bg-white/25 transition-all">
                 <span class="material-symbols-outlined text-[14px]">arrow_back</span>
-                Tüm Duyurular
+                {{ __('site.view_all_announcements') }}
             </a>
             @if($duyuru->club)
                 <span class="inline-block px-2.5 py-1 rounded-full bg-primary text-white font-bold text-[10px] uppercase tracking-widest shadow-lg">
@@ -28,13 +28,13 @@
                 </span>
             @endif
         </div>
-        <h1 class="text-xl sm:text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tight mb-2 md:mb-6 leading-tight">
+        <h1 class="text-xl sm:text-3xl md:text-5xl font-headline font-extrabold text-white tracking-tight mb-2 md:mb-6 leading-tight break-words">
             {{ $duyuru->title }}
         </h1>
         <div class="flex flex-wrap items-center gap-4 md:gap-8 text-white/90 text-sm md:text-base pb-4 border-b border-white/10">
             <div class="flex items-center gap-1.5 md:gap-2 text-[11px] md:text-base">
                 <span class="material-symbols-outlined text-primary text-sm md:text-lg">calendar_today</span>
-                {{ $duyuru->published_at ? $duyuru->published_at->format('d M Y') : $duyuru->created_at->format('d M Y') }}
+                {{ $duyuru->published_at ? $duyuru->published_at->translatedFormat('d M Y') : $duyuru->created_at->translatedFormat('d M Y') }}
             </div>
             <div class="flex items-center gap-1.5 md:gap-2 text-[11px] md:text-base">
                 <span class="material-symbols-outlined text-primary text-sm md:text-lg">schedule</span>
@@ -53,10 +53,10 @@
             <div>
                 <h2 class="text-lg md:text-2xl font-headline font-bold text-on-surface flex items-center mb-4 md:mb-8">
                     <span class="w-1.5 h-6 md:h-8 bg-primary rounded-full mr-3 md:mr-4"></span>
-                    Duyuru İçeriği
+                    {{ __('site.announcement_content') }}
                 </h2>
-                <div class="text-on-surface-variant leading-relaxed text-base space-y-4">
-                    {!! nl2br(e($duyuru->content)) !!}
+                <div class="text-on-surface-variant leading-relaxed text-base space-y-4 break-words overflow-hidden">
+                    {!! nl2br(e(app()->getLocale() == 'en' && $duyuru->content_en ? $duyuru->content_en : $duyuru->content)) !!}
                 </div>
             </div>
 
@@ -75,15 +75,20 @@
                     @endif
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Yayınlayan Kulüp</p>
-                    <h3 class="text-sm md:text-lg font-bold text-slate-800 truncate">{{ $duyuru->club->name }}</h3>
-                    @if($duyuru->club->short_description)
-                        <p class="text-xs md:text-sm text-slate-500 mt-1 line-clamp-1">{{ $duyuru->club->short_description }}</p>
-                    @endif
+                    <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">{{ __('site.publishing_club') }}</p>
+                    <h3 class="text-sm md:text-lg font-bold text-slate-800 truncate">{{ app()->getLocale() == 'en' && $duyuru->club->name_en ? $duyuru->club->name_en : $duyuru->club->name }}</h3>
+                    <div class="mt-1">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-primary/70 bg-primary/5 px-1.5 py-0.5 rounded border border-primary/5">
+                            {{ __('site.about_us') }}
+                        </span>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-500 mt-1 line-clamp-2">
+                        {{ Str::limit(strip_tags($duyuru->club->description), 120) }}
+                    </p>
                 </div>
                 <a href="{{ route('kulup.detay', $duyuru->club->slug) }}"
                     class="shrink-0 w-full sm:w-auto text-center px-4 md:px-5 py-2 md:py-2.5 bg-primary text-white rounded-xl font-bold text-[11px] md:text-sm hover:bg-primary-dark transition-all active:scale-95">
-                    Kulübü Gör
+                    {{ __('site.view_club') }}
                 </a>
             </div>
             @endif
@@ -93,15 +98,15 @@
         <aside class="sticky top-24 space-y-6">
             {{-- Detay Kartı --}}
             <div class="bg-white p-4 md:p-8 rounded-2xl border border-black/5 shadow-xl shadow-primary/5 relative overflow-hidden">
-                <h3 class="text-lg md:text-xl font-headline font-bold text-on-surface mb-4 md:mb-6">Duyuru Detayları</h3>
+                <h3 class="text-lg md:text-xl font-headline font-bold text-on-surface mb-4 md:mb-6">{{ __('site.announcement_details') }}</h3>
                 <div class="space-y-4 md:space-y-5">
                     <div class="flex items-start gap-3 md:gap-4">
                         <div class="p-2 md:p-2.5 bg-primary/5 rounded-xl text-primary shrink-0">
                             <span class="material-symbols-outlined text-sm md:text-base">calendar_today</span>
                         </div>
                         <div>
-                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Yayın Tarihi</p>
-                            <p class="font-bold text-slate-800 text-xs md:text-base">{{ $duyuru->published_at ? $duyuru->published_at->format('d M Y') : $duyuru->created_at->format('d M Y') }}</p>
+                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.publish_date') }}</p>
+                            <p class="font-bold text-slate-800 text-xs md:text-base">{{ $duyuru->published_at ? $duyuru->published_at->translatedFormat('d M Y') : $duyuru->created_at->translatedFormat('d M Y') }}</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 md:gap-4">
@@ -109,7 +114,7 @@
                             <span class="material-symbols-outlined text-sm md:text-base">schedule</span>
                         </div>
                         <div>
-                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Yayın Saati</p>
+                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.publish_time') }}</p>
                             <p class="font-bold text-slate-800 text-xs md:text-base">
                                 {{ $duyuru->published_at ? $duyuru->published_at->format('H:i') : $duyuru->created_at->format('H:i') }}
                             </p>
@@ -121,8 +126,8 @@
                             <span class="material-symbols-outlined text-sm md:text-base">groups</span>
                         </div>
                         <div>
-                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">İlgili Kulüp</p>
-                            <p class="font-bold text-slate-800 text-xs md:text-base leading-snug">{{ $duyuru->club->name }}</p>
+                            <p class="text-[8px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">{{ __('site.related_club') }}</p>
+                            <p class="font-bold text-slate-800 text-xs md:text-base leading-snug">{{ app()->getLocale() == 'en' && $duyuru->club->name_en ? $duyuru->club->name_en : $duyuru->club->name }}</p>
                         </div>
                     </div>
                     @endif
@@ -132,7 +137,7 @@
 
             {{-- Paylaş --}}
             <div class="bg-slate-50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-slate-100">
-                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 md:mb-4 text-center">Paylaş</p>
+                <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 md:mb-4 text-center">{{ __('site.share') }}</p>
                 <div class="flex justify-center gap-3">
                     <a href="https://twitter.com/intent/tweet?text={{ urlencode($duyuru->title) }}&url={{ urlencode(request()->url()) }}"
                         target="_blank"
@@ -156,7 +161,7 @@
             <div class="bg-white p-4 md:p-6 rounded-2xl border border-black/5 shadow-lg">
                 <h3 class="text-sm md:text-base font-headline font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-[18px]">campaign</span>
-                    Son Duyurular
+                    {{ __('site.recent_announcements') }}
                 </h3>
                 <div class="space-y-4">
                     @foreach($relatedAnnouncements as $related)
@@ -176,10 +181,10 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4 class="text-[12px] md:text-sm font-bold text-slate-700 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                                {{ $related->title }}
+                                {{ app()->getLocale() == 'en' && $related->title_en ? $related->title_en : $related->title }}
                             </h4>
                             <p class="text-[10px] text-slate-400 mt-1">
-                                {{ $related->published_at ? $related->published_at->format('d M Y') : $related->created_at->format('d M Y') }}
+                                {{ $related->published_at ? $related->published_at->translatedFormat('d M Y') : $related->created_at->translatedFormat('d M Y') }}
                             </p>
                         </div>
                     </a>
@@ -197,9 +202,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div class="flex justify-between items-end mb-4 md:mb-8">
             <h2 class="text-lg md:text-3xl font-headline font-bold text-slate-900">
-                Diğer Duyurular
+                {{ __('site.other_announcements') }}
             </h2>
-            <a href="{{ route('duyurular') }}" class="text-primary font-bold text-[11px] md:text-sm hover:underline">Tümünü Gör</a>
+            <a href="{{ route('tum-duyurular') }}" class="text-primary font-bold text-[11px] md:text-sm hover:underline">{{ __('site.view_all') }}</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             @foreach($relatedAnnouncements as $s)
@@ -221,10 +226,10 @@
                 </div>
                 <div class="p-5">
                     <p class="text-xs text-primary font-bold uppercase tracking-wider mb-2">
-                        {{ $s->published_at ? $s->published_at->format('d M Y') : $s->created_at->format('d M Y') }}
+                        {{ $s->published_at ? $s->published_at->translatedFormat('d M Y') : $s->created_at->translatedFormat('d M Y') }}
                     </p>
                     <h4 class="font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                        {{ $s->title }}
+                        {{ app()->getLocale() == 'en' && $s->title_en ? $s->title_en : $s->title }}
                     </h4>
                 </div>
             </a>
