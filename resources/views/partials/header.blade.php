@@ -139,7 +139,7 @@
                         <div
                             class="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60]">
                             <div class="px-5 py-4 border-b border-slate-50">
-                                <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user()->name }}</p>
+                                <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user()->full_name }}</p>
                                 <p class="text-xs text-slate-500 truncate mt-0.5">{{ auth()->user()->email }}</p>
                             </div>
                             <div class="p-2 space-y-1">
@@ -285,7 +285,7 @@
                     </div>
                     <div class="overflow-hidden">
                         <p class="text-[10px] font-bold text-primary/60 uppercase tracking-widest leading-none mb-1">{{ __('site.my_account') }}</p>
-                        <p class="text-sm font-bold text-slate-800 truncate font-headline">{{ auth()->user()->name }}</p>
+                        <p class="text-sm font-bold text-slate-800 truncate font-headline">{{ auth()->user()->full_name }}</p>
                     </div>
                 </div>
                 
@@ -305,14 +305,10 @@
                 </button>
             </form>
         @else
-            <div class="grid grid-cols-2 gap-3">
+            <div class="flex items-center justify-center">
                 <a href="{{ route('login') }}"
-                    class="flex items-center justify-center py-4 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-colors uppercase tracking-widest">
+                    class="flex items-center justify-center w-full py-4 rounded-2xl bg-gradient-primary text-white text-xs font-bold hover:shadow-xl hover:shadow-primary/30 transition-all uppercase tracking-widest">
                     {{ __('site.login') }}
-                </a>
-                <a href="{{ route('register') }}"
-                    class="flex items-center justify-center py-4 rounded-2xl bg-gradient-primary text-white text-xs font-bold hover:shadow-xl hover:shadow-primary/30 transition-all uppercase tracking-widest">
-                    {{ __('site.register') }}
                 </a>
             </div>
         @endauth

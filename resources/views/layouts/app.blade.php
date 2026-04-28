@@ -30,6 +30,40 @@
     @endif
 
     <main class="pt-[80px]">
+        {{-- Flash Messages --}}
+        @if(session('warning'))
+            <div class="max-w-4xl mx-auto mt-4 px-4">
+                <div class="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-sm font-medium shadow-sm" x-data="{ show: true }" x-show="show" x-transition>
+                    <span class="material-symbols-outlined text-amber-500 text-[22px] shrink-0 mt-0.5">warning</span>
+                    <p class="flex-1">{{ session('warning') }}</p>
+                    <button @click="show = false" class="text-amber-400 hover:text-amber-600 transition-colors shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="max-w-4xl mx-auto mt-4 px-4">
+                <div class="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-800 text-sm font-medium shadow-sm" x-data="{ show: true }" x-show="show" x-transition>
+                    <span class="material-symbols-outlined text-red-500 text-[22px] shrink-0 mt-0.5">error</span>
+                    <p class="flex-1">{{ session('error') }}</p>
+                    <button @click="show = false" class="text-red-400 hover:text-red-600 transition-colors shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+            </div>
+        @endif
+        @if(session('success'))
+            <div class="max-w-4xl mx-auto mt-4 px-4">
+                <div class="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-800 text-sm font-medium shadow-sm" x-data="{ show: true }" x-show="show" x-transition>
+                    <span class="material-symbols-outlined text-green-500 text-[22px] shrink-0 mt-0.5">check_circle</span>
+                    <p class="flex-1">{{ session('success') }}</p>
+                    <button @click="show = false" class="text-green-400 hover:text-green-600 transition-colors shrink-0">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+            </div>
+        @endif
         {{-- Blade component slot (x-app-layout) --}}
         @isset($slot)
             {{ $slot }}

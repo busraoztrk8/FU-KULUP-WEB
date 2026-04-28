@@ -22,7 +22,7 @@
                     <span class="material-symbols-outlined text-[20px]">person</span>
                 </div>
                 <div class="hidden md:block">
-                    <p class="text-sm font-bold text-slate-800 leading-tight">{{ auth()->user()->name ?? 'Admin' }}</p>
+                    <p class="text-sm font-bold text-slate-800 leading-tight">{{ auth()->user()->full_name ?? 'Admin' }}</p>
                     <p class="text-[11px] text-slate-500 leading-tight">Yönetici</p>
                 </div>
             </div>

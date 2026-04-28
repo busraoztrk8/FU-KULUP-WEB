@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7f061922bd24903e106ed0d92023787",
+    "content-hash": "87fbfdb56ac56b71889cb1ae721182b6",
     "packages": [
         {
             "name": "brick/math",
@@ -134,6 +134,46 @@
                 }
             ],
             "time": "2023-12-11T17:09:12+00:00"
+        },
+        {
+            "name": "ddyo/cas-authenticate",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://firat-packages-composer:7igJZYW3B-tzNDA1-L_s@ddogitlab.firat.edu.tr/firat_packages/laravel_cas_package.git",
+                "reference": "7c89e5c708a5d606c66d538ff3d08b12fa05c0d0"
+            },
+            "require": {
+                "laravel/framework": ">=8.0",
+                "php": "*"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "DDYO\\CasAuthenticate\\CasAuthenticateServiceProvider"
+                    ],
+                    "aliases": {
+                        "CasAuth": "DDYO\\CasAuthenticate\\Facades\\CasAuth"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "DDYO\\CasAuthenticate\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Muhammed Veysi Güler",
+                    "email": "mveysioffical@gmail.com"
+                }
+            ],
+            "description": "Fırat Üniversitesi Laravel CAS Kimlik Doğrulama Paketi",
+            "time": "2025-09-23T08:51:35+00:00"
         },
         {
             "name": "dflydev/dot-access-data",

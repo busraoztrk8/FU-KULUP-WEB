@@ -25,6 +25,20 @@ class User extends Authenticatable
         'role_id',
         'club_id',
         'profile_photo',
+        'userUID',
+        'userDescription',
+        'userFullName',
+        'userFirstName',
+        'userLastName',
+        'userEMailAddress',
+        'userTitle',
+        'userTelephoneNumber',
+        'userLogonNamePreWindows2000',
+        'userDistinguishedName',
+        'userLogonName',
+        'userOfficeLocation',
+        'userGender',
+        'userGroupMembership',
     ];
 
     /**
@@ -117,5 +131,16 @@ class User extends Authenticatable
     public function getRoleNameAttribute()
     {
         return $this->role ? $this->role->name : 'user';
+    }
+
+    /**
+     * Get the user's full name from CAS fields if available, otherwise fallback to name.
+     */
+    public function getFullNameAttribute()
+    {
+        if ($this->userFirstName || $this->userLastName) {
+            return trim(($this->userFirstName ?? '') . ' ' . ($this->userLastName ?? ''));
+        }
+        return $this->name;
     }
 }

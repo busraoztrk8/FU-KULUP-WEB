@@ -15,7 +15,7 @@
                 <span class="material-symbols-outlined text-primary text-[32px]">waving_hand</span>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-800">Hoş Geldiniz, {{ auth()->user()->name }}</h2>
+                <h2 class="text-xl font-bold text-slate-800">Hoş Geldiniz, {{ auth()->user()->full_name }}</h2>
                 <p class="text-slate-500 text-sm">Kulübünüzün tüm yönetim araçlarına buradan hızlıca erişebilirsiniz.</p>
             </div>
         </div>

@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Profilim - Fırat Üniversitesi')
+@section('title', __('site.profile_title'))
 
 @section('content')
 <div class="min-h-[60vh] bg-surface-bright py-12 md:py-20 px-4 sm:px-6">
     <div class="max-w-3xl mx-auto">
         <!-- Breadcrumb style info -->
         <div class="flex items-center gap-2 text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-6 opacity-60">
-            <a href="{{ route('home') }}" class="hover:text-primary transition-colors">Ana Sayfa</a>
+            <a href="{{ route('home') }}" class="hover:text-primary transition-colors">{{ __('site.profile_breadcrumb_home') }}</a>
             <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-            <span>Profilim</span>
+            <span>{{ __('site.profile_breadcrumb') }}</span>
         </div>
 
         <!-- Personal Info Card -->
@@ -37,16 +37,16 @@
                             @endif
                         </div>
                         {{-- Fotoğraf değiştir butonu --}}
-                        <label for="photo-input" class="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#8b1d35] transition-colors" title="Fotoğraf Değiştir">
+                        <label for="photo-input" class="absolute -bottom-2 -right-2 w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-[#8b1d35] transition-colors" title="{{ __('site.change_photo') }}">
                             <span class="material-symbols-outlined text-[18px]">photo_camera</span>
                         </label>
                     </div>
 
                     <div class="text-center md:text-left">
                         <div class="inline-block px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tighter rounded-full mb-3">
-                            {{ auth()->user()->role ? auth()->user()->role->label : 'Öğrenci' }}
+                            {{ __('site.role_' . (auth()->user()->role ? auth()->user()->role->name : 'student')) }}
                         </div>
-                        <h1 class="text-3xl md:text-4xl font-headline font-extrabold text-on-surface mb-1 tracking-tight">{{ $user->name }}</h1>
+                        <h1 class="text-3xl md:text-4xl font-headline font-extrabold text-on-surface mb-1 tracking-tight">{{ $user->full_name }}</h1>
                         <p class="text-on-surface-variant font-medium opacity-70">{{ $user->email }}</p>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                 {{-- Gizli fotoğraf yükleme formu --}}
                 @if(session('photo_success'))
                 <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ session('photo_success') }}
+                    <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ __('site.photo_updated') }}
                 </div>
                 @endif
                 <form id="photo-form" action="{{ route('profile.photo') }}" method="POST" enctype="multipart/form-data" class="hidden">
@@ -67,7 +67,7 @@
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 text-primary mb-2">
                             <span class="material-symbols-outlined text-[18px]">groups</span>
-                            <span class="text-xs font-bold uppercase tracking-widest">Üye Olduğum Kulüpler</span>
+                            <span class="text-xs font-bold uppercase tracking-widest">{{ __('site.my_clubs_label') }}</span>
                         </div>
                         
                         @forelse($user->clubMemberships as $membership)
@@ -78,18 +78,18 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-bold text-on-surface">{{ $membership->club->name }}</p>
-                                        <p class="text-[10px] text-on-surface-variant opacity-60">Başvuru: {{ $membership->created_at->format('d.m.Y') }}</p>
+                                        <p class="text-[10px] text-on-surface-variant opacity-60">{{ __('site.application_date', ['date' => $membership->created_at->format('d.m.Y')]) }}</p>
                                     </div>
                                 </div>
                                 <span class="px-2.5 py-1 {{ $membership->status === 'approved' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600' }} text-[10px] font-bold rounded-lg uppercase tracking-tight">
-                                    {{ $membership->status === 'approved' ? 'Üye' : 'Onay Bekliyor' }}
+                                    {{ $membership->status === 'approved' ? __('site.member_status') : __('site.pending_status') }}
                                 </span>
                             </div>
                         @empty
                             <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                <p class="text-xs text-slate-500 mb-3">Henüz hiçbir kulübe üye değilsiniz.</p>
+                                <p class="text-xs text-slate-500 mb-3">{{ __('site.no_club_membership') }}</p>
                                 <a href="{{ route('home') }}#clubs" class="inline-flex items-center gap-2 text-primary text-xs font-bold hover:underline">
-                                    Kulüpleri Keşfet <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    {{ __('site.discover_clubs_link') }} <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                                 </a>
                             </div>
                         @endforelse
@@ -99,7 +99,7 @@
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 text-primary mb-2">
                             <span class="material-symbols-outlined text-[18px]">event_available</span>
-                            <span class="text-xs font-bold uppercase tracking-widest">Kayıtlı Etkinliklerim</span>
+                            <span class="text-xs font-bold uppercase tracking-widest">{{ __('site.my_events_label') }}</span>
                         </div>
 
                         @forelse($user->eventRegistrations as $registration)
@@ -114,14 +114,14 @@
                                     </div>
                                 </div>
                                 <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded-lg uppercase tracking-tight">
-                                    Kayıtlı
+                                    {{ __('site.registered_status') }}
                                 </span>
                             </div>
                         @empty
                             <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                <p class="text-xs text-slate-500 mb-3">Kayıtlı olduğunuz bir etkinlik bulunmuyor.</p>
+                                <p class="text-xs text-slate-500 mb-3">{{ __('site.no_event_registration') }}</p>
                                 <a href="{{ route('home') }}#events" class="inline-flex items-center gap-2 text-primary text-xs font-bold hover:underline">
-                                    Etkinlikleri Keşfet <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    {{ __('site.discover_events_link') }} <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                                 </a>
                             </div>
                         @endforelse
@@ -132,7 +132,7 @@
                 <div class="mt-12 flex gap-4 p-5 bg-primary/5 rounded-2xl border border-primary/10">
                     <span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">info</span>
                     <p class="text-xs md:text-sm text-on-surface-variant leading-relaxed font-medium">
-                        Profil bilgileriniz üniversite <strong class="text-primary font-bold">CAS (Merkezi Kimlik Doğrulama)</strong> sisteminden otomatik olarak senkronize edilmektedir. Bilgilerinizde bir yanlışlık olduğunu düşünüyorsanız lütfen öğrenci işleri dairesi ile iletişime geçiniz.
+                        {!! __('site.cas_info_message') !!}
                     </p>
                 </div>
 
@@ -142,7 +142,7 @@
                         @csrf
                         <button type="submit" class="flex items-center gap-2 text-red-500 font-bold hover:text-red-700 transition-colors text-sm px-4 py-2 hover:bg-red-50 rounded-xl">
                             <span class="material-symbols-outlined text-[20px]">logout</span>
-                            Sistemden Güvenli Çıkış
+                            {{ __('site.safe_logout') }}
                         </button>
                     </form>
                 </div>

@@ -22,7 +22,7 @@
             </div>
             <div class="flex-1 min-w-0">
                 <h1 class="text-xl md:text-2xl font-bold font-headline text-slate-900">
-                    Hoş geldin, {{ auth()->user()->name }} 👋
+                    Hoş geldin, {{ auth()->user()->full_name }} 👋
                 </h1>
                 <p class="text-slate-500 text-sm mt-1">
                     {{ auth()->user()->role?->label ?? 'Öğrenci' }} ·

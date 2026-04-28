@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Profil Ayarları')
-@section('page_title', 'Profil Ayarları')
+@section('title', __('site.profile_settings'))
+@section('page_title', __('site.profile_settings'))
 
 @section('content')
 <div class="max-w-2xl space-y-6">
 
     @if(session('photo_success'))
     <div class="p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ session('photo_success') }}
+        <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ __('site.photo_updated') }}
     </div>
     @endif
 
     @if(session('status') === 'profile-updated')
     <div class="p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]">check_circle</span>Profil bilgileri güncellendi.
+        <span class="material-symbols-outlined text-[18px]">check_circle</span>{{ __('site.profile_updated') }}
     </div>
     @endif
 
@@ -39,7 +39,7 @@
                         <img src="" id="photo-preview" class="w-full h-full object-cover hidden" alt="">
                     @endif
                 </div>
-                <label for="photo-input" title="Fotoğraf Değiştir"
+                <label for="photo-input" title="{{ __('site.change_photo') }}"
                        class="absolute -bottom-2 -right-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-[#8b1d35] transition-colors">
                     <span class="material-symbols-outlined text-[16px]">photo_camera</span>
                 </label>
@@ -50,7 +50,7 @@
             </div>
 
             <div class="text-center sm:text-left">
-                <p class="text-xl font-bold font-headline text-slate-800">{{ $user->name }}</p>
+                <p class="text-xl font-bold font-headline text-slate-800">{{ $user->full_name }}</p>
                 <p class="text-sm text-slate-500 mt-0.5">{{ $user->email }}</p>
                 <span class="inline-block mt-2 px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">
                     {{ $user->role?->label ?? 'Kullanıcı' }}
@@ -63,9 +63,9 @@
             @csrf @method('PATCH')
 
             <div>
-                <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Ad Soyad</label>
+                <label for="name" class="block text-sm font-bold text-slate-700 mb-2">{{ __('site.full_name') }}</label>
                 <input id="name" name="name" type="text"
-                       value="{{ old('name', $user->name) }}"
+                       value="{{ old('name', $user->full_name) }}"
                        class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                        required>
                 @error('name')
@@ -74,11 +74,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">E-posta Adresi</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2">{{ __('site.email') }}</label>
                 <div class="w-full bg-slate-100 border border-slate-200 rounded-xl text-sm px-4 py-3 text-slate-500 flex items-center gap-2">
                     <span class="material-symbols-outlined text-[16px] text-slate-400">lock</span>
                     {{ $user->email }}
-                    <span class="ml-auto text-[10px] text-slate-400 font-medium">CAS sistemi üzerinden yönetilir</span>
+                    <span class="ml-auto text-[10px] text-slate-400 font-medium">{{ __('site.email_managed_by_cas') }}</span>
                 </div>
             </div>
 
@@ -86,7 +86,7 @@
                 <button type="submit"
                         class="px-6 py-2.5 bg-primary hover:bg-[#8b1d35] text-white rounded-xl font-bold text-sm transition-all shadow-sm active:scale-95 flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">done</span>
-                    Kaydet
+                    {{ __('site.save') }}
                 </button>
             </div>
         </form>
@@ -95,7 +95,7 @@
         <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-3">
             <span class="material-symbols-outlined text-slate-400 text-[18px] shrink-0 mt-0.5">info</span>
             <p class="text-xs text-slate-500 leading-relaxed">
-                E-posta ve şifre bilgileriniz üniversitenin <strong class="text-slate-600">CAS (Merkezi Kimlik Doğrulama)</strong> sistemi üzerinden yönetilmektedir. Bu bilgileri buradan değiştiremezsiniz.
+                {!! __('site.cas_admin_info') !!}
             </p>
         </div>
     </div>

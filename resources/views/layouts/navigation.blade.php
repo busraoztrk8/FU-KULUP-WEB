@@ -54,9 +54,6 @@
                 @else
                     <div class="space-x-4">
                         <a href="{{ route('login') }}" class="text-sm text-gray-700 underline">{{ __('Log in') }}</a>
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 underline">{{ __('Register') }}</a>
-                        @endif
                     </div>
                 @endauth
             </div>
@@ -110,11 +107,6 @@
                     <x-responsive-nav-link :href="route('login')">
                         {{ __('Log in') }}
                     </x-responsive-nav-link>
-                    @if (Route::has('register'))
-                        <x-responsive-nav-link :href="route('register')">
-                            {{ __('Register') }}
-                        </x-responsive-nav-link>
-                    @endif
                 </div>
             @endauth
         </div>
