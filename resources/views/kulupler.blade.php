@@ -115,7 +115,7 @@
                     </h3>
                     <div class="flex items-center text-white/70 text-xs font-bold shrink-0 ml-2">
                         <span class="material-symbols-outlined text-sm mr-1">group</span>
-                        {{ number_format($club->approved_members_count) }} {{ $club->approved_members_count > 1 ? __('site.member_plural') : __('site.member_singular') }}
+                        {{ number_format($club->total_active_member_count) }} {{ $club->total_active_member_count > 1 ? __('site.member_plural') : __('site.member_singular') }}
                     </div>
                 </div>
                 

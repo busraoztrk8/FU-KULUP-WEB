@@ -127,4 +127,24 @@ class Club extends Model
     {
         return $this->hasMany(ClubFormField::class)->orderBy('sort_order');
     }
+
+    /**
+     * Get total active member count including approved members, president and editors.
+     */
+    public function getTotalActiveMemberCountAttribute()
+    {
+        $approvedCount = $this->approvedMembers()->count();
+        $editorsCount = $this->editors()->count();
+        
+        // If president exists and is not already an editor (has different club_id), add 1
+        $presidentAdd = 0;
+        if ($this->president_id) {
+            $president = $this->president;
+            if ($president && $president->club_id != $this->id) {
+                $presidentAdd = 1;
+            }
+        }
+        
+        return $approvedCount + $editorsCount + $presidentAdd;
+    }
 }

@@ -26,7 +26,8 @@
             <div class="mt-6 flex items-center justify-center gap-3">
                 <span class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold">
                     <span class="material-symbols-outlined text-sm align-middle mr-1">newspaper</span>
-                    {!! __('site.total_news_count_html', ['count' => '<span id="total-count">' . $totalNews . '</span>']) !!}
+                    @php $displayCount = ($news->count() > 0 && $news->count() < 6) ? 6 : $totalNews; @endphp
+                    {!! __('site.total_news_count_html', ['count' => '<span id="total-count">' . $displayCount . '</span>']) !!}
                 </span>
             </div>
         </div>
@@ -35,7 +36,13 @@
     <!-- Main Content Area -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-16">
         <div id="news-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 min-h-[300px] transition-opacity duration-300">
-            @include('partials.news-grid-items', ['news' => $news])
+            @php
+                $displayNews = $news;
+                if($news->count() > 0 && $news->count() < 6) {
+                    $displayNews = $news->concat($news)->take(6);
+                }
+            @endphp
+            @include('partials.news-grid-items', ['news' => $displayNews])
         </div>
     </section>
 

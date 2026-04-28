@@ -11,7 +11,7 @@ class Category extends Model
 {
     use HasFactory, SoftDeletes, \App\Traits\Translatable;
 
-    protected $fillable = ['name', 'name_en', 'slug', 'icon', 'color'];
+    protected $fillable = ['name', 'name_en', 'slug', 'icon', 'color', 'is_active'];
 
     /**
      * Set the category name and slug.

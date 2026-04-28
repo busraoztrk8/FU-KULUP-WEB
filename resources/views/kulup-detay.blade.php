@@ -176,14 +176,19 @@
             
             {{-- Kulüp Haberleri --}}
             @if(isset($news) && $news->count() > 0)
-            <div class="news-wrapper">
+            @php 
+                $displayNews = $news;
+                if($displayNews->count() > 0 && $displayNews->count() < 8) {
+                    $displayNews = $displayNews->concat($displayNews)->concat($displayNews)->take(8); 
+                }
+            @endphp
+            <div class="news-wrapper mb-12">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
                         <span class="material-symbols-outlined text-primary">newspaper</span>
                         {{ __('site.recent_news') }}
                     </h2>
                     <div class="flex items-center gap-4 sm:gap-6">
-                        {{-- Slider Nav --}}
                         <div class="hidden sm:flex gap-2">
                             <button class="club-news-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
                                 <span class="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -197,11 +202,11 @@
                     </div>
                 </div>
 
-                <div class="swiper club-news-swiper overflow-hidden rounded-3xl">
+                <div class="swiper club-news-swiper overflow-hidden rounded-3xl max-w-4xl mx-auto">
                     <div class="swiper-wrapper">
-                        @foreach($news as $item)
-                        <div class="swiper-slide !w-auto !h-auto py-4">
-                            <a href="{{ route('haber.detay', $item->slug) }}" class="w-[280px] md:w-[320px] group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 block h-full flex flex-col">
+                        @foreach($displayNews as $item)
+                        <div class="swiper-slide !h-auto py-4">
+                            <a href="{{ route('haber.detay', $item->slug) }}" class="w-full group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 block h-full flex flex-col">
                                 <div class="aspect-[4/3] relative overflow-hidden">
                                     @php
                                         $newsImg = $item->image_path;
@@ -237,14 +242,13 @@
 
             {{-- Club Gallery --}}
             @if($club->images->count() > 0)
-            <div class="gallery-wrapper">
+            <div class="gallery-wrapper mb-12">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
                         <span class="material-symbols-outlined text-primary">photo_library</span>
                         {{ __('site.club_gallery') }}
                     </h2>
                     <div class="flex items-center gap-4 sm:gap-6">
-                        {{-- Slider Nav --}}
                         <div class="hidden sm:flex gap-2">
                             <button class="gallery-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
                                 <span class="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -257,12 +261,17 @@
                         <a href="{{ route('kulup.galeri', $club->slug) }}" class="text-primary text-sm font-bold hover:underline whitespace-nowrap">{{ __('site.see_all') }}</a>
                     </div>
                 </div>
-                
-                <div class="swiper gallery-slider overflow-hidden rounded-3xl">
+                <div class="swiper gallery-slider overflow-hidden rounded-3xl max-w-4xl mx-auto">
                     <div class="swiper-wrapper">
-                        @foreach($club->images as $index => $image)
-                        <div class="swiper-slide !w-auto">
-                            <div class="gallery-image-container relative w-[240px] md:w-[320px] aspect-[4/3] rounded-2xl overflow-hidden border border-slate-100 group shadow-sm hover:shadow-xl transition-all cursor-pointer"
+                        @php
+                            $displayImages = $club->images;
+                            if($displayImages->count() > 0 && $displayImages->count() < 8) {
+                                $displayImages = $displayImages->concat($displayImages)->concat($displayImages)->take(8);
+                            }
+                        @endphp
+                        @foreach($displayImages as $index => $image)
+                        <div class="swiper-slide">
+                            <div class="gallery-image-container relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-slate-100 group shadow-sm hover:shadow-xl transition-all cursor-pointer"
                                  onclick="openLightbox({{ $index }})">
                                 @php
                                     $galPath = $image->image_path;
@@ -279,11 +288,17 @@
             </div>
             @endif
 
-            {{-- Upcoming Events Section --}}
+            {{-- Upcoming Events --}}
             @php
                 $upcomingEvents = $club->events()->where('start_time', '>=', now()->subHours(5))->orderBy('start_time')->get();
             @endphp
             @if($upcomingEvents->count() > 0)
+            @php
+                $displayEvents = $upcomingEvents;
+                if($displayEvents->count() > 0 && $displayEvents->count() < 8) {
+                    $displayEvents = $displayEvents->concat($displayEvents)->concat($displayEvents)->take(8);
+                }
+            @endphp
             <div class="events-wrapper">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="font-headline text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2 sm:gap-3">
@@ -292,7 +307,6 @@
                     </h2>
                     <div class="flex items-center gap-4 sm:gap-6">
                         @if($upcomingEvents->count() > 1)
-                        {{-- Slider Nav --}}
                         <div class="hidden sm:flex gap-2">
                             <button class="club-events-prev w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all shadow-sm">
                                 <span class="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -308,15 +322,12 @@
                 </div>
 
                 @if($upcomingEvents->count() === 1)
-                    {{-- Tekli Etkinlik: Büyük ve Şık Kart --}}
                     @php $event = $upcomingEvents->first(); @endphp
                     <a href="{{ route('etkinlik.detay', $event->slug) }}" class="group relative block bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100">
                         <div class="flex flex-col md:flex-row h-full">
                             <div class="md:w-2/5 aspect-[4/3] md:aspect-auto relative overflow-hidden">
                                 @if($event->image)
-                                    @php
-                                        $evtUrl = str_starts_with($event->image, 'http') ? $event->image : (file_exists(public_path('uploads/' . $event->image)) ? asset('uploads/' . $event->image) : asset('storage/' . $event->image));
-                                    @endphp
+                                    @php $evtUrl = str_starts_with($event->image, 'http') ? $event->image : (file_exists(public_path('uploads/' . $event->image)) ? asset('uploads/' . $event->image) : asset('storage/' . $event->image)); @endphp
                                     <img src="{{ $evtUrl }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
                                 @else
                                     <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
@@ -352,17 +363,14 @@
                         </div>
                     </a>
                 @else
-                    {{-- Çoklu Etkinlik: Slider --}}
-                    <div class="swiper club-events-swiper overflow-hidden rounded-3xl">
+                    <div class="swiper club-events-swiper overflow-hidden rounded-3xl max-w-4xl mx-auto">
                         <div class="swiper-wrapper">
-                            @foreach($upcomingEvents as $event)
-                            <div class="swiper-slide !w-auto !h-auto py-4">
-                                <a href="{{ route('etkinlik.detay', $event->slug) }}" class="w-[280px] md:w-[320px] group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 block h-full equal-height-card">
+                            @foreach($displayEvents as $event)
+                             <div class="swiper-slide !h-auto py-4">
+                                <a href="{{ route('etkinlik.detay', $event->slug) }}" class="w-full group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 block h-full equal-height-card">
                                     <div class="aspect-[4/3] relative overflow-hidden">
                                         @if($event->image)
-                                            @php
-                                                $evtUrl = str_starts_with($event->image, 'http') ? $event->image : (file_exists(public_path('uploads/' . $event->image)) ? asset('uploads/' . $event->image) : asset('storage/' . $event->image));
-                                            @endphp
+                                            @php $evtUrl = str_starts_with($event->image, 'http') ? $event->image : (file_exists(public_path('uploads/' . $event->image)) ? asset('uploads/' . $event->image) : asset('storage/' . $event->image)); @endphp
                                             <img src="{{ $evtUrl }}" alt="{{ $event->title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
                                         @else
                                             <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center">
@@ -586,12 +594,15 @@
                             <p class="text-[11px] font-medium text-slate-400 tracking-wide mt-0.5">
                                 @if(app()->getLocale() == 'en')
                                     @php
-                                        $titleMap = [
-                                            'Başkan' => __('site.title_president'),
-                                            'Başkan Yardımcısı' => __('site.title_vice_president'),
-                                        ];
+                                        $translatedTitle = \Illuminate\Support\Facades\Cache::remember('title_en_' . Str::slug($member->title), 86400, function() use ($member) {
+                                            try {
+                                                return \Stichoza\GoogleTranslate\GoogleTranslate::trans($member->title, 'en', 'tr');
+                                            } catch (\Exception $e) {
+                                                return $member->title;
+                                            }
+                                        });
                                     @endphp
-                                    {{ $titleMap[$member->title] ?? $member->title }}
+                                    {{ $translatedTitle }}
                                 @else
                                     {{ $member->title }}
                                 @endif
@@ -606,6 +617,8 @@
 
         </aside>
     </div>
+
+
 </div>
 
 {{-- ═══════════════════════════════════════════════════ --}}
@@ -857,54 +870,65 @@
             galleryImages.push(img.getAttribute('data-full'));
         });
 
-        // Initialize Swiper for gallery
-        new Swiper('.gallery-slider', {
-            slidesPerView: 'auto',
-            spaceBetween: 20,
-            freeMode: true,
-            navigation: {
-                nextEl: '.gallery-next',
-                prevEl: '.gallery-prev',
-            },
-            breakpoints: {
-                320: { spaceBetween: 12 },
-                768: { spaceBetween: 20 }
+        // Initialize all swipers with a small delay for stability
+        setTimeout(function() {
+            const commonOptions = {
+                slidesPerView: 1,
+                centeredSlides: false,
+                loop: true,
+                loopedSlides: 8,
+                loopAdditionalSlides: 8,
+                spaceBetween: 20,
+                grabCursor: true,
+                observer: true,
+                observeParents: true,
+                initialSlide: 0,
+                roundLengths: true,
+                breakpoints: {
+                    640: {
+                        slidesPerView: 2,
+                        spaceBetween: 20
+                    },
+                    768: { 
+                        slidesPerView: 2,
+                        spaceBetween: 30
+                    }
+                }
+            };
+
+            // Gallery
+            if (document.querySelector('.gallery-slider')) {
+                new Swiper('.gallery-slider', {
+                    ...commonOptions,
+                    navigation: {
+                        nextEl: '.gallery-next',
+                        prevEl: '.gallery-prev',
+                    }
+                });
             }
-        });
 
-        // Initialize Swiper for club news
-        if (document.querySelector('.club-news-swiper')) {
-            new Swiper('.club-news-swiper', {
-                slidesPerView: 'auto',
-                spaceBetween: 20,
-                freeMode: true,
-                navigation: {
-                    nextEl: '.club-news-next',
-                    prevEl: '.club-news-prev',
-                },
-                breakpoints: {
-                    320: { spaceBetween: 12 },
-                    768: { spaceBetween: 20 }
-                }
-            });
-        }
+            // News
+            if (document.querySelector('.club-news-swiper')) {
+                new Swiper('.club-news-swiper', {
+                    ...commonOptions,
+                    navigation: {
+                        nextEl: '.club-news-next',
+                        prevEl: '.club-news-prev',
+                    }
+                });
+            }
 
-        // Initialize Swiper for upcoming club events
-        if (document.querySelector('.club-events-swiper')) {
-            new Swiper('.club-events-swiper', {
-                slidesPerView: 'auto',
-                spaceBetween: 20,
-                freeMode: true,
-                navigation: {
-                    nextEl: '.club-events-next',
-                    prevEl: '.club-events-prev',
-                },
-                breakpoints: {
-                    320: { spaceBetween: 12 },
-                    768: { spaceBetween: 20 }
-                }
-            });
-        }
+            // Events
+            if (document.querySelector('.club-events-swiper')) {
+                new Swiper('.club-events-swiper', {
+                    ...commonOptions,
+                    navigation: {
+                        nextEl: '.club-events-next',
+                        prevEl: '.club-events-prev',
+                    }
+                });
+            }
+        }, 300);
     });
 
     function openLightbox(index) {

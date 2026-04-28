@@ -193,7 +193,7 @@ class HomeController extends Controller
         $announcements = \App\Models\Announcement::with('club')
             ->where('is_published', true)
             ->latest('published_at')
-            ->paginate(6);
+            ->paginate(15);
 
         $latestNews = \App\Models\News::with('club')
             ->where('is_published', true)
@@ -222,7 +222,7 @@ class HomeController extends Controller
             });
         }
 
-        $announcements = $query->latest('published_at')->paginate(6);
+        $announcements = $query->latest('published_at')->paginate(15);
 
         if ($request->ajax()) {
             return view('partials.announcement-grid-items', compact('announcements'))->render();
@@ -255,7 +255,7 @@ class HomeController extends Controller
         $news = \App\Models\News::with('club')
             ->where('is_published', true)
             ->latest('published_at')
-            ->paginate(6);
+            ->paginate(15);
 
         return view('haberler', compact('news'));
     }
@@ -286,7 +286,7 @@ class HomeController extends Controller
             }
         }
 
-        $news = $query->latest('published_at')->paginate(6);
+        $news = $query->latest('published_at')->paginate(15);
 
         if ($request->ajax()) {
             return view('partials.news-grid-items', compact('news'))->render();
@@ -360,7 +360,7 @@ class HomeController extends Controller
         $news = \App\Models\News::where('club_id', $club->id)
             ->where('is_published', true)
             ->latest()
-            ->take(4)
+            ->take(6)
             ->get();
 
         return view('kulup-detay', compact('club', 'membership', 'news'));

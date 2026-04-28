@@ -60,13 +60,7 @@
 @section('content')
 <div class="pt-8 pb-16 md:pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
     
-    {{-- Breadcrumb / Back --}}
-    <div class="mb-8">
-        <a href="{{ route('kulup.detay', $club->slug) }}" class="inline-flex items-center gap-2 text-slate-500 hover:text-primary transition-colors font-medium">
-            <span class="material-symbols-outlined text-sm">arrow_back</span>
-            Kulübe Dön
-        </a>
-    </div>
+    {{-- Removed Breadcrumb / Back --}}
 
     {{-- Header --}}
     <div class="mb-12 md:mb-16 text-center">

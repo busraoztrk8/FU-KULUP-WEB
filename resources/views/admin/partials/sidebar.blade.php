@@ -26,6 +26,14 @@
         </a>
     </div>
 
+    <!-- Mobil İçin Siteyi Görüntüle Butonu -->
+    <div class="px-6 py-4 lg:hidden border-b border-slate-100 shrink-0">
+        <a href="{{ route('home') }}" target="_blank" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-all font-bold text-sm">
+            <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+            Siteyi Görüntüle
+        </a>
+    </div>
+
     <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
         <p class="px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 mt-1">Ana Menü</p>
         <x-admin-sidebar-link id="dashboard"     icon="dashboard" label="Anasayfa"          href="{{ route('admin.index') }}"       :current="$currentPage" />

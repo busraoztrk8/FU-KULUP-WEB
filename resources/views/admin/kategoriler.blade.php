@@ -6,11 +6,25 @@
 
 @section('content')
 
+@push('styles')
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
+<style>
+    #categories-table { border-collapse: collapse; width: 100% !important; }
+    #categories-table thead th { background: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 12px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; white-space: nowrap; }
+    #categories-table tbody td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 14px; color: #334155; }
+    #categories-table tbody tr:hover td { background: #f8fafc; }
+    #categories-table_wrapper .dataTables_info { font-size: 13px; color: #64748b; }
+    #categories-table_wrapper .dataTables_paginate { display: flex; gap: 4px; }
+    #categories-table_wrapper .dataTables_paginate .paginate_button { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; color: #475569 !important; background: #fff; }
+    #categories-table_wrapper .dataTables_paginate .paginate_button.current { background: var(--primary, #5d1021) !important; color: #fff !important; border-color: var(--primary, #5d1021); }
+</style>
+@endpush
+
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
         <div class="relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
-            <input type="text" placeholder="Kategori ara..." class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-64 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"/>
+            <input type="text" id="custom-search" placeholder="Kategori ara..." class="bg-white border border-slate-200 rounded-xl text-sm pl-10 pr-4 py-2.5 w-64 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm outline-none"/>
         </div>
     </div>
     <button onclick="showCategoryModal()" class="bg-primary hover:bg-primary-dim text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-sm shadow-primary/10 active:scale-95">
@@ -20,9 +34,10 @@
 
 <div class="admin-card p-0 overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
-        <table class="admin-table">
+        <table id="categories-table" class="admin-table w-full">
             <thead>
                 <tr>
+                    <th style="width: 50px">#</th>
                     <th>Kategori Adı</th>
                     <th>Renk / İkon</th>
                     <th>Bağlı Kulüp Sayısı</th>
@@ -31,39 +46,6 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($categories as $category)
-                <tr>
-                    <td><span class="font-semibold text-slate-800">{{ $category->name }}</span></td>
-                    <td>
-                        <div class="flex items-center gap-2">
-                            @if($category->color)
-                                <span class="w-4 h-4 rounded-full shadow-sm" style="background-color: {{ $category->color }}"></span>
-                            @endif
-                            <span class="text-sm text-slate-500 font-medium">{{ $category->icon ?? '—' }}</span>
-                        </div>
-                    </td>
-                    <td><span class="font-semibold text-slate-600">{{ $category->clubs_count }}</span></td>
-                    <td><span class="badge badge-success shadow-sm">Aktif</span></td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-1">
-                            <button onclick="showEditCategoryModal({{ $category->id }}, '{{ e(addslashes($category->name)) }}', '{{ $category->icon }}', '{{ $category->color }}')" class="action-btn text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                            <form action="{{ route('admin.kategoriler.destroy', $category) }}" method="POST" class="inline" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="action-btn action-btn-danger transition-all" title="Sil">
-                                    <span class="material-symbols-outlined text-[18px]">delete</span>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="text-center py-12 text-slate-400">
-                        <span class="material-symbols-outlined text-[48px] block mb-2">category</span>
-                        Henüz kategori bulunmuyor.
-                    </td>
-                </tr>
-                @endforelse
             </tbody>
         </table>
     </div>
@@ -117,7 +99,33 @@
 </div>
 
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
+$(document).ready(function() {
+    let table = $('#categories-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('admin.kategoriler') }}",
+        columns: [
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'name_info', name: 'name'},
+            {data: 'icon_color', name: 'icon'},
+            {data: 'clubs_count', name: 'clubs_count', searchable: false},
+            {data: 'status', name: 'status', orderable: false, searchable: false},
+            {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right'}
+        ],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json"
+        },
+        dom: 'rt<"flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-4 border-t border-slate-100"ip>',
+    });
+
+    $('#custom-search').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+});
+
 function showCategoryModal() {
     document.getElementById('category-modal-title').textContent = 'Yeni Kategori Ekle';
     document.getElementById('category-form').action = "{{ route('admin.kategoriler.store') }}";

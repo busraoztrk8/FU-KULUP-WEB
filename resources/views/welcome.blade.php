@@ -237,7 +237,7 @@
                                         @endif
                                         <span class="text-on-surface-variant text-sm flex items-center font-bold">
                                             <span class="material-symbols-outlined text-xs mr-1 text-primary">group</span> 
-                                            {{ $club->approved_members_count }} {{ __('site.members') }}
+                                            {{ $club->total_active_member_count }} {{ __('site.members') }}
                                         </span>
                                     </div>
                                     @if($club->president)
@@ -295,7 +295,7 @@
                                 @if($club->category)
                                 <span class="px-3 py-1 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-tighter">{{ $club->category->name ?? '' }}</span>
                                 @endif
-                                <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->member_count ?? 0 }} {{ __('site.members') }}</span>
+                                <span class="text-on-surface-variant text-sm flex items-center"><span class="material-symbols-outlined text-xs mr-1">group</span> {{ $club->total_active_member_count }} {{ __('site.members') }}</span>
                             </div>
                             @if($club->president)
                             <div class="flex items-center gap-2 mb-3 text-sm text-on-surface-variant">

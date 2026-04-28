@@ -92,6 +92,14 @@ class AdminController extends Controller
                 $item->status = ($item->status === 'published') ? 'draft' : 'published';
                 $item->save();
                 return response()->json(['success' => true, 'status' => $item->status]);
+            } elseif ($type === 'category') {
+                $item = Category::findOrFail($id);
+                if (auth()->user()->isEditor()) {
+                    return response()->json(['success' => false, 'message' => 'Yetkiniz yok.'], 403);
+                }
+                $item->is_active = !$item->is_active;
+                $item->save();
+                return response()->json(['success' => true, 'status' => $item->is_active]);
             }
             return response()->json(['success' => false, 'message' => 'Geçersiz tür']);
         } catch (\Exception $e) {

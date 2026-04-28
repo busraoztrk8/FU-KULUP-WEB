@@ -51,6 +51,8 @@
 </div>
 @endforelse
 
+@if($news instanceof \Illuminate\Pagination\AbstractPaginator)
 <div class="col-span-full mt-12 flex justify-center ajax-pagination">
     {{ $news->links('partials.custom-pagination') }}
 </div>
+@endif
