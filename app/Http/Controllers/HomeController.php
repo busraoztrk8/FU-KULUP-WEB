@@ -193,12 +193,12 @@ class HomeController extends Controller
         $announcements = \App\Models\Announcement::with('club')
             ->where('is_published', true)
             ->latest('published_at')
-            ->paginate(15);
+            ->paginate(6);
 
         $latestNews = \App\Models\News::with('club')
             ->where('is_published', true)
             ->latest()
-            ->take(3)
+            ->take(6)
             ->get();
 
         return view('duyurular', compact('announcements', 'latestNews'));
@@ -255,7 +255,7 @@ class HomeController extends Controller
         $news = \App\Models\News::with('club')
             ->where('is_published', true)
             ->latest('published_at')
-            ->paginate(15);
+            ->paginate(6);
 
         return view('haberler', compact('news'));
     }

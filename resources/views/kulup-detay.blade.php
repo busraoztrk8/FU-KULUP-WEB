@@ -37,39 +37,6 @@
 @section('content')
 <div class="pb-12 md:pb-20 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
 
-{{-- Flash Mesajlar --}}
-@if(session('success'))
-<div id="flash-success" class="fixed top-6 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-3 bg-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl text-sm font-semibold max-w-md w-full mx-4 animate-in fade-in slide-in-from-top-4 duration-300">
-    <span class="material-symbols-outlined text-[20px] shrink-0">check_circle</span>
-    <span>{{ session('success') }}</span>
-    <button onclick="document.getElementById('flash-success').remove()" class="ml-auto text-white/70 hover:text-white">
-        <span class="material-symbols-outlined text-[18px]">close</span>
-    </button>
-</div>
-<script>setTimeout(() => document.getElementById('flash-success')?.remove(), 5000)</script>
-@endif
-
-@if(session('error'))
-<div id="flash-error" class="fixed top-6 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-3 bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl text-sm font-semibold max-w-md w-full mx-4 animate-in fade-in slide-in-from-top-4 duration-300">
-    <span class="material-symbols-outlined text-[20px] shrink-0">error</span>
-    <span>{{ session('error') }}</span>
-    <button onclick="document.getElementById('flash-error').remove()" class="ml-auto text-white/70 hover:text-white">
-        <span class="material-symbols-outlined text-[18px]">close</span>
-    </button>
-</div>
-<script>setTimeout(() => document.getElementById('flash-error')?.remove(), 5000)</script>
-@endif
-
-@if(session('info'))
-<div id="flash-info" class="fixed top-6 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-3 bg-blue-600 text-white px-6 py-4 rounded-2xl shadow-2xl text-sm font-semibold max-w-md w-full mx-4 animate-in fade-in slide-in-from-top-4 duration-300">
-    <span class="material-symbols-outlined text-[20px] shrink-0">info</span>
-    <span>{{ session('info') }}</span>
-    <button onclick="document.getElementById('flash-info').remove()" class="ml-auto text-white/70 hover:text-white">
-        <span class="material-symbols-outlined text-[18px]">close</span>
-    </button>
-</div>
-<script>setTimeout(() => document.getElementById('flash-info')?.remove(), 5000)</script>
-@endif
 
     {{-- Hero Sector --}}
     <section class="relative mb-12 rounded-3xl overflow-hidden h-[300px] md:h-[450px] shadow-2xl group">
@@ -112,7 +79,7 @@
                     </span>
                     @endif
                     <span class="px-4 py-1.5 bg-white/20 backdrop-blur-md text-white rounded-full text-[11px] font-bold border border-white/10">
-                        {{ number_format($club->member_count) }} {{ __('site.members') }}
+                        {{ number_format($club->total_active_member_count) }} {{ __('site.members') }}
                     </span>
                 </div>
             </div>
@@ -441,7 +408,7 @@
                                 <span class="material-symbols-outlined text-primary/60 text-[20px]">groups</span>
                                 <span class="text-slate-500 text-xs font-semibold">{{ __('site.member_count_label') }}</span>
                             </div>
-                            <span class="font-bold text-slate-800 text-xs">{{ number_format($club->member_count) }}</span>
+                            <span class="font-bold text-slate-800 text-xs">{{ number_format($club->total_active_member_count) }}</span>
                         </div>
                         <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 group/item hover:bg-slate-100 transition-colors">
                             <div class="flex items-center gap-3">
@@ -467,7 +434,10 @@
                                 {{ __('site.join_club') }}
                             </button>
                         @elseif($membership->status === 'pending')
-                            <div class="w-full py-4 bg-amber-50 text-amber-700 rounded-2xl font-bold text-xs text-center border border-amber-100 italic">{{ __('site.application_pending') }}</div>
+                            <div class="w-full py-3 bg-amber-50 text-amber-700 rounded-2xl font-bold text-xs text-center border border-amber-100 italic mb-2">{{ __('site.application_pending') }}</div>
+                            <button onclick="document.getElementById('withdraw-modal').classList.remove('hidden')" class="w-full py-3 bg-white text-amber-600 rounded-2xl font-bold text-sm hover:bg-amber-50 transition-all border border-amber-200 flex items-center justify-center gap-2 shadow-sm">
+                                <span class="material-symbols-outlined text-[18px]">cancel</span> Başvuruyu Geri Çek
+                            </button>
                         @else
                             <div class="w-full py-4 bg-green-50 text-green-700 rounded-2xl font-bold text-sm text-center border border-green-100 mb-4 tracking-tight">{{ __('site.club_member') }}</div>
                             
@@ -653,6 +623,37 @@
 @endauth
 
 {{-- ═══════════════════════════════════════════════════ --}}
+{{-- KULÜP BAŞVURU İPTAL MODALI --}}
+{{-- ═══════════════════════════════════════════════════ --}}
+@auth
+@if(isset($membership) && $membership && $membership->status === 'pending')
+<div id="withdraw-modal" class="fixed inset-0 z-[95] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="document.getElementById('withdraw-modal').classList.add('hidden')"></div>
+    <div class="relative bg-white w-full max-w-sm mx-4 rounded-3xl shadow-2xl p-8 text-center animate-in fade-in zoom-in duration-200">
+        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-amber-500 text-[32px]">cancel</span>
+        </div>
+        <h3 class="font-headline text-xl font-bold text-slate-800 mb-2">Başvuruyu Geri Çek</h3>
+        <p class="text-slate-500 text-sm mb-6">Kulüp üyeliği için yaptığınız başvuruyu iptal etmek istediğinize emin misiniz?</p>
+        <div class="flex gap-3">
+            <button onclick="document.getElementById('withdraw-modal').classList.add('hidden')"
+                class="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">
+                Vazgeç
+            </button>
+            <form method="POST" action="{{ route('kulup.ayril', $club) }}" class="flex-1">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition-all">
+                    Evet, Geri Çek
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+@endauth
+
+{{-- ═══════════════════════════════════════════════════ --}}
 {{-- KULÜP KAYIT FORMU MODALI --}}
 {{-- ═══════════════════════════════════════════════════ --}}
 @auth
@@ -760,10 +761,24 @@
                         </label>
 
                         @if($field->type === 'text')
-                            @php $isStudentNo = str_contains(strtolower($field->label), 'numara') || str_contains(strtolower($field->label), 'no'); @endphp
+                            @php 
+                                $isStudentNo = str_contains(strtolower($field->label), 'numara') || str_contains(strtolower($field->label), 'no'); 
+                                $defaultValue = old('field_' . $field->id);
+                                
+                                if (!$defaultValue && auth()->check()) {
+                                    $lbl = mb_strtolower($field->label, 'UTF-8');
+                                    if ((str_contains($lbl, 'öğrenci') || str_contains($lbl, 'ogrenci')) && auth()->user()->userEMailAddress) {
+                                        $defaultValue = explode('@', auth()->user()->userEMailAddress)[0];
+                                    } elseif (str_contains($lbl, 'ad') || str_contains($lbl, 'soyad')) {
+                                        $defaultValue = auth()->user()->full_name ?? auth()->user()->name;
+                                    } elseif (str_contains($lbl, 'fakülte') || str_contains($lbl, 'bölüm')) {
+                                        $defaultValue = auth()->user()->userOfficeLocation;
+                                    }
+                                }
+                            @endphp
                             <input type="{{ $isStudentNo ? 'number' : 'text' }}"
                                    name="field_{{ $field->id }}"
-                                   value="{{ old('field_' . $field->id) }}"
+                                   value="{{ $defaultValue }}"
                                    placeholder="{{ $translatedPlaceholder ?? __('site.your_answer') }}"
                                    @if($isStudentNo) min="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')" @endif
                                    class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors"
@@ -773,13 +788,25 @@
                             @endif
 
                         @elseif($field->type === 'email')
-                            <input type="email" name="field_{{ $field->id }}" value="{{ old('field_' . $field->id) }}"
+                            @php
+                                $defaultEmail = old('field_' . $field->id);
+                                if (!$defaultEmail && auth()->check()) {
+                                    $defaultEmail = auth()->user()->email ?? auth()->user()->userEMailAddress;
+                                }
+                            @endphp
+                            <input type="email" name="field_{{ $field->id }}" value="{{ $defaultEmail }}"
                                    placeholder="{{ $translatedPlaceholder ?? 'ornek@email.com' }}"
                                    class="w-full bg-transparent border-0 border-b-2 border-slate-200 focus:border-[#5d1021] focus:ring-0 text-sm text-slate-700 px-0 py-2 placeholder-slate-400 transition-colors"
                                    {{ $field->is_required ? 'required' : '' }}>
 
                         @elseif($field->type === 'tel')
-                            <input type="tel" name="field_{{ $field->id }}" value="{{ old('field_' . $field->id) }}"
+                            @php
+                                $defaultPhone = old('field_' . $field->id);
+                                if (!$defaultPhone && auth()->check() && auth()->user()->userTelephoneNumber) {
+                                    $defaultPhone = auth()->user()->userTelephoneNumber;
+                                }
+                            @endphp
+                            <input type="tel" name="field_{{ $field->id }}" value="{{ $defaultPhone }}"
                                    placeholder="{{ $translatedPlaceholder ?? '05XXXXXXXXX' }}"
                                    maxlength="11"
                                    pattern="[0-9]{10,11}"

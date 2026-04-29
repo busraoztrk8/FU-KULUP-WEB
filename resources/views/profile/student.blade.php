@@ -62,69 +62,39 @@
                     <input type="file" id="photo-input" name="profile_photo" accept="image/*" class="hidden">
                 </form>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-10 border-t border-black/5">
+                <div class="pt-10 border-t border-black/5">
                     <!-- Dynamic Clubs List -->
                     <div class="space-y-4">
-                        <div class="flex items-center gap-2 text-primary mb-2">
-                            <span class="material-symbols-outlined text-[18px]">groups</span>
-                            <span class="text-xs font-bold uppercase tracking-widest">{{ __('site.my_clubs_label') }}</span>
+                        <div class="flex items-center gap-2 text-primary mb-4">
+                            <span class="material-symbols-outlined text-[22px]">groups</span>
+                            <span class="text-sm font-bold uppercase tracking-widest">{{ __('site.my_clubs_label') }}</span>
                         </div>
                         
-                        @forelse($user->clubMemberships as $membership)
-                            <div class="flex items-center justify-between p-4 bg-surface-bright rounded-2xl border border-black/5 group/item hover:border-primary/20 transition-all">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary border border-black/5">
-                                        <span class="material-symbols-outlined text-[20px]">hub</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @forelse($user->clubMemberships as $membership)
+                                <div class="flex items-center justify-between p-4 bg-surface-bright rounded-2xl border border-black/5 group/item hover:border-primary/20 transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary border border-black/5">
+                                            <span class="material-symbols-outlined text-[20px]">hub</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-on-surface">{{ app()->getLocale() == 'en' && $membership->club->name_en ? $membership->club->name_en : $membership->club->name }}</p>
+                                            <p class="text-[10px] text-on-surface-variant opacity-60">{{ __('site.application_date', ['date' => $membership->created_at->format('d.m.Y')]) }}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-on-surface">{{ $membership->club->name }}</p>
-                                        <p class="text-[10px] text-on-surface-variant opacity-60">{{ __('site.application_date', ['date' => $membership->created_at->format('d.m.Y')]) }}</p>
-                                    </div>
+                                    <span class="px-2.5 py-1 {{ $membership->status === 'approved' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600' }} text-[10px] font-bold rounded-lg uppercase tracking-tight">
+                                        {{ $membership->status === 'approved' ? __('site.member_status') : __('site.pending_status') }}
+                                    </span>
                                 </div>
-                                <span class="px-2.5 py-1 {{ $membership->status === 'approved' ? 'bg-green-500/10 text-green-600' : 'bg-amber-500/10 text-amber-600' }} text-[10px] font-bold rounded-lg uppercase tracking-tight">
-                                    {{ $membership->status === 'approved' ? __('site.member_status') : __('site.pending_status') }}
-                                </span>
-                            </div>
-                        @empty
-                            <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                <p class="text-xs text-slate-500 mb-3">{{ __('site.no_club_membership') }}</p>
-                                <a href="{{ route('home') }}#clubs" class="inline-flex items-center gap-2 text-primary text-xs font-bold hover:underline">
-                                    {{ __('site.discover_clubs_link') }} <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-                                </a>
-                            </div>
-                        @endforelse
-                    </div>
-
-                    <!-- Dynamic Events List -->
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-2 text-primary mb-2">
-                            <span class="material-symbols-outlined text-[18px]">event_available</span>
-                            <span class="text-xs font-bold uppercase tracking-widest">{{ __('site.my_events_label') }}</span>
+                            @empty
+                                <div class="md:col-span-2 p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                    <p class="text-sm text-slate-500 mb-4">{{ __('site.no_club_membership') }}</p>
+                                    <a href="{{ route('kulupler') }}" class="inline-flex items-center gap-2 text-primary text-sm font-bold hover:underline">
+                                        {{ __('site.discover_clubs_link') }} <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                    </a>
+                                </div>
+                            @endforelse
                         </div>
-
-                        @forelse($user->eventRegistrations as $registration)
-                            <div class="flex items-center justify-between p-4 bg-surface-bright rounded-2xl border border-black/5 group/item hover:border-primary/20 transition-all">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary border border-black/5">
-                                        <span class="material-symbols-outlined text-[20px]">calendar_today</span>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-on-surface truncate max-w-[150px]">{{ $registration->event->title }}</p>
-                                        <p class="text-[10px] text-on-surface-variant opacity-60">{{ $registration->event->start_time->format('d.m.Y H:i') }}</p>
-                                    </div>
-                                </div>
-                                <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded-lg uppercase tracking-tight">
-                                    {{ __('site.registered_status') }}
-                                </span>
-                            </div>
-                        @empty
-                            <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                                <p class="text-xs text-slate-500 mb-3">{{ __('site.no_event_registration') }}</p>
-                                <a href="{{ route('home') }}#events" class="inline-flex items-center gap-2 text-primary text-xs font-bold hover:underline">
-                                    {{ __('site.discover_events_link') }} <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-                                </a>
-                            </div>
-                        @endforelse
                     </div>
                 </div>
 

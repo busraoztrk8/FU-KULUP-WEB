@@ -26,13 +26,18 @@ class KayitController extends Controller
     {
         $user = Auth::user();
 
-        // Zaten üye mi?
-        $existing = ClubMember::where('club_id', $club->id)
+        // Zaten üye mi? (Soft delete edilmiş olanlar da dahil)
+        $existing = ClubMember::withTrashed()
+            ->where('club_id', $club->id)
             ->where('user_id', $user->id)
             ->first();
 
         if ($existing) {
-            return back()->with('info', __('site.already_applied', ['status' => $this->statusLabel($existing->status)]));
+            if (!$existing->trashed()) {
+                return back()->with('info', __('site.already_applied', ['status' => $this->statusLabel($existing->status)]));
+            }
+            // Önceden ayrılmış/iptal etmişse eski kaydı tamamen silip temizliyoruz
+            $existing->forceDelete();
         }
 
         // Dinamik form alanlarını validate et
@@ -136,7 +141,7 @@ class KayitController extends Controller
 
         if ($deleted) {
             $club->decrement('member_count');
-            return back()->with('success', __('site.left_club'));
+            return back()->with('error', __('site.left_club'));
         }
 
         return back()->with('error', __('site.not_club_member'));
