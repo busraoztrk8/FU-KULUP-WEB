@@ -26,7 +26,8 @@ class ClubController extends Controller
                 $query = Club::leftJoin('categories', 'clubs.category_id', '=', 'categories.id')
                     ->leftJoin('users as presidents', 'clubs.president_id', '=', 'presidents.id')
                     ->select('clubs.*')
-                    ->with(['category', 'president']);
+                    ->with(['category', 'president'])
+                    ->withCount('approvedMembers');
 
                 if (auth()->user()->isEditor()) {
                     $query->where('clubs.id', auth()->user()->club_id);
@@ -86,7 +87,7 @@ class ClubController extends Controller
                         return '<span class="block truncate text-slate-700 text-sm" title="'.$pn.'">'.$pn.'</span>';
                     })
                     ->addColumn('members_count', function($row) {
-                        return '<div class="text-center whitespace-nowrap tabular-nums"><span class="font-semibold">' . (int)$row->member_count . '</span></div>';
+                        return '<div class="text-center whitespace-nowrap tabular-nums"><span class="font-semibold">' . (int)$row->approved_members_count . '</span></div>';
                     })
                     ->addColumn('status', function($row) {
                         $bgToggle = $row->is_active ? 'bg-green-600' : 'bg-slate-200';
@@ -361,8 +362,16 @@ class ClubController extends Controller
                 ->addIndexColumn()
                 ->addColumn('user_info', function ($member) use ($club) {
                     if (!$member->user) return '<span class="text-slate-400 italic text-sm">Silinmiş Kullanıcı</span>';
-                    $photo = $member->user->profile_photo
-                        ? '<img src="'.asset('storage/'.$member->user->profile_photo).'" class="w-9 h-9 rounded-full object-cover">'
+                    $img = null;
+                    if ($member->user->profile_photo) {
+                        $img = str_starts_with($member->user->profile_photo, 'http') 
+                            ? $member->user->profile_photo 
+                            : (file_exists(public_path('uploads/' . $member->user->profile_photo)) 
+                                ? asset('uploads/' . $member->user->profile_photo) 
+                                : asset('storage/' . $member->user->profile_photo));
+                    }
+                    $photo = $img 
+                        ? '<img src="'.$img.'" class="w-9 h-9 rounded-full object-cover">'
                         : '<span class="material-symbols-outlined text-primary text-[18px]">person</span>';
                     $presidentBadge = ($club->president_id && $member->user_id == $club->president_id)
                         ? '<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500 text-white ml-1 shrink-0"><span class="material-symbols-outlined text-[11px]">workspace_premium</span>BAŞKAN</span>'
@@ -413,8 +422,10 @@ class ClubController extends Controller
                         if (auth()->user()->isAdmin() && (!$club->president_id || $member->user_id != $club->president_id)) {
                             $html .= '<form action="'.route('admin.kulupler.set-president', [$club->id, $member->user_id]).'" method="POST" class="inline" onsubmit="return confirm(\'Başkan yapmak istediğinize emin misiniz?\')">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 border border-amber-100" title="Başkan Yap"><span class="material-symbols-outlined text-[16px]">workspace_premium</span></button></form>';
                         }
-                        $isEditor = ($member->user && $member->user->isEditor()) ? 1 : 0;
-                        $html .= '<button onclick="showTitleModal('.$member->id.', \''.e(addslashes($member->user->name ?? '')).'\', \''.e(addslashes($member->title ?? '')).'\', '.$isEditor.' )" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 border border-indigo-100" title="Unvan ve Yetki"><span class="material-symbols-outlined text-[16px]">badge</span></button>';
+                        if (auth()->user()->isAdmin() || ($club && $club->president_id == auth()->id())) {
+                            $isEditor = ($member->user && $member->user->isEditor()) ? 1 : 0;
+                            $html .= '<button onclick="showTitleModal('.$member->id.', \''.e(addslashes($member->user->name ?? '')).'\', \''.e(addslashes($member->title ?? '')).'\', '.$isEditor.' )" class="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 border border-indigo-100" title="Unvan ve Yetki"><span class="material-symbols-outlined text-[16px]">badge</span></button>';
+                        }
                         $html .= '<form action="'.route('admin.kulupler.uyeler.reddet', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-100 border border-red-100" title="Üyeliği Kaldır"><span class="material-symbols-outlined text-[16px]">person_remove</span></button></form>';
                     } elseif ($member->status === 'rejected') {
                         $html .= '<form action="'.route('admin.kulupler.uyeler.onayla', $member->id).'" method="POST" class="inline">'.csrf_field().'<button type="submit" class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg hover:bg-green-100 border border-green-100" title="Tekrar Onayla"><span class="material-symbols-outlined text-[16px]">undo</span></button></form>';
@@ -502,8 +513,13 @@ class ClubController extends Controller
 
     public function updateMemberTitle(Request $request, ClubMember $member)
     {
-        if (auth()->user()->isEditor() && $member->club_id !== auth()->user()->club_id) {
-            abort(403, 'Bu üyenin unvanını değiştirme yetkiniz yok.');
+        if (auth()->user()->isEditor()) {
+            if ($member->club_id !== auth()->user()->club_id) {
+                abort(403, 'Bu üyenin unvanını değiştirme yetkiniz yok.');
+            }
+            if (!$member->club || $member->club->president_id !== auth()->id()) {
+                abort(403, 'Yalnızca kulübün asıl başkanı unvan ve yetki verebilir.');
+            }
         }
 
         $request->validate([
@@ -687,7 +703,14 @@ class ClubController extends Controller
                 }
                 
                 $user->update($updateData);
-                \Log::info("President synchronized", [
+
+                // Başkanın kulüp üyeleri listesinde de görünmesini sağla
+                ClubMember::updateOrCreate(
+                    ['club_id' => $club->id, 'user_id' => $user->id],
+                    ['status' => 'approved', 'approved_at' => now(), 'title' => 'Başkan']
+                );
+
+                \Log::info("President synchronized and added to members list", [
                     'user_id' => $user->id, 
                     'role_id' => $user->role_id, 
                     'club_id' => $user->club_id

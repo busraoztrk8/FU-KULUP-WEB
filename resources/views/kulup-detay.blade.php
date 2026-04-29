@@ -509,84 +509,105 @@
 
             {{-- Active Members / Board --}}
             @php
-                $activeMembers = collect();
+                $boardMembers = collect();
                 
-                if ($club->president) {
+                if ($club->president_id && $club->president) {
                     $presidentMember = new \App\Models\ClubMember();
                     $presidentMember->user_id = $club->president->id;
                     $presidentMember->title = 'Başkan';
                     $presidentMember->status = 'approved';
                     $presidentMember->setRelation('user', $club->president);
-                    $activeMembers->push($presidentMember);
+                    $boardMembers->push($presidentMember);
                 }
 
-                $query = $club->members()
+                $otherBoardMembers = $club->members()
                     ->where('status', 'approved')
-                    ->whereNotNull('title');
+                    ->whereNotNull('title')
+                    ->where('title', '!=', '');
                     
                 if ($club->president_id) {
-                    $query->where('user_id', '!=', $club->president_id);
+                    $otherBoardMembers->where('user_id', '!=', $club->president_id);
                 }
 
-                $otherMembers = $query->orderByRaw("CASE 
-                        WHEN title = 'Başkan Yardımcısı' THEN 1 
-                        WHEN title LIKE '%Başkan Yardımcısı%' THEN 2 
-                        WHEN title LIKE '%Başkan%' THEN 3
-                        ELSE 4 
+                $otherBoardMembers = $otherBoardMembers->orderByRaw("CASE 
+                        WHEN title = 'Başkan' THEN 1 
+                        WHEN title = 'Başkan Yardımcısı' THEN 2 
+                        WHEN title LIKE '%Başkan Yardımcısı%' THEN 3 
+                        WHEN title LIKE '%Başkan%' THEN 4
+                        WHEN title IS NOT NULL AND title != '' THEN 5
+                        ELSE 6 
                     END")
                     ->orderBy('title')
-                    ->take(4 - $activeMembers->count())
                     ->get();
                     
-                $activeMembers = $activeMembers->concat($otherMembers);
+                $boardMembers = $boardMembers->concat($otherBoardMembers);
             @endphp
-            @if($activeMembers->count() > 0)
-            <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm">
-                <h3 class="font-headline text-2xl font-bold mb-8 text-slate-800">{{ __('site.active_members') }}</h3>
-                <div class="space-y-6">
-                    @foreach($activeMembers as $member)
-                    <div class="flex items-center gap-4 group">
-                        <div class="w-14 h-14 rounded-full overflow-hidden shrink-0 shadow-sm border border-slate-100">
-                            @if($member->user && $member->user->profile_photo)
-                                @php
-                                    $mPhoto = $member->user->profile_photo;
-                                    $mPhotoUrl = file_exists(public_path('uploads/' . $mPhoto)) ? asset('uploads/' . $mPhoto) : asset('storage/' . $mPhoto);
-                                @endphp
-                                <img src="{{ $mPhotoUrl }}" class="w-full h-full object-cover">
-                            @else
-                                <div class="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
-                                    <span class="material-symbols-outlined text-[24px]">person</span>
+
+            @if($boardMembers->count() > 0)
+            <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm mt-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="w-1 h-6 bg-[#5d1021] rounded-full"></span>
+                    <h3 class="font-headline text-xl font-bold text-slate-800">{{ __('site.active_members') }}</h3>
+                </div>
+                
+                <div class="space-y-5">
+                    @foreach($boardMembers as $member)
+                        @php
+                            $isPres = ($member->title === 'Başkan');
+                            $memberTitle = $member->title;
+                            if (empty(trim($memberTitle))) {
+                                $memberTitle = (app()->getLocale() == 'en') ? 'Member' : 'Üye';
+                            }
+                        @endphp
+                        <div class="flex items-center gap-4 group">
+                            <div class="relative shrink-0">
+                                <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm border {{ $isPres ? 'border-[#5d1021]' : 'border-slate-100' }}">
+                                    @if($member->user && $member->user->profile_photo)
+                                        @php
+                                            $mPhoto = $member->user->profile_photo;
+                                            $mPhotoUrl = str_starts_with($mPhoto, 'http') ? $mPhoto : (file_exists(public_path('uploads/' . $mPhoto)) ? asset('uploads/' . $mPhoto) : asset('storage/' . $mPhoto));
+                                        @endphp
+                                        <img src="{{ $mPhotoUrl }}" class="w-full h-full object-cover" alt="{{ $member->user->name }}">
+                                    @else
+                                        <div class="w-full h-full bg-[#5d1021]/5 flex items-center justify-center text-[#5d1021]/60">
+                                            <span class="material-symbols-outlined text-[20px]">person</span>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-800 group-hover:text-primary transition-colors">{{ $member->user->name }}</h4>
-                            <p class="text-[11px] font-medium text-slate-400 tracking-wide mt-0.5">
-                                @if(app()->getLocale() == 'en')
-                                    @php
-                                        $translatedTitle = \Illuminate\Support\Facades\Cache::remember('title_en_' . Str::slug($member->title), 86400, function() use ($member) {
-                                            try {
-                                                return \Stichoza\GoogleTranslate\GoogleTranslate::trans($member->title, 'en', 'tr');
-                                            } catch (\Exception $e) {
-                                                return $member->title;
-                                            }
-                                        });
-                                    @endphp
-                                    {{ $translatedTitle }}
-                                @else
-                                    {{ $member->title }}
+                                @if($isPres)
+                                    <div class="absolute bottom-0 right-0 bg-[#5d1021] text-white rounded-full p-0.5 shadow-md translate-x-1/4 translate-y-1/4 z-10 flex items-center justify-center border border-white">
+                                        <span class="material-symbols-outlined text-[11px] block">workspace_premium</span>
+                                    </div>
                                 @endif
-                            </p>
+                            </div>
+                            
+                            <div class="min-w-0 flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm truncate group-hover:text-[#5d1021] transition-colors">{{ $member->user->name ?? 'İsimsiz' }}</h4>
+                                <p class="text-[10px] font-bold uppercase tracking-wide mt-0.5 {{ $isPres ? 'text-[#5d1021]' : 'text-slate-400' }}">
+                                    @if(app()->getLocale() == 'en')
+                                        @php
+                                            $translatedTitle = \Illuminate\Support\Facades\Cache::remember('title_en_' . \Illuminate\Support\Str::slug($memberTitle), 86400, function() use ($memberTitle) {
+                                                try {
+                                                    return \Stichoza\GoogleTranslate\GoogleTranslate::trans($memberTitle, 'en', 'tr');
+                                                } catch (\Exception $e) {
+                                                    return $memberTitle;
+                                                }
+                                            });
+                                        @endphp
+                                        {{ $translatedTitle }}
+                                    @else
+                                        {{ $memberTitle }}
+                                    @endif
+                                </p>
+                            </div>
                         </div>
-                    </div>
                     @endforeach
                 </div>
-
             </div>
             @endif
 
-        </aside>
     </div>
+
 
 
 </div>

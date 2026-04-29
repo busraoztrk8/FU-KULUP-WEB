@@ -4,11 +4,22 @@
 
 @section('content')
 @php
-    $defaultTitle = app()->getLocale() == 'en' ? __('site.page_title_announcements') : 'Duyurular';
-    $defaultSubtitle = app()->getLocale() == 'en' ? __('site.important_notices') : 'Üniversitemizin ve kulüplerimizin önemli duyurularını takip edin.';
+    $locale = app()->getLocale();
     
-    $heroTitle = app()->getLocale() == 'en' ? \App\Models\SiteSetting::getVal('announcements_hero_title_en', $defaultTitle) : \App\Models\SiteSetting::getVal('announcements_hero_title', $defaultTitle);
-    $heroSubtitle = app()->getLocale() == 'en' ? \App\Models\SiteSetting::getVal('announcements_hero_subtitle_en', $defaultSubtitle) : \App\Models\SiteSetting::getVal('announcements_hero_subtitle', $defaultSubtitle);
+    if ($locale == 'en') {
+        $enTitle = \App\Models\SiteSetting::getVal('announcements_hero_title_en');
+        $heroTitle = !empty(trim($enTitle ?? '')) ? $enTitle : __('site.page_title_announcements');
+        
+        $enSubtitle = \App\Models\SiteSetting::getVal('announcements_hero_subtitle_en');
+        $heroSubtitle = !empty(trim($enSubtitle ?? '')) ? $enSubtitle : __('site.important_notices');
+    } else {
+        $trTitle = \App\Models\SiteSetting::getVal('announcements_hero_title');
+        $heroTitle = !empty(trim($trTitle ?? '')) ? $trTitle : 'Duyurular';
+        
+        $trSubtitle = \App\Models\SiteSetting::getVal('announcements_hero_subtitle');
+        $heroSubtitle = !empty(trim($trSubtitle ?? '')) ? $trSubtitle : 'Üniversitemizin ve kulüplerimizin önemli duyurularını takip edin.';
+    }
+    
     $heroImage = \App\Models\SiteSetting::getVal('announcements_hero_image');
     $heroUrl = $heroImage ? (file_exists(public_path('uploads/' . $heroImage)) ? asset('uploads/' . $heroImage) : asset('storage/' . $heroImage)) : null;
 @endphp
@@ -71,7 +82,7 @@
                     @endif
                     @if($item->club)
                     <div class="absolute top-3 left-3 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest">
-                        {{ $item->club->name }}
+                        {{ $locale == 'en' && $item->club->name_en ? $item->club->name_en : $item->club->name }}
                     </div>
                     @endif
                     <div class="absolute top-3 right-3">
@@ -86,10 +97,10 @@
                         {{ $item->published_at ? $item->published_at->translatedFormat('d M Y') : $item->created_at->translatedFormat('d M Y') }}
                     </div>
                     <h3 class="text-sm md:text-2xl font-bold font-headline text-white group-hover:text-white/90 transition-colors leading-snug mb-2 line-clamp-2">
-                        {{ $item->title }}
+                        {{ $locale == 'en' && $item->title_en ? $item->title_en : $item->title }}
                     </h3>
                     <p class="text-white/80 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed line-clamp-3">
-                        {{ Str::limit(strip_tags($item->content), 120) }}
+                        {{ $locale == 'en' && $item->content_en ? Str::limit(strip_tags($item->content_en), 120) : Str::limit(strip_tags($item->content), 120) }}
                     </p>
                     <div class="mt-auto w-full py-2.5 md:py-3.5 rounded-xl md:rounded-2xl bg-white text-primary font-bold hover:bg-slate-100 transition-all flex justify-center items-center active:scale-95 shadow-lg text-xs md:text-sm">
                         {{ __('site.read_more') }}

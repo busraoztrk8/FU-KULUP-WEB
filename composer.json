@@ -15,7 +15,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
         "mcamara/laravel-localization": "^2.3",
-        "stichoza/google-translate-php": "^5.3",
+        "stichoza/google-translate-php": "*",
         "yajra/laravel-datatables-oracle": "^10.11"
     },
     "require-dev": {

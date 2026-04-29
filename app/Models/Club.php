@@ -133,18 +133,16 @@ class Club extends Model
      */
     public function getTotalActiveMemberCountAttribute()
     {
-        $approvedCount = $this->approvedMembers()->count();
-        $editorsCount = $this->editors()->count();
+        $approvedUserIds = $this->approvedMembers()->pluck('user_id')->toArray();
         
-        // If president exists and is not already an editor (has different club_id), add 1
-        $presidentAdd = 0;
         if ($this->president_id) {
-            $president = $this->president;
-            if ($president && $president->club_id != $this->id) {
-                $presidentAdd = 1;
-            }
+            $approvedUserIds[] = $this->president_id;
         }
         
-        return $approvedCount + $editorsCount + $presidentAdd;
+        $editorUserIds = $this->editors()->pluck('id')->toArray();
+        
+        $allUniqueIds = array_unique(array_merge($approvedUserIds, $editorUserIds));
+        
+        return count($allUniqueIds);
     }
 }

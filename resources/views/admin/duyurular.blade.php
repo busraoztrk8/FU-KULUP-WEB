@@ -220,11 +220,11 @@
     <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm max-w-5xl mx-auto">
         <div class="flex flex-col items-center text-center mb-10">
             <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <span class="material-symbols-outlined text-primary text-[32px]">campaign</span>
+                <span class="material-symbols-outlined text-primary text-[32px]">sync</span>
             </div>
             <div>
-                <h3 class="text-2xl font-bold font-headline text-slate-800 mb-2">Sayfa Hero Alanları</h3>
-                <p class="text-sm text-slate-500 max-w-md">Duyurular sayfasının başındaki banner alanını özelleştirin.</p>
+                <h3 class="text-2xl font-bold font-headline text-slate-800 mb-2">Haberler ve Duyurular Ortak Sayfa Hero Alanları</h3>
+                <p class="text-sm text-slate-500 max-w-md">Duyurular ve Haberler sayfalarının ortak afiş alanını özelleştirin.</p>
                 <div class="h-1 w-16 bg-primary/20 rounded-full mt-4 mx-auto"></div>
             </div>
         </div>

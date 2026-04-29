@@ -22,7 +22,48 @@ class CasController extends Controller
 
         try {
             // authenticateAndLogin automatically handles user creation/update based on email
-            $attr = CasAuth::authenticateAndLogin();
+            $attr = CasAuth::authenticateAndLogin(function ($attributes) {
+                // Convert array attributes to string to prevent "Array to string conversion" exception
+                $attrToStore = [];
+                foreach ($attributes as $key => $value) {
+                    if (is_array($value)) {
+                        // Use json_encode instead of implode because the database column might have a json_valid check constraint
+                        $attrToStore[$key] = json_encode($value, JSON_UNESCAPED_UNICODE);
+                    } else {
+                        $attrToStore[$key] = $value;
+                    }
+                }
+
+                if (!isset($attrToStore['userEMailAddress'])) {
+                    throw new \Exception('Cas verisinde userEMailAddress alanı yok');
+                }
+
+                // Ensure required name, email and password fields are populated for the users table
+                $name = trim(($attrToStore['userFirstName'] ?? '') . ' ' . ($attrToStore['userLastName'] ?? ''));
+                if (empty($name)) {
+                    $name = $attrToStore['userFullName'] ?? 'Bilinmeyen Kullanıcı';
+                }
+                $attrToStore['name'] = $name;
+                
+                $attrToStore['email'] = $attrToStore['userEMailAddress'];
+                $attrToStore['password'] = \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(24));
+
+                $user = User::where('userEMailAddress', $attrToStore['userEMailAddress'])->first();
+                if ($user) {
+                    $user->update($attrToStore);
+                } else {
+                    $trashedUser = User::where('userEMailAddress', $attrToStore['userEMailAddress'])->withTrashed()->first();
+                    if ($trashedUser && $trashedUser->deleted_at != null) {
+                        $trashedUser->deleted_at = null;
+                        $trashedUser->fill($attrToStore);
+                        $trashedUser->save();
+                        $user = $trashedUser;
+                    } else {
+                        $user = User::create($attrToStore);
+                    }
+                }
+                return $user;
+            });
             
             if ($attr) {
                 $user = $attr['user'];

@@ -107,15 +107,22 @@ class UserController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('user_info', function ($user) {
-                    $img = $user->profile_photo ? asset('storage/' . $user->profile_photo) : null;
-                    $initials = mb_strtoupper(mb_substr($user->name, 0, 2, 'UTF-8'), 'UTF-8');
+                    $img = null;
+                    if ($user->profile_photo) {
+                        $img = str_starts_with($user->profile_photo, 'http') 
+                            ? $user->profile_photo 
+                            : (file_exists(public_path('uploads/' . $user->profile_photo)) 
+                                ? asset('uploads/' . $user->profile_photo) 
+                                : asset('storage/' . $user->profile_photo));
+                    }
+                    $initials = mb_strtoupper(mb_substr($user->full_name, 0, 2, 'UTF-8'), 'UTF-8');
                     $imgHtml = $img ? '<img src="'.$img.'" class="w-9 h-9 rounded-full object-cover shrink-0 shadow-sm" alt=""/>' 
                                     : '<div class="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center shrink-0 text-primary text-xs font-bold shadow-sm">'.$initials.'</div>';
                     
                     return '<div class="flex items-center gap-3">
                                 '.$imgHtml.'
                                 <div class="flex flex-col">
-                                    <span class="font-semibold text-slate-800">'.$user->name.'</span>
+                                    <span class="font-semibold text-slate-800">'.$user->full_name.'</span>
                                     <span class="text-[11px] text-slate-500">'.$user->email.'</span>
                                 </div>
                             </div>';
@@ -137,8 +144,8 @@ class UserController extends Controller
                     }
                 })
                 ->addColumn('action', function ($user) {
-                    $editBtn = '<button onclick="showKullaniciDuzenle('.$user->id.', \''.addslashes($user->name).'\', \''.$user->email.'\', '.($user->role_id ?? 'null').', '.($user->club_id ?? 'null').')" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>';
-                    $deleteBtn = '<button type="button" onclick="showDeleteModal('.$user->id.', \''.addslashes($user->name).'\')" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors" title="Sil"><span class="material-symbols-outlined text-[18px]">delete</span></button>';
+                    $editBtn = '<button onclick="showKullaniciDuzenle('.$user->id.', \''.addslashes($user->full_name).'\', \''.$user->email.'\', '.($user->role_id ?? 'null').', '.($user->club_id ?? 'null').')" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>';
+                    $deleteBtn = '<button type="button" onclick="showDeleteModal('.$user->id.', \''.addslashes($user->full_name).'\')" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors" title="Sil"><span class="material-symbols-outlined text-[18px]">delete</span></button>';
                     
                     return '<div class="flex items-center justify-end gap-1.5">'.$editBtn.$deleteBtn.'</div>';
                 })

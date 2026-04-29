@@ -4,12 +4,23 @@
 
 @section('content')
 @php
-    $defaultTitle = app()->getLocale() == 'en' ? __('site.page_title_news') : 'Haberler';
-    $defaultSubtitle = app()->getLocale() == 'en' ? __('site.latest_developments') : 'Üniversitemizden en son haberler...';
+    $locale = app()->getLocale();
     
-    $heroTitle = app()->getLocale() == 'en' ? \App\Models\SiteSetting::getVal('news_hero_title_en', $defaultTitle) : \App\Models\SiteSetting::getVal('news_hero_title', $defaultTitle);
-    $heroSubtitle = app()->getLocale() == 'en' ? \App\Models\SiteSetting::getVal('news_hero_subtitle_en', $defaultSubtitle) : \App\Models\SiteSetting::getVal('news_hero_subtitle', $defaultSubtitle);
-    $heroImage = \App\Models\SiteSetting::getVal('news_hero_image');
+    if ($locale == 'en') {
+        $enTitle = \App\Models\SiteSetting::getVal('announcements_hero_title_en');
+        $heroTitle = !empty(trim($enTitle ?? '')) ? $enTitle : __('site.page_title_news');
+        
+        $enSubtitle = \App\Models\SiteSetting::getVal('announcements_hero_subtitle_en');
+        $heroSubtitle = !empty(trim($enSubtitle ?? '')) ? $enSubtitle : __('site.latest_developments');
+    } else {
+        $trTitle = \App\Models\SiteSetting::getVal('announcements_hero_title');
+        $heroTitle = !empty(trim($trTitle ?? '')) ? $trTitle : 'Haberler';
+        
+        $trSubtitle = \App\Models\SiteSetting::getVal('announcements_hero_subtitle');
+        $heroSubtitle = !empty(trim($trSubtitle ?? '')) ? $trSubtitle : 'Üniversitemizden en son haberler...';
+    }
+    
+    $heroImage = \App\Models\SiteSetting::getVal('announcements_hero_image');
     $heroUrl = $heroImage ? (file_exists(public_path('uploads/' . $heroImage)) ? asset('uploads/' . $heroImage) : asset('storage/' . $heroImage)) : null;
 @endphp
 

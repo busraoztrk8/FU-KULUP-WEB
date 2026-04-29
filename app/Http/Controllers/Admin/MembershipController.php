@@ -26,11 +26,23 @@ class MembershipController extends Controller
                 ->addColumn('student_info', function ($member) {
                     if (!$member->user) return '<span class="text-slate-400 italic">Silinmiş Kullanıcı</span>';
                     
-                    $initials = mb_strtoupper(mb_substr($member->user->name, 0, 2, 'UTF-8'), 'UTF-8');
+                    $img = null;
+                    if ($member->user->profile_photo) {
+                        $img = str_starts_with($member->user->profile_photo, 'http') 
+                            ? $member->user->profile_photo 
+                            : (file_exists(public_path('uploads/' . $member->user->profile_photo)) 
+                                ? asset('uploads/' . $member->user->profile_photo) 
+                                : asset('storage/' . $member->user->profile_photo));
+                    }
+                    
+                    $initials = mb_strtoupper(mb_substr($member->user->full_name, 0, 2, 'UTF-8'), 'UTF-8');
+                    $imgHtml = $img ? '<img src="'.$img.'" class="w-9 h-9 rounded-full object-cover shrink-0 shadow-sm" alt=""/>' 
+                                    : '<div class="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center shrink-0 text-primary text-xs font-bold shadow-sm">'.$initials.'</div>';
+                    
                     return '<div class="flex items-center gap-3 min-w-0">
-                                <div class="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center shrink-0 text-primary text-xs font-bold shadow-sm">'.$initials.'</div>
+                                '.$imgHtml.'
                                 <div class="flex flex-col min-w-0">
-                                    <span class="font-semibold text-slate-800 truncate" title="'.$member->user->name.'">'.$member->user->name.'</span>
+                                    <span class="font-semibold text-slate-800 truncate" title="'.$member->user->full_name.'">'.$member->user->full_name.'</span>
                                     <span class="text-[11px] text-slate-500 truncate" title="'.$member->user->email.'">'.$member->user->email.'</span>
                                 </div>
                             </div>';
@@ -64,7 +76,7 @@ class MembershipController extends Controller
                             })
                         ), ENT_QUOTES, 'UTF-8');
                         
-                        $html .= '<button onclick="showFormDataModal('.$member->id.', \''.e(addslashes($member->user->name ?? 'Bilinmiyor')).'\', \''.$registrationJson.'\')" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Form Verisini Gör">
+                        $html .= '<button onclick="showFormDataModal('.$member->id.', \''.e(addslashes($member->user->full_name ?? 'Bilinmiyor')).'\', \''.$registrationJson.'\')" class="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors border border-purple-100" title="Form Verisini Gör">
                                     <span class="material-symbols-outlined text-[16px]">description</span>
                                   </button>';
                     }

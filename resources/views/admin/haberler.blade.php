@@ -243,11 +243,11 @@
     <div class="mt-12 bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 border border-slate-100 shadow-sm max-w-5xl mx-auto">
         <div class="flex flex-col items-center text-center mb-10">
             <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <span class="material-symbols-outlined text-primary text-[32px]">newspaper</span>
+                <span class="material-symbols-outlined text-primary text-[32px]">sync</span>
             </div>
             <div>
-                <h3 class="text-2xl font-bold font-headline text-slate-800 mb-2">Sayfa Hero Alanları</h3>
-                <p class="text-sm text-slate-500 max-w-md">Haberler sayfasının başındaki banner alanını özelleştirin.</p>
+                <h3 class="text-2xl font-bold font-headline text-slate-800 mb-2">Haberler ve Duyurular Ortak Sayfa Hero Alanları</h3>
+                <p class="text-sm text-slate-500 max-w-md">Haberler ve Duyurular sayfalarının ortak afiş alanını özelleştirin.</p>
                 <div class="h-1 w-16 bg-primary/20 rounded-full mt-4 mx-auto"></div>
             </div>
         </div>
@@ -259,13 +259,13 @@
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Banner Başlığı</label>
-                            <input type="text" name="news_hero_title" value="{{ \App\Models\SiteSetting::getVal('news_hero_title', 'Haberler') }}" 
+                            <input type="text" name="announcements_hero_title" value="{{ \App\Models\SiteSetting::getVal('announcements_hero_title', 'Duyurular & Haberler') }}" 
                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"/>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 mb-2">Banner Alt Yazısı</label>
-                            <textarea name="news_hero_subtitle" rows="3"
-                                      class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('news_hero_subtitle', 'Üniversitemizden en son haberler...') }}</textarea>
+                            <textarea name="announcements_hero_subtitle" rows="3"
+                                      class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm px-4 py-3 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none">{{ \App\Models\SiteSetting::getVal('announcements_hero_subtitle', 'Üniversitemizden en son duyurular ve haberler...') }}</textarea>
                         </div>
                     </div>
                     <div>
@@ -273,7 +273,7 @@
                         <div class="border-2 border-dashed border-slate-200 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-colors group relative min-h-[200px]"
                              onclick="this.querySelector('input').click()">
                             @php
-                                $heroImg = \App\Models\SiteSetting::getVal('news_hero_image');
+                                $heroImg = \App\Models\SiteSetting::getVal('announcements_hero_image');
                                 $heroUrl = $heroImg ? (file_exists(public_path('uploads/' . $heroImg)) ? asset('uploads/' . $heroImg) : asset('storage/' . $heroImg)) : null;
                             @endphp
                             <div class="hero-preview-box {{ $heroUrl ? '' : 'hidden' }} absolute inset-0 w-full h-full p-2">
@@ -283,7 +283,7 @@
                                 <span class="material-symbols-outlined text-slate-300 text-[48px] mb-2">add_photo_alternate</span>
                                 <p class="text-xs font-semibold text-slate-500">Görsel seçmek için tıklayın</p>
                             </div>
-                            <input type="file" name="news_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
+                            <input type="file" name="announcements_hero_image" class="hidden" accept="image/*" onchange="previewHero(this)"/>
                         </div>
                     </div>
                 </div>
@@ -295,6 +295,9 @@
             </div>
         </form>
     </div>
+
+
+
 
 @endsection
 

@@ -5,15 +5,32 @@
 
             <!-- Sol: Üniversite Bilgisi -->
             <div class="space-y-4 text-center lg:text-left">
+                @php
+                    $locale = app()->getLocale();
+                    
+                    if ($locale == 'en') {
+                        $enName = \App\Models\SiteSetting::getVal('site_name_en');
+                        $siteName = !empty(trim($enName)) ? $enName : __('site.footer_university');
+                        
+                        $enDesc = \App\Models\SiteSetting::getVal('site_description_en');
+                        $siteDesc = !empty(trim($enDesc)) ? $enDesc : __('site.footer_desc');
+                    } else {
+                        $trName = \App\Models\SiteSetting::getVal('site_name');
+                        $siteName = !empty(trim($trName)) ? $trName : __('site.footer_university');
+                        
+                        $trDesc = \App\Models\SiteSetting::getVal('site_description');
+                        $siteDesc = !empty(trim($trDesc)) ? $trDesc : __('site.footer_desc');
+                    }
+                @endphp
                 <a href="{{ route('home') }}"
                     class="font-headline font-bold text-primary text-xl md:text-2xl block hover:opacity-80 transition-opacity uppercase tracking-tighter">
-                    {{ __('site.footer_university') }}
+                    {{ $siteName }}
                 </a>
                 <p class="font-body text-sm text-on-surface-variant leading-relaxed opacity-90 max-w-md mx-auto lg:mx-0">
-                    {{ __('site.footer_desc') }}
+                    {{ $siteDesc }}
                 </p>
                 <p class="font-body text-xs text-on-surface-variant/80 font-bold">
-                    © {{ date('Y') }} {{ \App\Models\SiteSetting::getVal('site_name', __('site.footer_university')) }}. {{ __('site.all_rights') }}
+                    © {{ date('Y') }} {{ $siteName }}. {{ __('site.all_rights') }}
                 </p>
             </div>
 
@@ -27,7 +44,7 @@
                 @endphp
                 <ul class="space-y-2 font-body text-sm text-on-surface-variant font-bold pt-2">
                     @forelse($footerMenus as $fMenu)
-                        <li><a class="hover:text-primary transition-colors" href="{{ $fMenu->url }}" target="{{ $fMenu->target }}">{{ $fMenu->label }}</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="{{ $fMenu->url }}" target="{{ $fMenu->target }}">{{ $locale == 'en' && $fMenu->label_en ? $fMenu->label_en : $fMenu->label }}</a></li>
                     @empty
                         <li><a class="hover:text-primary transition-colors" href="{{ route('home') }}">{{ __('site.home') }}</a></li>
                         <li><a class="hover:text-primary transition-colors" href="{{ route('etkinlikler') }}">{{ __('site.events_page_title') }}</a></li>
